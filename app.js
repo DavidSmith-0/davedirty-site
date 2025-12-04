@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'https://kfrg2d2cxa.execute-api.us-east-2.amazonaws.com';
+const API_BASE_URL = 'https://c60aogjbwa.execute-api.us-east-2.amazonaws.com';
 
 // DOM Elements
 const messageForm = document.getElementById('messageForm');
