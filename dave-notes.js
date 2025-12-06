@@ -1,15 +1,20 @@
-// DAVE NOTES - Complete Application
-// Multi-user, Voice Notes, File Uploads, Analytics
+/**
+ * DAVE NOTES v2 - Professional Note-Taking Application
+ */
 
 const CONFIG = {
-    ADMIN_USER: 'dave',
-    ADMIN_PASS: 'dave3232',
+    VERSION: '2.0.0',
     STORAGE_PREFIX: 'davenotes_',
-    MAX_FILE_SIZE: 5 * 1024 * 1024
+    OWNER_EMAIL: 'dave@davedirty.com',
+    OWNER_PASSWORD: 'dave3232',
+    DEFAULT_QUOTA_GB: 5,
+    MAX_UPLOAD_MB: 20,
+    ROLES: { OWNER: 'owner', ADMIN: 'admin', USER: 'user' },
+    STORAGE_MODES: { LOCAL: 'local', CLOUD: 'cloud' }
 };
 
 const state = {
-    currentUser: null,
+    user: null,
     notes: [],
     filter: 'all',
     tagFilter: null,
@@ -17,25 +22,28 @@ const state = {
     sort: 'newest',
     search: '',
     editingNote: null,
+    storageMode: 'local',
     recording: { active: false, mediaRecorder: null, chunks: [], startTime: null, timer: null, audioContext: null, analyser: null }
 };
 
 const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
 
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
-    checkAutoLogin();
-    setupEventListeners();
     applyTheme();
+    checkSession();
+    setupEventListeners();
 }
 
-function checkAutoLogin() {
-    const saved = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'session');
-    if (saved) {
-        const session = JSON.parse(saved);
-        if (session.remember) {
-            state.currentUser = session.username;
+function checkSession() {
+    const session = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'session');
+    if (session) {
+        const data = JSON.parse(session);
+        const users = getUsers();
+        if (users[data.email]) {
+            state.user = { ...users[data.email], email: data.email };
             showApp();
         }
     }
@@ -44,19 +52,27 @@ function checkAutoLogin() {
 function setupEventListeners() {
     $('login-form').addEventListener('submit', handleLogin);
     $('register-form').addEventListener('submit', handleRegister);
-    $('show-register').addEventListener('click', () => { $('login-view').classList.add('hidden'); $('register-view').classList.remove('hidden'); });
-    $('show-login').addEventListener('click', () => { $('register-view').classList.add('hidden'); $('login-view').classList.remove('hidden'); });
+    $('show-register').addEventListener('click', () => toggleAuthView('register'));
+    $('show-login').addEventListener('click', () => toggleAuthView('login'));
+    $('local-mode-btn').addEventListener('click', enterLocalMode);
+    
+    $$('.password-toggle').forEach(btn => {
+        btn.addEventListener('click', e => {
+            const wrapper = e.target.closest('.input-wrapper');
+            const input = wrapper.querySelector('input');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    });
     
     $('sidebar-toggle').addEventListener('click', toggleSidebar);
-    $('search-input').addEventListener('input', debounce(e => { state.search = e.target.value; renderNotes(); }, 300));
-    $('ai-btn').addEventListener('click', toggleAI);
-    $('user-btn').addEventListener('click', () => $('user-dropdown').classList.toggle('hidden'));
-    $('logout-btn').addEventListener('click', logout);
-    $('settings-btn').addEventListener('click', () => { closeAllPanels(); $('settings-panel').classList.toggle('hidden'); });
-    $('analytics-btn').addEventListener('click', () => { closeAllPanels(); $('analytics-panel').classList.toggle('hidden'); loadAnalytics(); });
+    $('search-input').addEventListener('input', debounce(handleSearch, 300));
+    $('user-trigger').addEventListener('click', () => $('user-dropdown').classList.toggle('hidden'));
+    $('btn-settings').addEventListener('click', () => openPanel('settings-panel'));
+    $('btn-admin').addEventListener('click', () => { openPanel('admin-panel'); loadAdminData(); });
+    $('btn-logout').addEventListener('click', logout);
     
     document.addEventListener('click', e => {
-        if (!e.target.closest('.user-menu')) $('user-dropdown').classList.add('hidden');
+        if (!e.target.closest('#user-menu')) $('user-dropdown').classList.add('hidden');
     });
     
     document.addEventListener('keydown', e => {
@@ -64,119 +80,162 @@ function setupEventListeners() {
         if (e.key === 'Escape') closeAllModals();
     });
     
-    document.querySelectorAll('.nav-item').forEach(btn => {
+    $$('.nav-item').forEach(btn => {
         btn.addEventListener('click', () => {
             state.filter = btn.dataset.filter;
             state.tagFilter = null;
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            $$('.nav-item').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            updateViewTitle();
+            updatePageTitle();
             renderNotes();
         });
     });
     
-    document.querySelectorAll('.view-btn').forEach(btn => {
+    $$('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             state.view = btn.dataset.view;
-            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            $$('.view-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             renderNotes();
         });
     });
     
     $('sort-select').addEventListener('change', e => { state.sort = e.target.value; renderNotes(); });
+    $('new-note-btn').addEventListener('click', () => openEditor());
+    if ($('empty-create-btn')) $('empty-create-btn').addEventListener('click', () => openEditor());
     
     $('fab-main').addEventListener('click', () => $('fab-container').classList.toggle('open'));
-    $('fab-text').addEventListener('click', () => { closeFab(); openNoteEditor(); });
-    $('fab-voice').addEventListener('click', () => { closeFab(); openVoiceRecorder(); });
-    $('fab-upload').addEventListener('click', () => { closeFab(); $('file-input').click(); });
-    $('fab-image').addEventListener('click', () => { closeFab(); $('image-input').click(); });
-    $('new-note-btn').addEventListener('click', openNoteEditor);
+    $$('.fab-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            closeFab();
+            const type = btn.dataset.type;
+            if (type === 'text') openEditor();
+            else if (type === 'voice') openVoiceRecorder();
+            else if (type === 'image') $('image-input').click();
+            else if (type === 'file') $('file-input').click();
+        });
+    });
     
     $('file-input').addEventListener('change', handleFileUpload);
     $('image-input').addEventListener('change', handleImageUpload);
+    $('editor-cancel').addEventListener('click', () => closeModal('editor-modal'));
+    $('editor-save').addEventListener('click', saveNote);
+    $('editor-content').addEventListener('input', updateCharCount);
+    $('editor-tag-input').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } });
     
-    $('save-note').addEventListener('click', saveNote);
-    $('cancel-note').addEventListener('click', () => $('note-modal').classList.add('hidden'));
-    $('note-content').addEventListener('input', () => $('char-count').textContent = $('note-content').value.length + ' chars');
-    $('editor-tag-input').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); addEditorTag(); } });
-    document.querySelectorAll('.modal-backdrop').forEach(el => el.addEventListener('click', closeAllModals));
+    $('voice-close').addEventListener('click', cancelRecording);
+    $('voice-cancel').addEventListener('click', cancelRecording);
+    $('voice-toggle').addEventListener('click', toggleRecording);
+    $('voice-save').addEventListener('click', saveVoiceNote);
     
-    $('recorder-toggle').addEventListener('click', toggleRecording);
-    $('recorder-cancel').addEventListener('click', cancelRecording);
-    $('recorder-save').addEventListener('click', saveVoiceNote);
-    
-    $('close-viewer').addEventListener('click', () => $('view-modal').classList.add('hidden'));
+    $('viewer-close').addEventListener('click', () => closeModal('viewer-modal'));
     $('viewer-star').addEventListener('click', toggleViewerStar);
-    $('viewer-edit').addEventListener('click', editViewerNote);
-    $('viewer-delete').addEventListener('click', deleteViewerNote);
+    $('viewer-edit').addEventListener('click', editFromViewer);
+    $('viewer-delete').addEventListener('click', deleteFromViewer);
     
-    $('close-ai').addEventListener('click', () => $('ai-panel').classList.add('hidden'));
-    $('ai-send').addEventListener('click', sendAIMessage);
-    $('ai-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendAIMessage(); });
-    document.querySelectorAll('.suggestion-btn').forEach(btn => {
-        btn.addEventListener('click', () => { $('ai-input').value = btn.textContent.replace(/"/g, ''); sendAIMessage(); });
+    $$('.modal-backdrop').forEach(el => el.addEventListener('click', closeAllModals));
+    
+    $('settings-close').addEventListener('click', () => closePanel('settings-panel'));
+    $('admin-close').addEventListener('click', () => closePanel('admin-panel'));
+    
+    $$('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            setTheme(btn.dataset.theme);
+            $$('.theme-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
     });
     
-    $('close-settings').addEventListener('click', () => $('settings-panel').classList.add('hidden'));
-    $('theme-select').addEventListener('change', e => { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'theme', e.target.value); applyTheme(); });
-    $('export-btn').addEventListener('click', exportNotes);
-    $('import-btn').addEventListener('click', () => $('import-input').click());
-    $('import-input').addEventListener('change', importNotes);
-    $('clear-btn').addEventListener('click', clearUserData);
+    $('storage-mode-select').addEventListener('change', e => {
+        state.storageMode = e.target.value;
+        updateStorageModeUI();
+    });
     
-    $('close-analytics').addEventListener('click', () => $('analytics-panel').classList.add('hidden'));
+    $('export-btn').addEventListener('click', exportNotes);
+    $('import-btn').addEventListener('click', () => $('import-file').click());
+    $('import-file').addEventListener('change', importNotes);
+    $('clear-data-btn').addEventListener('click', clearAllData);
+}
+
+function toggleAuthView(view) {
+    $('login-view').classList.toggle('hidden', view !== 'login');
+    $('register-view').classList.toggle('hidden', view !== 'register');
 }
 
 function handleLogin(e) {
     e.preventDefault();
-    const username = $('login-username').value.trim().toLowerCase();
+    const email = $('login-email').value.trim().toLowerCase();
     const password = $('login-password').value;
     const remember = $('remember-me').checked;
-    
     const users = getUsers();
-    const user = users[username];
     
-    if (user && user.password === password) {
-        loginUser(username, remember);
-    } else if (username === CONFIG.ADMIN_USER && password === CONFIG.ADMIN_PASS) {
-        if (!users[username]) {
-            users[username] = { password, createdAt: new Date().toISOString(), isAdmin: true };
+    if (email === CONFIG.OWNER_EMAIL && password === CONFIG.OWNER_PASSWORD) {
+        if (!users[email]) {
+            users[email] = createUserObject('Dave', CONFIG.ROLES.OWNER);
             saveUsers(users);
         }
-        loginUser(username, remember);
-    } else {
-        $('login-error').textContent = 'Invalid username or password';
+        loginUser(email, users[email], remember);
+        return;
     }
+    
+    if (users[email] && users[email].password === password) {
+        if (users[email].status === 'disabled') { showError('login-error', 'Account is disabled'); return; }
+        loginUser(email, users[email], remember);
+        return;
+    }
+    showError('login-error', 'Invalid email or password');
 }
 
 function handleRegister(e) {
     e.preventDefault();
-    const username = $('register-username').value.trim().toLowerCase();
+    const name = $('register-name').value.trim();
+    const email = $('register-email').value.trim().toLowerCase();
     const password = $('register-password').value;
     const confirm = $('register-confirm').value;
     
-    if (password !== confirm) { $('register-error').textContent = 'Passwords do not match'; return; }
-    
+    if (password !== confirm) { showError('register-error', 'Passwords do not match'); return; }
     const users = getUsers();
-    if (users[username]) { $('register-error').textContent = 'Username already exists'; return; }
+    if (users[email]) { showError('register-error', 'Email already registered'); return; }
     
-    users[username] = { password, createdAt: new Date().toISOString(), isAdmin: false };
+    const user = createUserObject(name, CONFIG.ROLES.USER);
+    user.password = password;
+    users[email] = user;
     saveUsers(users);
-    logActivity(username, 'Account created');
-    loginUser(username, true);
+    logActivity(email, 'Account created');
+    loginUser(email, user, true);
 }
 
-function loginUser(username, remember) {
-    state.currentUser = username;
-    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'session', JSON.stringify({ username, remember }));
-    logActivity(username, 'Logged in');
+function createUserObject(displayName, role) {
+    return {
+        displayName,
+        role,
+        status: 'active',
+        quotaLimitBytes: role === CONFIG.ROLES.OWNER ? Infinity : CONFIG.DEFAULT_QUOTA_GB * 1024 * 1024 * 1024,
+        usedBytes: 0,
+        maxUploadBytes: role === CONFIG.ROLES.OWNER ? 100 * 1024 * 1024 : CONFIG.MAX_UPLOAD_MB * 1024 * 1024,
+        createdAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+        settings: { theme: 'dark', storageMode: 'local' }
+    };
+}
+
+function loginUser(email, user, remember) {
+    state.user = { ...user, email };
+    if (remember) localStorage.setItem(CONFIG.STORAGE_PREFIX + 'session', JSON.stringify({ email }));
+    logActivity(email, 'Logged in');
+    showApp();
+}
+
+function enterLocalMode() {
+    state.user = { email: 'local', displayName: 'Local User', role: CONFIG.ROLES.USER, status: 'active' };
+    state.storageMode = 'local';
     showApp();
 }
 
 function logout() {
-    logActivity(state.currentUser, 'Logged out');
-    state.currentUser = null;
+    if (state.user?.email !== 'local') logActivity(state.user.email, 'Logged out');
+    state.user = null;
+    state.notes = [];
     localStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session');
     location.reload();
 }
@@ -187,60 +246,84 @@ function showApp() {
     loadUserData();
     updateUserUI();
     renderNotes();
+    updateStorageUI();
 }
 
 function updateUserUI() {
-    const initial = state.currentUser.charAt(0).toUpperCase();
-    $('user-avatar').textContent = initial;
-    $('dropdown-avatar').textContent = initial;
-    $('user-name').textContent = state.currentUser;
-    $('dropdown-name').textContent = state.currentUser;
+    const initial = (state.user.displayName || state.user.email)[0].toUpperCase();
+    $('header-avatar').querySelector('span').textContent = initial;
+    $('dropdown-avatar').querySelector('span').textContent = initial;
+    $('dropdown-name').textContent = state.user.displayName || state.user.email;
+    $('dropdown-email').textContent = state.user.email;
+    $('dropdown-role').textContent = state.user.role.charAt(0).toUpperCase() + state.user.role.slice(1);
     
-    const users = getUsers();
-    const isAdmin = users[state.currentUser]?.isAdmin || state.currentUser === CONFIG.ADMIN_USER;
-    $('dropdown-role').textContent = isAdmin ? 'Admin' : 'Member';
-    $('analytics-btn').style.display = isAdmin ? 'flex' : 'none';
+    const isAdminOrOwner = [CONFIG.ROLES.OWNER, CONFIG.ROLES.ADMIN].includes(state.user.role);
+    $('btn-admin').style.display = isAdminOrOwner ? 'flex' : 'none';
+    
+    $('settings-email').textContent = state.user.email;
+    $('settings-role').textContent = state.user.role;
+    $('settings-joined').textContent = state.user.createdAt ? new Date(state.user.createdAt).toLocaleDateString() : '-';
 }
 
 function getUsers() { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'users') || '{}'); }
 function saveUsers(users) { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'users', JSON.stringify(users)); }
-function loadUserData() { const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.currentUser); state.notes = data ? JSON.parse(data) : []; }
-function saveUserData() { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.currentUser, JSON.stringify(state.notes)); updateStorage(); }
-function logActivity(username, action) {
+
+function loadUserData() {
+    const key = CONFIG.STORAGE_PREFIX + 'notes_' + state.user.email;
+    state.notes = JSON.parse(localStorage.getItem(key) || '[]');
+}
+
+function saveUserData() {
+    const key = CONFIG.STORAGE_PREFIX + 'notes_' + state.user.email;
+    localStorage.setItem(key, JSON.stringify(state.notes));
+    updateStorageUI();
+}
+
+function logActivity(email, action) {
     const log = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]');
-    log.unshift({ username, action, time: new Date().toISOString() });
-    if (log.length > 100) log.pop();
+    log.unshift({ email, action, time: new Date().toISOString() });
+    if (log.length > 200) log.length = 200;
     localStorage.setItem(CONFIG.STORAGE_PREFIX + 'activity', JSON.stringify(log));
 }
 
+function showError(id, msg) { $(id).textContent = msg; setTimeout(() => $(id).textContent = '', 3000); }
+
+// ============================================================
+// NOTES CRUD
+// ============================================================
 function createNote(data) {
     const note = {
-        id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
         type: data.type || 'text',
         title: data.title || 'Untitled',
         content: data.content || '',
         tags: data.tags || [],
         starred: false,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         ...data
     };
     state.notes.unshift(note);
     saveUserData();
-    logActivity(state.currentUser, `Created ${note.type} note`);
+    logActivity(state.user.email, `Created ${note.type} note`);
     renderNotes();
-    toast('Note saved!', 'success');
+    toast('Note created', 'success');
     return note;
 }
 
 function updateNote(id, updates) {
     const idx = state.notes.findIndex(n => n.id === id);
-    if (idx !== -1) { state.notes[idx] = { ...state.notes[idx], ...updates }; saveUserData(); renderNotes(); }
+    if (idx !== -1) {
+        state.notes[idx] = { ...state.notes[idx], ...updates, updatedAt: new Date().toISOString() };
+        saveUserData();
+        renderNotes();
+    }
 }
 
 function deleteNote(id) {
     state.notes = state.notes.filter(n => n.id !== id);
     saveUserData();
-    logActivity(state.currentUser, 'Deleted note');
+    logActivity(state.user.email, 'Deleted note');
     renderNotes();
     toast('Note deleted');
 }
@@ -251,58 +334,83 @@ function getFilteredNotes() {
     else if (state.filter === 'voice') notes = notes.filter(n => n.type === 'voice');
     else if (state.filter === 'files') notes = notes.filter(n => n.type === 'file' || n.type === 'image');
     else if (state.filter === 'starred') notes = notes.filter(n => n.starred);
-    if (state.tagFilter) notes = notes.filter(n => n.tags.includes(state.tagFilter));
+    
+    if (state.tagFilter) notes = notes.filter(n => n.tags?.includes(state.tagFilter));
+    
     if (state.search) {
         const q = state.search.toLowerCase();
-        notes = notes.filter(n => n.title.toLowerCase().includes(q) || (n.content && n.content.toLowerCase().includes(q)) || n.tags.some(t => t.toLowerCase().includes(q)));
+        notes = notes.filter(n => 
+            n.title?.toLowerCase().includes(q) ||
+            n.content?.toLowerCase().includes(q) ||
+            n.tags?.some(t => t.toLowerCase().includes(q))
+        );
     }
+    
     notes.sort((a, b) => {
-        if (state.sort === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
-        if (state.sort === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt);
-        if (state.sort === 'az') return a.title.localeCompare(b.title);
-        if (state.sort === 'za') return b.title.localeCompare(a.title);
-        return 0;
+        switch (state.sort) {
+            case 'oldest': return new Date(a.createdAt) - new Date(b.createdAt);
+            case 'az': return (a.title || '').localeCompare(b.title || '');
+            case 'za': return (b.title || '').localeCompare(a.title || '');
+            case 'updated': return new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
+            default: return new Date(b.createdAt) - new Date(a.createdAt);
+        }
     });
     return notes;
 }
 
 function renderNotes() {
     const notes = getFilteredNotes();
-    const container = $('notes-container');
+    const grid = $('notes-grid');
+    const empty = $('empty-state');
+    
     if (notes.length === 0) {
-        container.innerHTML = '';
-        $('empty-state').classList.remove('hidden');
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
     } else {
-        $('empty-state').classList.add('hidden');
-        container.innerHTML = notes.map(note => createNoteCard(note)).join('');
-        container.querySelectorAll('.note-card').forEach(card => {
-            card.addEventListener('click', e => { if (!e.target.closest('.note-star')) openNoteViewer(card.dataset.id); });
-            card.querySelector('.note-star').addEventListener('click', e => { e.stopPropagation(); toggleStar(card.dataset.id); });
+        empty.classList.add('hidden');
+        grid.innerHTML = notes.map(note => createNoteCard(note)).join('');
+        grid.querySelectorAll('.note-card').forEach(card => {
+            card.addEventListener('click', e => {
+                if (!e.target.closest('.note-star')) openViewer(card.dataset.id);
+            });
+            card.querySelector('.note-star').addEventListener('click', e => {
+                e.stopPropagation();
+                toggleStar(card.dataset.id);
+            });
         });
     }
-    container.className = state.view === 'list' ? 'notes-grid list-view' : 'notes-grid';
+    
+    grid.className = `notes-grid${state.view === 'list' ? ' list-view' : ''}`;
     updateCounts();
     updateTags();
-    $('visible-count').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+    $('note-count-badge').textContent = `${notes.length} note${notes.length !== 1 ? 's' : ''}`;
 }
 
 function createNoteCard(note) {
+    const icons = { text: '#icon-file-text', voice: '#icon-mic', image: '#icon-image', file: '#icon-paperclip' };
     const time = new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const typeIcon = { text: '📄', voice: '🎙️', file: '📎', image: '🖼️' }[note.type] || '📄';
-    const typeClass = { text: 'text', voice: 'voice', file: 'file', image: 'file' }[note.type] || 'text';
     let preview = '';
-    if (note.type === 'image' && note.mediaData) preview = `<img src="${note.mediaData}" class="note-media-preview" alt="">`;
-    else if (note.content) preview = `<p class="note-preview">${escapeHtml(note.content)}</p>`;
+    if (note.type === 'image' && note.mediaData) {
+        preview = `<img src="${note.mediaData}" class="note-media-thumb" alt="">`;
+    } else if (note.content) {
+        preview = `<p class="note-preview">${escapeHtml(note.content)}</p>`;
+    }
+    
     return `
-        <div class="note-card ${note.starred ? 'starred' : ''}" data-id="${note.id}">
+        <div class="note-card${note.starred ? ' starred' : ''}" data-id="${note.id}">
             <div class="note-card-header">
-                <span class="note-type ${typeClass}">${typeIcon} ${note.type}</span>
-                <button class="note-star">${note.starred ? '★' : '☆'}</button>
+                <span class="type-badge ${note.type}">
+                    <svg><use href="${icons[note.type] || icons.text}"/></svg>
+                    <span>${note.type}</span>
+                </span>
+                <button class="note-star" aria-label="Star">
+                    <svg><use href="${note.starred ? '#icon-star-filled' : '#icon-star'}"/></svg>
+                </button>
             </div>
             <h3 class="note-title">${escapeHtml(note.title)}</h3>
             ${preview}
             <div class="note-card-footer">
-                <div class="note-tags-row">${note.tags.slice(0, 3).map(t => `<span class="note-tag">${t}</span>`).join('')}</div>
+                <div class="note-tags">${(note.tags || []).slice(0, 3).map(t => `<span class="note-tag">${t}</span>`).join('')}</div>
                 <span class="note-time">${time}</span>
             </div>
         </div>`;
@@ -318,31 +426,23 @@ function updateCounts() {
 
 function updateTags() {
     const tags = new Set();
-    state.notes.forEach(n => n.tags.forEach(t => tags.add(t)));
-    $('tags-list').innerHTML = Array.from(tags).map(tag => `<button class="tag-chip ${state.tagFilter === tag ? 'active' : ''}" data-tag="${tag}">${tag}</button>`).join('');
-    $('tags-list').querySelectorAll('.tag-chip').forEach(btn => {
+    state.notes.forEach(n => (n.tags || []).forEach(t => tags.add(t)));
+    $('sidebar-tags').innerHTML = Array.from(tags).map(tag =>
+        `<button class="tag-chip${state.tagFilter === tag ? ' active' : ''}" data-tag="${tag}">${tag}</button>`
+    ).join('');
+    $('sidebar-tags').querySelectorAll('.tag-chip').forEach(btn => {
         btn.addEventListener('click', () => {
             state.tagFilter = state.tagFilter === btn.dataset.tag ? null : btn.dataset.tag;
-            document.querySelectorAll('.tag-chip').forEach(b => b.classList.remove('active'));
+            $$('.tag-chip').forEach(b => b.classList.remove('active'));
             if (state.tagFilter) btn.classList.add('active');
             renderNotes();
         });
     });
 }
 
-function updateStorage() {
-    const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.currentUser) || '';
-    const bytes = new Blob([data]).size;
-    const kb = (bytes / 1024).toFixed(1);
-    const percent = Math.min((bytes / (5 * 1024 * 1024)) * 100, 100).toFixed(0);
-    $('storage-percent').textContent = percent + '%';
-    $('storage-fill').style.width = percent + '%';
-    $('storage-detail').textContent = state.notes.length + ' notes • ' + kb + ' KB';
-}
-
-function updateViewTitle() {
+function updatePageTitle() {
     const titles = { all: 'All Notes', text: 'Text Notes', voice: 'Voice Notes', files: 'Files & Images', starred: 'Starred' };
-    $('view-title').textContent = titles[state.filter] || 'All Notes';
+    $('page-title').textContent = titles[state.filter] || 'All Notes';
 }
 
 function toggleStar(id) {
@@ -350,59 +450,77 @@ function toggleStar(id) {
     if (note) { note.starred = !note.starred; saveUserData(); renderNotes(); }
 }
 
-function openNoteEditor(note = null) {
+// ============================================================
+// EDITOR
+// ============================================================
+function openEditor(note = null) {
     state.editingNote = note;
-    $('note-title').value = note ? note.title : '';
-    $('note-content').value = note ? note.content : '';
-    $('char-count').textContent = (note ? note.content.length : 0) + ' chars';
-    renderEditorTags(note ? note.tags : []);
-    $('note-modal').classList.remove('hidden');
-    $('note-title').focus();
+    $('editor-title').value = note?.title || '';
+    $('editor-content').value = note?.content || '';
+    updateCharCount();
+    renderEditorTags(note?.tags || []);
+    openModal('editor-modal');
+    $('editor-title').focus();
 }
 
 function renderEditorTags(tags) {
-    $('editor-tags-list').innerHTML = tags.map(tag => `<span class="editor-tag">${tag}<button onclick="removeEditorTag('${tag}')">×</button></span>`).join('');
-    $('editor-tags-list').dataset.tags = JSON.stringify(tags);
+    $('editor-tag-chips').innerHTML = tags.map(tag =>
+        `<span class="tag-chip-edit">${tag}<button type="button" onclick="removeTag('${tag}')"><svg><use href="#icon-x"/></svg></button></span>`
+    ).join('');
+    $('editor-tag-chips').dataset.tags = JSON.stringify(tags);
 }
 
-window.removeEditorTag = function(tag) {
-    const tags = JSON.parse($('editor-tags-list').dataset.tags || '[]').filter(t => t !== tag);
+window.removeTag = function(tag) {
+    const tags = JSON.parse($('editor-tag-chips').dataset.tags || '[]').filter(t => t !== tag);
     renderEditorTags(tags);
 };
 
-function addEditorTag() {
+function addTag() {
     const input = $('editor-tag-input');
     const tag = input.value.trim().toLowerCase();
     if (tag) {
-        const tags = JSON.parse($('editor-tags-list').dataset.tags || '[]');
+        const tags = JSON.parse($('editor-tag-chips').dataset.tags || '[]');
         if (!tags.includes(tag)) { tags.push(tag); renderEditorTags(tags); }
         input.value = '';
     }
 }
 
+function updateCharCount() {
+    $('char-count').textContent = `${$('editor-content').value.length} characters`;
+}
+
 function saveNote() {
-    const title = $('note-title').value.trim() || 'Untitled';
-    const content = $('note-content').value;
-    const tags = JSON.parse($('editor-tags-list').dataset.tags || '[]');
-    if (state.editingNote) { updateNote(state.editingNote.id, { title, content, tags }); toast('Note updated!', 'success'); }
-    else { createNote({ type: 'text', title, content, tags }); }
-    $('note-modal').classList.add('hidden');
+    const title = $('editor-title').value.trim() || 'Untitled';
+    const content = $('editor-content').value;
+    const tags = JSON.parse($('editor-tag-chips').dataset.tags || '[]');
+    
+    if (state.editingNote) {
+        updateNote(state.editingNote.id, { title, content, tags });
+        toast('Note updated', 'success');
+    } else {
+        createNote({ type: 'text', title, content, tags });
+    }
+    closeModal('editor-modal');
     state.editingNote = null;
 }
 
+// ============================================================
+// VOICE RECORDER
+// ============================================================
 function openVoiceRecorder() {
-    $('voice-modal').classList.remove('hidden');
-    $('recorder-status').textContent = 'Ready to Record';
-    $('recorder-time').textContent = '00:00';
-    $('recorder-save').disabled = true;
-    $('transcript-section').classList.add('hidden');
+    openModal('voice-modal');
+    $('voice-status').textContent = 'Ready to record';
+    $('voice-timer').textContent = '00:00';
+    $('voice-save').disabled = true;
+    $('voice-details').classList.add('hidden');
     $('voice-title').value = '';
-    $('voice-transcript').value = '';
+    $('voice-notes').value = '';
 }
 
 async function toggleRecording() {
-    if (state.recording.active) { stopRecording(); }
-    else {
+    if (state.recording.active) {
+        stopRecording();
+    } else {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             state.recording.chunks = [];
@@ -412,24 +530,32 @@ async function toggleRecording() {
             const source = state.recording.audioContext.createMediaStreamSource(stream);
             source.connect(state.recording.analyser);
             state.recording.analyser.fftSize = 256;
+            
             state.recording.mediaRecorder.ondataavailable = e => state.recording.chunks.push(e.data);
             state.recording.mediaRecorder.onstop = () => {
-                $('recorder-status').textContent = 'Recording Complete';
-                $('recorder-save').disabled = false;
-                $('transcript-section').classList.remove('hidden');
-                $('recorder-toggle').classList.remove('recording');
-                $('recorder-toggle').textContent = '🎙️';
+                $('voice-status').textContent = 'Recording complete';
+                $('voice-save').disabled = false;
+                $('voice-details').classList.remove('hidden');
+                $('voice-toggle').classList.remove('recording');
+                $('voice-toggle').querySelector('.rec-icon').classList.remove('hidden');
+                $('voice-toggle').querySelector('.stop-icon').classList.add('hidden');
             };
+            
             state.recording.mediaRecorder.start();
             state.recording.active = true;
             state.recording.startTime = Date.now();
-            $('recorder-status').textContent = 'Recording...';
-            $('recorder-toggle').classList.add('recording');
-            $('recorder-toggle').textContent = '⏹️';
-            updateRecordingTime();
-            state.recording.timer = setInterval(updateRecordingTime, 1000);
+            
+            $('voice-status').textContent = 'Recording...';
+            $('voice-toggle').classList.add('recording');
+            $('voice-toggle').querySelector('.rec-icon').classList.add('hidden');
+            $('voice-toggle').querySelector('.stop-icon').classList.remove('hidden');
+            
+            updateRecordingTimer();
+            state.recording.timer = setInterval(updateRecordingTimer, 1000);
             visualizeAudio();
-        } catch (err) { toast('Cannot access microphone', 'error'); }
+        } catch (err) {
+            toast('Cannot access microphone', 'error');
+        }
     }
 }
 
@@ -443,7 +569,11 @@ function stopRecording() {
     }
 }
 
-function cancelRecording() { stopRecording(); state.recording.chunks = []; $('voice-modal').classList.add('hidden'); }
+function cancelRecording() {
+    stopRecording();
+    state.recording.chunks = [];
+    closeModal('voice-modal');
+}
 
 function saveVoiceNote() {
     const blob = new Blob(state.recording.chunks, { type: 'audio/webm' });
@@ -452,33 +582,38 @@ function saveVoiceNote() {
         createNote({
             type: 'voice',
             title: $('voice-title').value.trim() || `Voice Note ${new Date().toLocaleDateString()}`,
-            content: $('voice-transcript').value,
+            content: $('voice-notes').value,
             audioData: reader.result,
             duration: Math.floor((Date.now() - state.recording.startTime) / 1000)
         });
-        $('voice-modal').classList.add('hidden');
+        closeModal('voice-modal');
     };
     reader.readAsDataURL(blob);
 }
 
-function updateRecordingTime() {
+function updateRecordingTimer() {
     const elapsed = Math.floor((Date.now() - state.recording.startTime) / 1000);
-    $('recorder-time').textContent = `${Math.floor(elapsed / 60).toString().padStart(2, '0')}:${(elapsed % 60).toString().padStart(2, '0')}`;
+    const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const secs = (elapsed % 60).toString().padStart(2, '0');
+    $('voice-timer').textContent = `${mins}:${secs}`;
 }
 
 function visualizeAudio() {
-    const canvas = $('audio-canvas');
+    const canvas = $('voice-canvas');
     const ctx = canvas.getContext('2d');
     const analyser = state.recording.analyser;
+    if (!analyser) return;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     canvas.width = canvas.offsetWidth * 2;
     canvas.height = canvas.offsetHeight * 2;
+    
     function draw() {
         if (!state.recording.active) return;
         requestAnimationFrame(draw);
         analyser.getByteFrequencyData(dataArray);
-        ctx.fillStyle = '#18181b';
+        const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-elevated').trim();
+        ctx.fillStyle = bg || '#19191c';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         const barWidth = (canvas.width / bufferLength) * 2.5;
         let x = 0;
@@ -492,135 +627,341 @@ function visualizeAudio() {
     draw();
 }
 
+// ============================================================
+// FILE UPLOADS
+// ============================================================
 function handleFileUpload(e) {
+    const maxSize = (state.user?.maxUploadBytes || CONFIG.MAX_UPLOAD_MB * 1024 * 1024);
     Array.from(e.target.files).forEach(file => {
-        if (file.size > CONFIG.MAX_FILE_SIZE) { toast(`${file.name} too large`, 'error'); return; }
-        createNote({ type: 'file', title: file.name, content: `File: ${file.name}\nSize: ${(file.size / 1024).toFixed(1)} KB`, fileName: file.name, fileSize: file.size });
+        if (file.size > maxSize) {
+            toast(`${file.name} exceeds size limit`, 'error');
+            return;
+        }
+        createNote({
+            type: 'file',
+            title: file.name,
+            content: `File: ${file.name}\nSize: ${formatBytes(file.size)}\nType: ${file.type || 'unknown'}`,
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type
+        });
     });
     e.target.value = '';
 }
 
 function handleImageUpload(e) {
+    const maxSize = (state.user?.maxUploadBytes || CONFIG.MAX_UPLOAD_MB * 1024 * 1024);
     Array.from(e.target.files).forEach(file => {
-        if (file.size > CONFIG.MAX_FILE_SIZE) { toast(`${file.name} too large`, 'error'); return; }
+        if (file.size > maxSize) {
+            toast(`${file.name} exceeds size limit`, 'error');
+            return;
+        }
         const reader = new FileReader();
-        reader.onload = () => { createNote({ type: 'image', title: file.name, content: '', mediaData: reader.result, fileName: file.name }); };
+        reader.onload = () => {
+            createNote({
+                type: 'image',
+                title: file.name,
+                content: '',
+                mediaData: reader.result,
+                fileName: file.name,
+                fileSize: file.size
+            });
+        };
         reader.readAsDataURL(file);
     });
     e.target.value = '';
 }
 
-function openNoteViewer(id) {
+// ============================================================
+// NOTE VIEWER
+// ============================================================
+function openViewer(id) {
     const note = state.notes.find(n => n.id === id);
     if (!note) return;
     state.editingNote = note;
-    $('viewer-type').textContent = note.type.charAt(0).toUpperCase() + note.type.slice(1);
+    
+    const icons = { text: '#icon-file-text', voice: '#icon-mic', image: '#icon-image', file: '#icon-paperclip' };
+    $('viewer-type').innerHTML = `<svg><use href="${icons[note.type] || icons.text}"/></svg><span>${note.type}</span>`;
+    $('viewer-type').className = `type-badge ${note.type}`;
     $('viewer-date').textContent = new Date(note.createdAt).toLocaleString();
     $('viewer-title').textContent = note.title;
     $('viewer-content').textContent = note.content || '';
-    $('viewer-star').textContent = note.starred ? '★' : '☆';
+    $('viewer-star').innerHTML = `<svg><use href="${note.starred ? '#icon-star-filled' : '#icon-star'}"/></svg>`;
     $('viewer-star').style.color = note.starred ? 'var(--warning)' : '';
+    
     $('viewer-media').classList.add('hidden');
     $('viewer-audio').classList.add('hidden');
-    if (note.type === 'image' && note.mediaData) { $('viewer-media').innerHTML = `<img src="${note.mediaData}" alt="">`; $('viewer-media').classList.remove('hidden'); }
-    if (note.type === 'voice' && note.audioData) { $('audio-player').src = note.audioData; $('viewer-audio').classList.remove('hidden'); }
-    $('viewer-tags').innerHTML = note.tags.map(t => `<span class="note-tag">${t}</span>`).join('');
-    $('view-modal').classList.remove('hidden');
-}
-
-function toggleViewerStar() { if (state.editingNote) { toggleStar(state.editingNote.id); $('viewer-star').textContent = state.editingNote.starred ? '★' : '☆'; $('viewer-star').style.color = state.editingNote.starred ? 'var(--warning)' : ''; } }
-function editViewerNote() { if (state.editingNote && state.editingNote.type === 'text') { $('view-modal').classList.add('hidden'); openNoteEditor(state.editingNote); } else { toast('Only text notes can be edited'); } }
-function deleteViewerNote() { if (state.editingNote && confirm('Delete this note?')) { deleteNote(state.editingNote.id); $('view-modal').classList.add('hidden'); } }
-
-function toggleAI() { closeAllPanels(); $('ai-panel').classList.toggle('hidden'); }
-function sendAIMessage() {
-    const input = $('ai-input');
-    const message = input.value.trim();
-    if (!message) return;
-    addAIMessage(message, 'user');
-    input.value = '';
-    const welcome = $('ai-messages').querySelector('.ai-welcome');
-    if (welcome) welcome.remove();
-    setTimeout(() => { addAIMessage(processAIQuery(message), 'assistant'); }, 500);
-}
-function addAIMessage(text, role) {
-    const div = document.createElement('div');
-    div.className = `ai-message ${role}`;
-    div.textContent = text;
-    $('ai-messages').appendChild(div);
-    $('ai-messages').scrollTop = $('ai-messages').scrollHeight;
-}
-function processAIQuery(query) {
-    const q = query.toLowerCase();
-    if (q.includes('find') || q.includes('search') || q.includes('look')) {
-        const words = q.split(/\s+/).filter(w => w.length > 3 && !['find', 'search', 'look', 'notes', 'about', 'the'].includes(w));
-        const matches = state.notes.filter(n => words.some(w => n.title.toLowerCase().includes(w) || (n.content && n.content.toLowerCase().includes(w))));
-        if (matches.length > 0) return `Found ${matches.length} note(s):\n\n${matches.slice(0, 5).map(n => `• "${n.title}"`).join('\n')}`;
-        return "No notes found.";
+    
+    if (note.type === 'image' && note.mediaData) {
+        $('viewer-media').innerHTML = `<img src="${note.mediaData}" alt="">`;
+        $('viewer-media').classList.remove('hidden');
     }
-    if (q.includes('summarize') || q.includes('summary')) return `You have ${state.notes.length} notes:\n• ${state.notes.filter(n => n.type === 'text').length} text\n• ${state.notes.filter(n => n.type === 'voice').length} voice\n• ${state.notes.filter(n => n.type === 'image' || n.type === 'file').length} files\n• ${state.notes.filter(n => n.starred).length} starred`;
-    if (q.includes('what did i') || q.includes('recent')) {
-        const recent = state.notes.slice(0, 5);
-        if (recent.length === 0) return "No notes yet.";
-        return `Recent notes:\n\n${recent.map(n => `• "${n.title}" (${n.type})`).join('\n')}`;
+    if (note.type === 'voice' && note.audioData) {
+        $('audio-player').src = note.audioData;
+        $('viewer-audio').classList.remove('hidden');
     }
-    return "Try:\n• \"Find notes about...\"\n• \"Summarize my notes\"\n• \"What did I write?\"";
+    
+    $('viewer-tags').innerHTML = (note.tags || []).map(t => `<span class="note-tag">${t}</span>`).join('');
+    openModal('viewer-modal');
 }
 
-function applyTheme() {
-    const theme = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', theme);
-    if ($('theme-select')) $('theme-select').value = theme;
+function toggleViewerStar() {
+    if (state.editingNote) {
+        toggleStar(state.editingNote.id);
+        $('viewer-star').innerHTML = `<svg><use href="${state.editingNote.starred ? '#icon-star-filled' : '#icon-star'}"/></svg>`;
+        $('viewer-star').style.color = state.editingNote.starred ? 'var(--warning)' : '';
+    }
 }
+
+function editFromViewer() {
+    if (state.editingNote?.type === 'text') {
+        closeModal('viewer-modal');
+        openEditor(state.editingNote);
+    } else {
+        toast('Only text notes can be edited');
+    }
+}
+
+function deleteFromViewer() {
+    if (state.editingNote && confirm('Delete this note?')) {
+        deleteNote(state.editingNote.id);
+        closeModal('viewer-modal');
+    }
+}
+
+// ============================================================
+// STORAGE & UI
+// ============================================================
+function updateStorageUI() {
+    const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.user?.email) || '';
+    const bytes = new Blob([data]).size;
+    const quotaBytes = state.user?.quotaLimitBytes || CONFIG.DEFAULT_QUOTA_GB * 1024 * 1024 * 1024;
+    const percent = Math.min((bytes / quotaBytes) * 100, 100);
+    
+    $('storage-percent').textContent = percent.toFixed(0) + '%';
+    $('storage-fill').style.width = percent + '%';
+    $('storage-mini-fill').style.width = percent + '%';
+    $('storage-mini-text').textContent = percent.toFixed(0) + '%';
+    $('storage-used').textContent = formatBytes(bytes);
+    $('storage-limit').textContent = '/ ' + formatBytes(quotaBytes);
+    $('settings-storage-used').textContent = formatBytes(bytes);
+    $('settings-storage-quota').textContent = formatBytes(quotaBytes);
+}
+
+function updateStorageModeUI() {
+    const isCloud = state.storageMode === 'cloud';
+    $('storage-mode-badge').innerHTML = `<svg><use href="${isCloud ? '#icon-cloud' : '#icon-database'}"/></svg><span>${isCloud ? 'Cloud Sync' : 'Local Only'}</span>`;
+    $('storage-mode-select').value = state.storageMode;
+}
+
+function handleSearch(e) {
+    state.search = e.target.value;
+    renderNotes();
+}
+
+// ============================================================
+// ADMIN DASHBOARD
+// ============================================================
+function loadAdminData() {
+    const users = getUsers();
+    const userList = Object.keys(users);
+    let totalNotes = 0, textCount = 0, voiceCount = 0, fileCount = 0, imageCount = 0, totalBytes = 0;
+    
+    userList.forEach(email => {
+        const notesKey = CONFIG.STORAGE_PREFIX + 'notes_' + email;
+        const data = localStorage.getItem(notesKey);
+        const notes = data ? JSON.parse(data) : [];
+        totalNotes += notes.length;
+        textCount += notes.filter(n => n.type === 'text').length;
+        voiceCount += notes.filter(n => n.type === 'voice').length;
+        fileCount += notes.filter(n => n.type === 'file').length;
+        imageCount += notes.filter(n => n.type === 'image').length;
+        totalBytes += new Blob([data || '']).size;
+    });
+    
+    $('admin-total-users').textContent = userList.length;
+    $('admin-active-users').textContent = userList.filter(e => {
+        const u = users[e];
+        return u.lastActiveAt && (Date.now() - new Date(u.lastActiveAt).getTime() < 86400000);
+    }).length;
+    $('admin-total-notes').textContent = totalNotes;
+    $('admin-storage-used').textContent = formatBytes(totalBytes);
+    
+    // Chart
+    const maxCount = Math.max(textCount, voiceCount, fileCount, imageCount, 1);
+    const chartHeight = 80;
+    $('chart-types').innerHTML = `
+        <div class="chart-bar text" style="height:${(textCount/maxCount)*chartHeight}px"><span class="chart-bar-label">Text (${textCount})</span></div>
+        <div class="chart-bar voice" style="height:${(voiceCount/maxCount)*chartHeight}px"><span class="chart-bar-label">Voice (${voiceCount})</span></div>
+        <div class="chart-bar file" style="height:${(fileCount/maxCount)*chartHeight}px"><span class="chart-bar-label">File (${fileCount})</span></div>
+        <div class="chart-bar image" style="height:${(imageCount/maxCount)*chartHeight}px"><span class="chart-bar-label">Image (${imageCount})</span></div>
+    `;
+    
+    // Users table
+    $('users-table-body').innerHTML = userList.map(email => {
+        const u = users[email];
+        const notesData = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + email);
+        const notes = notesData ? JSON.parse(notesData) : [];
+        const bytes = new Blob([notesData || '']).size;
+        return `<tr>
+            <td><div class="user-cell"><div class="user-avatar"><span>${(u.displayName || email)[0].toUpperCase()}</span></div><span>${u.displayName || email}</span></div></td>
+            <td><span class="user-role-badge">${u.role}</span></td>
+            <td>${notes.length}</td>
+            <td>${formatBytes(bytes)}</td>
+            <td><span class="status-badge ${u.status}">${u.status}</span></td>
+            <td><button class="btn-icon" title="Actions"><svg><use href="#icon-more-vertical"/></svg></button></td>
+        </tr>`;
+    }).join('');
+    
+    // Activity
+    const activity = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]');
+    $('activity-list').innerHTML = activity.slice(0, 20).map(item => `
+        <div class="activity-item">
+            <div class="user-avatar"><span>${(item.email || '?')[0].toUpperCase()}</span></div>
+            <span class="activity-text"><strong>${item.email}</strong> ${item.action}</span>
+            <span class="activity-time">${formatTime(item.time)}</span>
+        </div>
+    `).join('');
+}
+
+// ============================================================
+// SETTINGS & DATA
+// ============================================================
 function exportNotes() {
-    const data = { exportDate: new Date().toISOString(), username: state.currentUser, notes: state.notes };
+    const data = { version: CONFIG.VERSION, exportDate: new Date().toISOString(), user: state.user?.email, notes: state.notes };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = `dave-notes-${state.currentUser}-${new Date().toISOString().split('T')[0]}.json`;
-    a.click(); toast('Exported!', 'success');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `davenotes-export-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Notes exported', 'success');
 }
+
 function importNotes(e) {
-    const file = e.target.files[0]; if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
         try {
             const data = JSON.parse(reader.result);
-            if (data.notes) { state.notes = [...data.notes, ...state.notes]; saveUserData(); renderNotes(); toast(`Imported ${data.notes.length} notes!`, 'success'); }
-        } catch { toast('Invalid file', 'error'); }
+            if (data.notes && Array.isArray(data.notes)) {
+                state.notes = [...data.notes, ...state.notes];
+                saveUserData();
+                renderNotes();
+                toast(`Imported ${data.notes.length} notes`, 'success');
+            }
+        } catch { toast('Invalid file format', 'error'); }
     };
-    reader.readAsText(file); e.target.value = '';
-}
-function clearUserData() { if (confirm('Delete ALL your notes?')) { state.notes = []; saveUserData(); renderNotes(); toast('Data cleared'); } }
-
-function loadAnalytics() {
-    const users = getUsers();
-    const userList = Object.keys(users);
-    let totalNotes = 0, totalVoice = 0, totalFiles = 0;
-    userList.forEach(username => {
-        const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + username);
-        const notes = data ? JSON.parse(data) : [];
-        totalNotes += notes.length;
-        totalVoice += notes.filter(n => n.type === 'voice').length;
-        totalFiles += notes.filter(n => n.type === 'file' || n.type === 'image').length;
-    });
-    $('stat-users').textContent = userList.length;
-    $('stat-notes').textContent = totalNotes;
-    $('stat-voice').textContent = totalVoice;
-    $('stat-files').textContent = totalFiles;
-    $('user-list').innerHTML = userList.map(username => {
-        const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + username);
-        const notes = data ? JSON.parse(data) : [];
-        const user = users[username];
-        return `<div class="user-item"><div class="user-avatar">${username.charAt(0).toUpperCase()}</div><div class="user-item-info"><div class="user-item-name">${username}${user.isAdmin ? ' (Admin)' : ''}</div><div class="user-item-stats">${notes.length} notes</div></div></div>`;
-    }).join('');
-    const activity = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]');
-    $('activity-log').innerHTML = activity.slice(0, 20).map(item => `<div class="activity-item"><strong>${item.username}</strong> ${item.action}<span class="activity-time">${new Date(item.time).toLocaleString()}</span></div>`).join('');
+    reader.readAsText(file);
+    e.target.value = '';
 }
 
-function toggleSidebar() { $('sidebar').classList.toggle('collapsed'); }
-function closeFab() { $('fab-container').classList.remove('open'); }
-function closeAllModals() { $('note-modal').classList.add('hidden'); $('voice-modal').classList.add('hidden'); $('view-modal').classList.add('hidden'); }
-function closeAllPanels() { $('ai-panel').classList.add('hidden'); $('settings-panel').classList.add('hidden'); $('analytics-panel').classList.add('hidden'); }
-function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-function debounce(fn, delay) { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => fn(...args), delay); }; }
-function toast(message, type = 'success') { const div = document.createElement('div'); div.className = `toast ${type}`; div.textContent = message; $('toast-container').appendChild(div); setTimeout(() => div.remove(), 3000); }
+function clearAllData() {
+    if (confirm('Delete ALL your notes? This cannot be undone.')) {
+        state.notes = [];
+        saveUserData();
+        renderNotes();
+        toast('All data cleared');
+    }
+}
+
+// ============================================================
+// THEME
+// ============================================================
+function applyTheme() {
+    const theme = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    $$('.theme-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.theme === theme));
+}
+
+function setTheme(theme) {
+    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function toggleSidebar() {
+    $('sidebar').classList.toggle('collapsed');
+    $('sidebar').classList.toggle('active');
+}
+
+function closeFab() {
+    $('fab-container').classList.remove('open');
+}
+
+function openModal(id) {
+    $(id).classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+    $(id).classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function closeAllModals() {
+    $$('.modal.active').forEach(m => m.classList.remove('active'));
+    document.body.style.overflow = '';
+}
+
+function openPanel(id) {
+    closeAllPanels();
+    $(id).classList.add('active');
+}
+
+function closePanel(id) {
+    $(id).classList.remove('active');
+}
+
+function closeAllPanels() {
+    $$('.panel.active').forEach(p => p.classList.remove('active'));
+}
+
+function toast(message, type = 'success') {
+    const icon = type === 'success' ? '#icon-check' : '#icon-alert-circle';
+    const div = document.createElement('div');
+    div.className = `toast ${type}`;
+    div.innerHTML = `<svg><use href="${icon}"/></svg><span>${message}</span>`;
+    $('toast-container').appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    if (bytes === Infinity) return 'Unlimited';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function formatTime(isoString) {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diff = now - date;
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    return date.toLocaleDateString();
+}
+
+function debounce(fn, delay) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+    };
+}

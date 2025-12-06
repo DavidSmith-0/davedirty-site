@@ -3,69 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dave Notes | Capture Everything</title>
+    <title>Dave Notes</title>
+    <meta name="description" content="Capture everything. Access anywhere.">
+    <meta name="theme-color" content="#0a0a0b">
+    <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dave-notes.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2'%3E%3Cpath d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z'/%3E%3Cpolyline points='14,2 14,8 20,8'/%3E%3C/svg%3E">
 </head>
 <body>
+    <!-- SVG Icons Sprite -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/>
+        </symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </symbol>
+        <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </symbol>
+        <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
+        </symbol>
+        <symbol id="icon-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+        </symbol>
+        <symbol id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/>
+        </symbol>
+        <symbol id="icon-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+        </symbol>
+        <symbol id="icon-paperclip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+        </symbol>
+        <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+        </symbol>
+        <symbol id="icon-star-filled" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+        </symbol>
+        <symbol id="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+        </symbol>
+        <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </symbol>
+        <symbol id="icon-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>
+        </symbol>
+        <symbol id="icon-log-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </symbol>
+        <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,9 12,15 18,9"/>
+        </symbol>
+        <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </symbol>
+        <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </symbol>
+        <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </symbol>
+        <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </symbol>
+        <symbol id="icon-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+        </symbol>
+        <symbol id="icon-cloud-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"/><path d="M22.61 16.95A5 5 0 0 0 18 10h-1.26a8 8 0 0 0-7.05-6M5 5a8 8 0 0 0 4 15h9a5 5 0 0 0 1.7-.3"/>
+        </symbol>
+        <symbol id="icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+        </symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20,6 9,17 4,12"/>
+        </symbol>
+        <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </symbol>
+        <symbol id="icon-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </symbol>
+        <symbol id="icon-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+        </symbol>
+        <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </symbol>
+        <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5,3 19,12 5,21 5,3"/>
+        </symbol>
+        <symbol id="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+        </symbol>
+        <symbol id="icon-stop" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+        </symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/>
+        </symbol>
+        <symbol id="icon-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </symbol>
+        <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </symbol>
+        <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+        </symbol>
+        <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </symbol>
+        <symbol id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </symbol>
+        <symbol id="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+        </symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </symbol>
+        <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </symbol>
+        <symbol id="icon-more-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+        </symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23,4 23,10 17,10"/><polyline points="1,20 1,14 7,14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </symbol>
+        <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+        </symbol>
+        <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/>
+        </symbol>
+        <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/>
+        </symbol>
+    </svg>
+
     <!-- Auth Screen -->
     <div id="auth-screen" class="auth-screen">
+        <div class="auth-bg"></div>
         <div class="auth-container">
+            <!-- Login View -->
             <div id="login-view" class="auth-view">
-                <div class="auth-logo">
-                    <div class="logo-glow"></div>
-                    <div class="logo-icon">📝</div>
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <svg class="auth-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                    </div>
                     <h1>Dave Notes</h1>
-                    <p>Capture everything. Access anywhere.</p>
+                    <p class="auth-subtitle">Sign in to your account</p>
                 </div>
                 <form id="login-form" class="auth-form">
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="login-username" placeholder="Enter username" required>
+                        <label for="login-email">Email</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon"><use href="#icon-mail"/></svg>
+                            <input type="email" id="login-email" placeholder="you@example.com" required>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="login-password" placeholder="Enter password" required>
+                        <label for="login-password">Password</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon"><use href="#icon-lock"/></svg>
+                            <input type="password" id="login-password" placeholder="••••••••" required>
+                            <button type="button" class="password-toggle" tabindex="-1">
+                                <svg class="eye-open"><use href="#icon-eye"/></svg>
+                                <svg class="eye-closed hidden"><use href="#icon-eye-off"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <label class="checkbox-label">
+                    <label class="checkbox-wrapper">
                         <input type="checkbox" id="remember-me" checked>
-                        <span>Keep me signed in</span>
+                        <span class="checkbox-custom"></span>
+                        <span>Remember me</span>
                     </label>
-                    <button type="submit" class="auth-btn primary">Sign In →</button>
-                    <p id="login-error" class="auth-error"></p>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>Sign In</span>
+                        <svg><use href="#icon-arrow-left" style="transform:rotate(180deg)"/></svg>
+                    </button>
+                    <div id="login-error" class="form-error"></div>
                 </form>
                 <div class="auth-footer">
-                    <p>New here? <button type="button" id="show-register" class="link-btn">Create account</button></p>
+                    <p>Don't have an account? <button type="button" id="show-register" class="btn-link">Create one</button></p>
+                </div>
+                <div class="auth-divider"><span>or continue with</span></div>
+                <div class="auth-social">
+                    <button type="button" class="btn btn-outline btn-full" id="local-mode-btn">
+                        <svg><use href="#icon-database"/></svg>
+                        <span>Local Storage Only</span>
+                    </button>
                 </div>
             </div>
+
+            <!-- Register View -->
             <div id="register-view" class="auth-view hidden">
-                <div class="auth-logo">
-                    <div class="logo-glow"></div>
-                    <div class="logo-icon">📝</div>
-                    <h1>Join Dave Notes</h1>
-                    <p>Create your personal workspace</p>
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <svg class="auth-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                    </div>
+                    <h1>Create Account</h1>
+                    <p class="auth-subtitle">Start organizing your thoughts</p>
                 </div>
                 <form id="register-form" class="auth-form">
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="register-username" placeholder="Choose username" required minlength="3">
+                        <label for="register-name">Display Name</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon"><use href="#icon-user"/></svg>
+                            <input type="text" id="register-name" placeholder="Your name" required minlength="2">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="register-password" placeholder="Create password" required minlength="4">
+                        <label for="register-email">Email</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon"><use href="#icon-mail"/></svg>
+                            <input type="email" id="register-email" placeholder="you@example.com" required>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Confirm Password</label>
-                        <input type="password" id="register-confirm" placeholder="Confirm password" required>
+                        <label for="register-password">Password</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon"><use href="#icon-lock"/></svg>
+                            <input type="password" id="register-password" placeholder="Min 6 characters" required minlength="6">
+                            <button type="button" class="password-toggle" tabindex="-1">
+                                <svg class="eye-open"><use href="#icon-eye"/></svg>
+                                <svg class="eye-closed hidden"><use href="#icon-eye-off"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" class="auth-btn primary">Create Account →</button>
-                    <p id="register-error" class="auth-error"></p>
+                    <div class="form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon"><use href="#icon-lock"/></svg>
+                            <input type="password" id="register-confirm" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>Create Account</span>
+                        <svg><use href="#icon-arrow-left" style="transform:rotate(180deg)"/></svg>
+                    </button>
+                    <div id="register-error" class="form-error"></div>
                 </form>
                 <div class="auth-footer">
-                    <p>Have an account? <button type="button" id="show-login" class="link-btn">Sign in</button></p>
+                    <p>Already have an account? <button type="button" id="show-login" class="btn-link">Sign in</button></p>
                 </div>
             </div>
         </div>
@@ -73,238 +286,548 @@
 
     <!-- Main App -->
     <div id="app" class="app hidden">
+        <!-- Header -->
         <header class="header">
             <div class="header-left">
-                <button id="sidebar-toggle" class="icon-btn" title="Toggle Sidebar">☰</button>
-                <div class="brand"><span class="brand-icon">📝</span><span class="brand-text">Dave Notes</span></div>
+                <button id="sidebar-toggle" class="btn-icon" aria-label="Toggle sidebar">
+                    <svg><use href="#icon-menu"/></svg>
+                </button>
+                <a href="#" class="brand">
+                    <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                    <span class="brand-text">Dave Notes</span>
+                </a>
             </div>
             <div class="header-center">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="search-input" placeholder="Search notes, tags, files...">
-                    <kbd>⌘K</kbd>
+                <div class="search-container">
+                    <svg class="search-icon"><use href="#icon-search"/></svg>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search notes..." autocomplete="off">
+                    <kbd class="search-kbd">⌘K</kbd>
                 </div>
             </div>
             <div class="header-right">
-                <button id="ai-btn" class="icon-btn ai-btn" title="AI Assistant">🤖</button>
-                <div class="user-menu">
-                    <button id="user-btn" class="user-btn">
-                        <div class="user-avatar" id="user-avatar">D</div>
-                        <span id="user-name">User</span>
-                        <span>▼</span>
+                <div class="storage-indicator" id="header-storage">
+                    <svg><use href="#icon-cloud"/></svg>
+                    <div class="storage-mini-bar"><div class="storage-mini-fill" id="storage-mini-fill"></div></div>
+                    <span id="storage-mini-text">0%</span>
+                </div>
+                <div class="user-menu" id="user-menu">
+                    <button class="user-trigger" id="user-trigger">
+                        <div class="user-avatar" id="header-avatar">
+                            <span>D</span>
+                        </div>
+                        <svg class="chevron"><use href="#icon-chevron-down"/></svg>
                     </button>
-                    <div id="user-dropdown" class="dropdown hidden">
-                        <div class="dropdown-header">
-                            <div class="user-avatar large" id="dropdown-avatar">D</div>
-                            <div class="user-info">
-                                <span class="user-fullname" id="dropdown-name">User</span>
-                                <span class="user-role" id="dropdown-role">Member</span>
+                    <div class="user-dropdown hidden" id="user-dropdown">
+                        <div class="dropdown-user-info">
+                            <div class="user-avatar large" id="dropdown-avatar"><span>D</span></div>
+                            <div class="user-details">
+                                <span class="user-name" id="dropdown-name">User</span>
+                                <span class="user-email" id="dropdown-email">user@example.com</span>
+                                <span class="user-role-badge" id="dropdown-role">User</span>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <button class="dropdown-item" id="settings-btn">⚙️ Settings</button>
-                        <button class="dropdown-item" id="analytics-btn">📊 Analytics</button>
-                        <a href="/" class="dropdown-item">← Back to Site</a>
+                        <button class="dropdown-item" id="btn-settings">
+                            <svg><use href="#icon-settings"/></svg>
+                            <span>Settings</span>
+                        </button>
+                        <button class="dropdown-item" id="btn-admin" style="display:none">
+                            <svg><use href="#icon-shield"/></svg>
+                            <span>Admin Dashboard</span>
+                        </button>
+                        <a href="/" class="dropdown-item">
+                            <svg><use href="#icon-external-link"/></svg>
+                            <span>Back to Site</span>
+                        </a>
                         <div class="dropdown-divider"></div>
-                        <button class="dropdown-item danger" id="logout-btn">🚪 Sign Out</button>
+                        <button class="dropdown-item dropdown-item-danger" id="btn-logout">
+                            <svg><use href="#icon-log-out"/></svg>
+                            <span>Sign Out</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </header>
 
+        <!-- Main Layout -->
         <div class="main-layout">
-            <aside id="sidebar" class="sidebar">
-                <div class="sidebar-content">
-                    <button id="new-note-btn" class="create-btn">+ New Note</button>
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-inner">
+                    <button class="btn btn-primary btn-full new-note-btn" id="new-note-btn">
+                        <svg><use href="#icon-plus"/></svg>
+                        <span>New Note</span>
+                    </button>
+
                     <nav class="sidebar-nav">
-                        <button class="nav-item active" data-filter="all">🏠 All Notes <span class="count" id="count-all">0</span></button>
-                        <button class="nav-item" data-filter="text">📄 Text Notes <span class="count" id="count-text">0</span></button>
-                        <button class="nav-item" data-filter="voice">🎙️ Voice Notes <span class="count" id="count-voice">0</span></button>
-                        <button class="nav-item" data-filter="files">📁 Files & Images <span class="count" id="count-files">0</span></button>
-                        <button class="nav-item" data-filter="starred">⭐ Starred <span class="count" id="count-starred">0</span></button>
+                        <div class="nav-section">
+                            <span class="nav-label">Notes</span>
+                            <button class="nav-item active" data-filter="all">
+                                <svg><use href="#icon-home"/></svg>
+                                <span>All Notes</span>
+                                <span class="nav-count" id="count-all">0</span>
+                            </button>
+                            <button class="nav-item" data-filter="text">
+                                <svg><use href="#icon-file-text"/></svg>
+                                <span>Text</span>
+                                <span class="nav-count" id="count-text">0</span>
+                            </button>
+                            <button class="nav-item" data-filter="voice">
+                                <svg><use href="#icon-mic"/></svg>
+                                <span>Voice</span>
+                                <span class="nav-count" id="count-voice">0</span>
+                            </button>
+                            <button class="nav-item" data-filter="files">
+                                <svg><use href="#icon-folder"/></svg>
+                                <span>Files & Images</span>
+                                <span class="nav-count" id="count-files">0</span>
+                            </button>
+                            <button class="nav-item" data-filter="starred">
+                                <svg><use href="#icon-star"/></svg>
+                                <span>Starred</span>
+                                <span class="nav-count" id="count-starred">0</span>
+                            </button>
+                        </div>
+
+                        <div class="nav-section">
+                            <span class="nav-label">Tags</span>
+                            <div class="tags-container" id="sidebar-tags"></div>
+                        </div>
                     </nav>
-                    <div class="sidebar-section">
-                        <h3>🏷️ Tags</h3>
-                        <div id="tags-list" class="tags-list"></div>
-                    </div>
-                    <div class="storage-info">
-                        <div class="storage-header"><span>Storage</span><span id="storage-percent">0%</span></div>
-                        <div class="storage-bar"><div class="storage-fill" id="storage-fill"></div></div>
-                        <span class="storage-detail" id="storage-detail">0 notes</span>
+
+                    <div class="sidebar-footer">
+                        <div class="storage-card" id="storage-card">
+                            <div class="storage-header">
+                                <div class="storage-info">
+                                    <svg><use href="#icon-database"/></svg>
+                                    <span>Storage</span>
+                                </div>
+                                <span class="storage-percent" id="storage-percent">0%</span>
+                            </div>
+                            <div class="storage-bar">
+                                <div class="storage-fill" id="storage-fill"></div>
+                            </div>
+                            <div class="storage-detail">
+                                <span id="storage-used">0 KB</span>
+                                <span id="storage-limit">/ 5 GB</span>
+                            </div>
+                        </div>
+                        <div class="storage-mode-badge" id="storage-mode-badge">
+                            <svg><use href="#icon-cloud"/></svg>
+                            <span>Cloud Sync</span>
+                        </div>
                     </div>
                 </div>
             </aside>
 
-            <main class="content-area">
+            <!-- Content Area -->
+            <main class="content" id="content">
+                <!-- Toolbar -->
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <h2 id="view-title">All Notes</h2>
-                        <span class="note-count" id="visible-count">0 notes</span>
+                        <h1 class="page-title" id="page-title">All Notes</h1>
+                        <span class="note-count-badge" id="note-count-badge">0 notes</span>
                     </div>
                     <div class="toolbar-right">
-                        <div class="view-toggle">
-                            <button class="view-btn active" data-view="grid" title="Grid">▦</button>
-                            <button class="view-btn" data-view="list" title="List">≡</button>
+                        <div class="view-switcher">
+                            <button class="view-btn active" data-view="grid" aria-label="Grid view">
+                                <svg><use href="#icon-grid"/></svg>
+                            </button>
+                            <button class="view-btn" data-view="list" aria-label="List view">
+                                <svg><use href="#icon-list"/></svg>
+                            </button>
                         </div>
-                        <select id="sort-select" class="sort-select">
-                            <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option>
-                            <option value="az">A-Z</option>
-                            <option value="za">Z-A</option>
+                        <select class="sort-select" id="sort-select">
+                            <option value="newest">Newest first</option>
+                            <option value="oldest">Oldest first</option>
+                            <option value="az">A → Z</option>
+                            <option value="za">Z → A</option>
+                            <option value="updated">Recently updated</option>
                         </select>
                     </div>
                 </div>
-                <div id="notes-container" class="notes-grid"></div>
-                <div id="empty-state" class="empty-state hidden">
-                    <div class="empty-icon">📝</div>
-                    <h3>No notes yet</h3>
-                    <p>Click the + button to create your first note</p>
+
+                <!-- Notes Grid -->
+                <div class="notes-grid" id="notes-grid"></div>
+
+                <!-- Empty State -->
+                <div class="empty-state hidden" id="empty-state">
+                    <div class="empty-illustration">
+                        <svg viewBox="0 0 120 120" fill="none">
+                            <rect x="20" y="10" width="80" height="100" rx="8" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+                            <rect x="30" y="30" width="60" height="4" rx="2" fill="currentColor" opacity="0.2"/>
+                            <rect x="30" y="42" width="45" height="4" rx="2" fill="currentColor" opacity="0.2"/>
+                            <rect x="30" y="54" width="50" height="4" rx="2" fill="currentColor" opacity="0.2"/>
+                            <circle cx="90" cy="90" r="25" stroke="currentColor" stroke-width="2" fill="var(--bg-surface)"/>
+                            <line x1="90" y1="80" x2="90" y2="100" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="80" y1="90" x2="100" y2="90" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h2>No notes yet</h2>
+                    <p>Create your first note to get started</p>
+                    <button class="btn btn-primary" id="empty-create-btn">
+                        <svg><use href="#icon-plus"/></svg>
+                        <span>Create Note</span>
+                    </button>
                 </div>
             </main>
         </div>
 
-        <!-- FAB Menu -->
+        <!-- FAB (Mobile) -->
         <div class="fab-container" id="fab-container">
-            <button class="fab fab-main" id="fab-main">
-                <span class="fab-plus">+</span>
-                <span class="fab-close">×</span>
+            <button class="fab" id="fab-main" aria-label="Create new note">
+                <svg class="fab-icon-open"><use href="#icon-plus"/></svg>
+                <svg class="fab-icon-close"><use href="#icon-x"/></svg>
             </button>
-            <div class="fab-menu">
-                <button class="fab fab-item" id="fab-text"><span>📄</span><label>Text</label></button>
-                <button class="fab fab-item" id="fab-voice"><span>🎙️</span><label>Voice</label></button>
-                <button class="fab fab-item" id="fab-upload"><span>📎</span><label>File</label></button>
-                <button class="fab fab-item" id="fab-image"><span>🖼️</span><label>Image</label></button>
-            </div>
-        </div>
-        <input type="file" id="file-input" class="hidden" multiple>
-        <input type="file" id="image-input" class="hidden" accept="image/*" multiple>
-
-        <!-- Text Note Modal -->
-        <div id="note-modal" class="modal hidden">
-            <div class="modal-backdrop"></div>
-            <div class="modal-content note-editor">
-                <div class="editor-header">
-                    <input type="text" id="note-title" placeholder="Note title...">
-                    <div class="editor-actions">
-                        <button id="save-note" class="btn primary">Save</button>
-                        <button id="cancel-note" class="btn ghost">Cancel</button>
-                    </div>
-                </div>
-                <textarea id="note-content" placeholder="Start writing..."></textarea>
-                <div class="editor-footer">
-                    <div class="editor-tags">
-                        <div id="editor-tags-list"></div>
-                        <input type="text" id="editor-tag-input" placeholder="Add tag...">
-                    </div>
-                    <span id="char-count">0 chars</span>
-                </div>
+            <div class="fab-menu" id="fab-menu">
+                <button class="fab-item" data-type="text" aria-label="Text note">
+                    <svg><use href="#icon-file-text"/></svg>
+                    <span>Text</span>
+                </button>
+                <button class="fab-item" data-type="voice" aria-label="Voice note">
+                    <svg><use href="#icon-mic"/></svg>
+                    <span>Voice</span>
+                </button>
+                <button class="fab-item" data-type="image" aria-label="Image">
+                    <svg><use href="#icon-image"/></svg>
+                    <span>Image</span>
+                </button>
+                <button class="fab-item" data-type="file" aria-label="File">
+                    <svg><use href="#icon-paperclip"/></svg>
+                    <span>File</span>
+                </button>
             </div>
         </div>
 
-        <!-- Voice Modal -->
-        <div id="voice-modal" class="modal hidden">
-            <div class="modal-backdrop"></div>
-            <div class="modal-content voice-recorder">
-                <h2 id="recorder-status">Ready to Record</h2>
-                <div class="recorder-time" id="recorder-time">00:00</div>
-                <div class="recorder-visualizer"><canvas id="audio-canvas"></canvas></div>
-                <div class="recorder-controls">
-                    <button id="recorder-cancel" class="btn ghost">Cancel</button>
-                    <button id="recorder-toggle" class="recorder-btn">🎙️</button>
-                    <button id="recorder-save" class="btn primary" disabled>Save</button>
-                </div>
-                <div id="transcript-section" class="transcript-section hidden">
-                    <h4>Title & Notes</h4>
-                    <input type="text" id="voice-title" placeholder="Voice note title...">
-                    <textarea id="voice-transcript" placeholder="Add notes or description..."></textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- View Note Modal -->
-        <div id="view-modal" class="modal hidden">
-            <div class="modal-backdrop"></div>
-            <div class="modal-content note-viewer">
-                <div class="viewer-header">
-                    <button id="close-viewer" class="icon-btn">✕</button>
-                    <div class="viewer-actions">
-                        <button id="viewer-star" class="icon-btn">☆</button>
-                        <button id="viewer-edit" class="icon-btn">✏️</button>
-                        <button id="viewer-delete" class="icon-btn danger">🗑️</button>
-                    </div>
-                </div>
-                <div class="viewer-body">
-                    <div class="viewer-meta">
-                        <span class="type-badge" id="viewer-type">Text</span>
-                        <span id="viewer-date"></span>
-                    </div>
-                    <h2 id="viewer-title"></h2>
-                    <div id="viewer-content"></div>
-                    <div id="viewer-media" class="viewer-media hidden"></div>
-                    <div id="viewer-audio" class="viewer-audio hidden">
-                        <audio id="audio-player" controls></audio>
-                    </div>
-                </div>
-                <div class="viewer-footer">
-                    <div id="viewer-tags" class="viewer-tags"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- AI Panel -->
-        <div id="ai-panel" class="side-panel hidden">
-            <div class="panel-header"><h3>🤖 AI Assistant</h3><button id="close-ai" class="icon-btn">✕</button></div>
-            <div id="ai-messages" class="panel-body">
-                <div class="ai-welcome">
-                    <p>Ask me about your notes!</p>
-                    <div class="ai-suggestions">
-                        <button class="suggestion-btn">"Find notes about work"</button>
-                        <button class="suggestion-btn">"Summarize today"</button>
-                        <button class="suggestion-btn">"What did I write?"</button>
-                    </div>
-                </div>
-            </div>
-            <div class="panel-footer">
-                <input type="text" id="ai-input" placeholder="Ask about your notes...">
-                <button id="ai-send" class="btn primary">→</button>
-            </div>
-        </div>
-
-        <!-- Settings Panel -->
-        <div id="settings-panel" class="side-panel hidden">
-            <div class="panel-header"><h3>⚙️ Settings</h3><button id="close-settings" class="icon-btn">✕</button></div>
-            <div class="panel-body settings-body">
-                <div class="setting-group">
-                    <h4>Appearance</h4>
-                    <div class="setting-item"><label>Theme</label><select id="theme-select"><option value="dark">Dark</option><option value="light">Light</option></select></div>
-                </div>
-                <div class="setting-group">
-                    <h4>Data</h4>
-                    <button id="export-btn" class="btn outline">📥 Export Notes</button>
-                    <button id="import-btn" class="btn outline">📤 Import Notes</button>
-                    <input type="file" id="import-input" class="hidden" accept=".json">
-                    <button id="clear-btn" class="btn danger">🗑️ Clear My Data</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Analytics Panel (Admin Only) -->
-        <div id="analytics-panel" class="side-panel wide hidden">
-            <div class="panel-header"><h3>📊 Analytics</h3><button id="close-analytics" class="icon-btn">✕</button></div>
-            <div class="panel-body">
-                <div class="analytics-grid">
-                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-users">0</div><div class="stat-label">Users</div></div>
-                    <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="stat-notes">0</div><div class="stat-label">Total Notes</div></div>
-                    <div class="stat-card"><div class="stat-icon">🎙️</div><div class="stat-value" id="stat-voice">0</div><div class="stat-label">Voice Notes</div></div>
-                    <div class="stat-card"><div class="stat-icon">📁</div><div class="stat-value" id="stat-files">0</div><div class="stat-label">Files</div></div>
-                </div>
-                <div class="analytics-section"><h4>All Users</h4><div id="user-list" class="user-list"></div></div>
-                <div class="analytics-section"><h4>Recent Activity</h4><div id="activity-log" class="activity-log"></div></div>
-            </div>
-        </div>
-
-        <div id="toast-container" class="toast-container"></div>
+        <!-- Hidden File Inputs -->
+        <input type="file" id="file-input" class="visually-hidden" multiple>
+        <input type="file" id="image-input" class="visually-hidden" accept="image/*" multiple>
     </div>
+
+    <!-- Note Editor Modal -->
+    <div class="modal" id="editor-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container modal-editor">
+            <div class="editor-header">
+                <input type="text" class="editor-title" id="editor-title" placeholder="Untitled note">
+                <div class="editor-actions">
+                    <button class="btn btn-ghost" id="editor-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="editor-save">
+                        <svg><use href="#icon-check"/></svg>
+                        <span>Save</span>
+                    </button>
+                </div>
+            </div>
+            <div class="editor-body">
+                <textarea class="editor-content" id="editor-content" placeholder="Start writing..."></textarea>
+            </div>
+            <div class="editor-footer">
+                <div class="editor-tags" id="editor-tags">
+                    <div class="tag-chips" id="editor-tag-chips"></div>
+                    <input type="text" class="tag-input" id="editor-tag-input" placeholder="Add tag...">
+                </div>
+                <div class="editor-meta">
+                    <span class="char-count" id="char-count">0 characters</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Recorder Modal -->
+    <div class="modal" id="voice-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container modal-voice">
+            <div class="voice-header">
+                <h2 id="voice-status">Ready to record</h2>
+                <button class="btn-icon" id="voice-close" aria-label="Close">
+                    <svg><use href="#icon-x"/></svg>
+                </button>
+            </div>
+            <div class="voice-body">
+                <div class="voice-timer" id="voice-timer">00:00</div>
+                <div class="voice-visualizer">
+                    <canvas id="voice-canvas"></canvas>
+                </div>
+                <div class="voice-controls">
+                    <button class="btn btn-ghost" id="voice-cancel">Cancel</button>
+                    <button class="voice-record-btn" id="voice-toggle" aria-label="Start recording">
+                        <svg class="rec-icon"><use href="#icon-mic"/></svg>
+                        <svg class="stop-icon hidden"><use href="#icon-stop"/></svg>
+                    </button>
+                    <button class="btn btn-primary" id="voice-save" disabled>Save</button>
+                </div>
+            </div>
+            <div class="voice-details hidden" id="voice-details">
+                <div class="form-group">
+                    <label for="voice-title">Title</label>
+                    <input type="text" id="voice-title" placeholder="Voice note title...">
+                </div>
+                <div class="form-group">
+                    <label for="voice-notes">Notes (optional)</label>
+                    <textarea id="voice-notes" placeholder="Add any notes or description..." rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Viewer Modal -->
+    <div class="modal" id="viewer-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container modal-viewer">
+            <div class="viewer-header">
+                <button class="btn-icon" id="viewer-close" aria-label="Close">
+                    <svg><use href="#icon-x"/></svg>
+                </button>
+                <div class="viewer-actions">
+                    <button class="btn-icon" id="viewer-star" aria-label="Star">
+                        <svg><use href="#icon-star"/></svg>
+                    </button>
+                    <button class="btn-icon" id="viewer-edit" aria-label="Edit">
+                        <svg><use href="#icon-edit"/></svg>
+                    </button>
+                    <button class="btn-icon btn-icon-danger" id="viewer-delete" aria-label="Delete">
+                        <svg><use href="#icon-trash"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="viewer-body">
+                <div class="viewer-meta">
+                    <span class="type-badge" id="viewer-type">
+                        <svg><use href="#icon-file-text"/></svg>
+                        <span>Text</span>
+                    </span>
+                    <span class="viewer-date" id="viewer-date"></span>
+                </div>
+                <h1 class="viewer-title" id="viewer-title"></h1>
+                <div class="viewer-content" id="viewer-content"></div>
+                <div class="viewer-media hidden" id="viewer-media"></div>
+                <div class="viewer-audio hidden" id="viewer-audio">
+                    <audio id="audio-player" controls></audio>
+                </div>
+            </div>
+            <div class="viewer-footer">
+                <div class="viewer-tags" id="viewer-tags"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="panel" id="settings-panel">
+        <div class="panel-header">
+            <h2>Settings</h2>
+            <button class="btn-icon" id="settings-close" aria-label="Close">
+                <svg><use href="#icon-x"/></svg>
+            </button>
+        </div>
+        <div class="panel-body">
+            <div class="settings-section">
+                <h3>Appearance</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Theme</span>
+                        <span class="setting-desc">Choose light or dark mode</span>
+                    </div>
+                    <div class="theme-switcher" id="theme-switcher">
+                        <button class="theme-btn" data-theme="light" aria-label="Light theme">
+                            <svg><use href="#icon-sun"/></svg>
+                        </button>
+                        <button class="theme-btn active" data-theme="dark" aria-label="Dark theme">
+                            <svg><use href="#icon-moon"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Storage</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Storage Mode</span>
+                        <span class="setting-desc">Choose where to save your notes</span>
+                    </div>
+                    <select class="setting-select" id="storage-mode-select">
+                        <option value="local">Local Only</option>
+                        <option value="cloud">Cloud Sync</option>
+                    </select>
+                </div>
+                <div class="storage-details" id="storage-details">
+                    <div class="storage-stat">
+                        <span class="storage-stat-label">Used</span>
+                        <span class="storage-stat-value" id="settings-storage-used">0 KB</span>
+                    </div>
+                    <div class="storage-stat">
+                        <span class="storage-stat-label">Quota</span>
+                        <span class="storage-stat-value" id="settings-storage-quota">5 GB</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Data</h3>
+                <div class="settings-buttons">
+                    <button class="btn btn-outline btn-full" id="export-btn">
+                        <svg><use href="#icon-download"/></svg>
+                        <span>Export Notes</span>
+                    </button>
+                    <button class="btn btn-outline btn-full" id="import-btn">
+                        <svg><use href="#icon-upload"/></svg>
+                        <span>Import Notes</span>
+                    </button>
+                    <input type="file" id="import-file" class="visually-hidden" accept=".json">
+                    <button class="btn btn-danger btn-full" id="clear-data-btn">
+                        <svg><use href="#icon-trash"/></svg>
+                        <span>Delete All Notes</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Account</h3>
+                <div class="account-info">
+                    <div class="account-row">
+                        <span>Email</span>
+                        <span id="settings-email">-</span>
+                    </div>
+                    <div class="account-row">
+                        <span>Role</span>
+                        <span id="settings-role">User</span>
+                    </div>
+                    <div class="account-row">
+                        <span>Member since</span>
+                        <span id="settings-joined">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="panel panel-wide" id="admin-panel">
+        <div class="panel-header">
+            <h2>Admin Dashboard</h2>
+            <button class="btn-icon" id="admin-close" aria-label="Close">
+                <svg><use href="#icon-x"/></svg>
+            </button>
+        </div>
+        <div class="panel-body">
+            <!-- Stats Grid -->
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <div class="stat-icon"><svg><use href="#icon-users"/></svg></div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="admin-total-users">0</span>
+                        <span class="stat-label">Total Users</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><svg><use href="#icon-activity"/></svg></div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="admin-active-users">0</span>
+                        <span class="stat-label">Active Today</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><svg><use href="#icon-file-text"/></svg></div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="admin-total-notes">0</span>
+                        <span class="stat-label">Total Notes</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><svg><use href="#icon-database"/></svg></div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="admin-storage-used">0 MB</span>
+                        <span class="stat-label">Storage Used</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note Types Chart -->
+            <div class="admin-section">
+                <h3>Note Types Distribution</h3>
+                <div class="chart-container" id="chart-types"></div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="admin-section">
+                <h3>Users</h3>
+                <div class="users-table-container">
+                    <table class="users-table" id="users-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Notes</th>
+                                <th>Storage</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="admin-section">
+                <h3>Recent Activity</h3>
+                <div class="activity-list" id="activity-list"></div>
+            </div>
+
+            <!-- Admin Settings -->
+            <div class="admin-section">
+                <h3>App Settings</h3>
+                <div class="admin-settings">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Voice Recording</span>
+                            <span class="setting-desc">Allow users to record voice notes</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="toggle-voice" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">File Uploads</span>
+                            <span class="setting-desc">Allow file and image uploads</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="toggle-uploads" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Default Quota (GB)</span>
+                            <span class="setting-desc">Storage limit for new users</span>
+                        </div>
+                        <input type="number" class="setting-input" id="default-quota" value="5" min="1" max="100">
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-label">Max Upload Size (MB)</span>
+                            <span class="setting-desc">Maximum file size per upload</span>
+                        </div>
+                        <input type="number" class="setting-input" id="max-upload" value="20" min="1" max="100">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
     <script src="dave-notes.js"></script>
 </body>
 </html>
