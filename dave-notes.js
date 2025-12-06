@@ -1,1238 +1,626 @@
-// =======================================
-// DAVE NOTES - Multi-modal Notes App
-// Front-end only: uses localStorage per browser
-// =======================================
+// DAVE NOTES - Complete Application
+// Multi-user, Voice Notes, File Uploads, Analytics
 
-const DN_CONFIG = {
-    STORAGE_KEYS: {
-        USERS: 'daveNotes_users',
-        SESSION: 'daveNotes_session',
-        NOTES_PREFIX: 'daveNotes_notes_',      // + username
-        SETTINGS_PREFIX: 'daveNotes_settings_' // + username
-    },
-    DEFAULT_USER: {
-        username: 'dave',
-        // Default password requested
-        password: 'dave3232'
-    }
+const CONFIG = {
+    ADMIN_USER: 'dave',
+    ADMIN_PASS: 'dave3232',
+    STORAGE_PREFIX: 'davenotes_',
+    MAX_FILE_SIZE: 5 * 1024 * 1024
 };
 
-const dnState = {
+const state = {
     currentUser: null,
-    users: {},             // username -> {username,password,createdAt,lastActive}
-    notes: [],             // current user's notes
+    notes: [],
     filter: 'all',
+    tagFilter: null,
     view: 'grid',
     sort: 'newest',
     search: '',
-    activeTag: null,
-    editingNoteId: null,
-    // voice
-    recording: false,
-    mediaRecorder: null,
-    audioChunks: [],
-    recordingStart: null,
-    recordingTimer: null,
-    audioContext: null,
-    analyser: null,
-    // cached DOM
-    el: {}
+    editingNote: null,
+    recording: { active: false, mediaRecorder: null, chunks: [], startTime: null, timer: null, audioContext: null, analyser: null }
 };
 
-// -----------------------------
-// Cloud Analytics API Endpoint
-// -----------------------------
-const API_URL = 'https://c60aogjbwa.execute-api.us-east-2.amazonaws.com';
+const $ = id => document.getElementById(id);
 
-// Generic function to send analytics events
-async function logAnalyticsEvent(eventType, userId, noteId = null) {
-    try {
-        await fetch(`${API_URL}/analytics`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({
-                eventType,
-                userId,
-                noteId,
-                timestamp: new Date().toISOString()
-            })
+document.addEventListener('DOMContentLoaded', init);
+
+function init() {
+    checkAutoLogin();
+    setupEventListeners();
+    applyTheme();
+}
+
+function checkAutoLogin() {
+    const saved = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'session');
+    if (saved) {
+        const session = JSON.parse(saved);
+        if (session.remember) {
+            state.currentUser = session.username;
+            showApp();
+        }
+    }
+}
+
+function setupEventListeners() {
+    $('login-form').addEventListener('submit', handleLogin);
+    $('register-form').addEventListener('submit', handleRegister);
+    $('show-register').addEventListener('click', () => { $('login-view').classList.add('hidden'); $('register-view').classList.remove('hidden'); });
+    $('show-login').addEventListener('click', () => { $('register-view').classList.add('hidden'); $('login-view').classList.remove('hidden'); });
+    
+    $('sidebar-toggle').addEventListener('click', toggleSidebar);
+    $('search-input').addEventListener('input', debounce(e => { state.search = e.target.value; renderNotes(); }, 300));
+    $('ai-btn').addEventListener('click', toggleAI);
+    $('user-btn').addEventListener('click', () => $('user-dropdown').classList.toggle('hidden'));
+    $('logout-btn').addEventListener('click', logout);
+    $('settings-btn').addEventListener('click', () => { closeAllPanels(); $('settings-panel').classList.toggle('hidden'); });
+    $('analytics-btn').addEventListener('click', () => { closeAllPanels(); $('analytics-panel').classList.toggle('hidden'); loadAnalytics(); });
+    
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.user-menu')) $('user-dropdown').classList.add('hidden');
+    });
+    
+    document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); $('search-input').focus(); }
+        if (e.key === 'Escape') closeAllModals();
+    });
+    
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.filter = btn.dataset.filter;
+            state.tagFilter = null;
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateViewTitle();
+            renderNotes();
         });
-    } catch (err) {
-        console.error('Analytics failed:', err);
-    }
+    });
+    
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.view = btn.dataset.view;
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderNotes();
+        });
+    });
+    
+    $('sort-select').addEventListener('change', e => { state.sort = e.target.value; renderNotes(); });
+    
+    $('fab-main').addEventListener('click', () => $('fab-container').classList.toggle('open'));
+    $('fab-text').addEventListener('click', () => { closeFab(); openNoteEditor(); });
+    $('fab-voice').addEventListener('click', () => { closeFab(); openVoiceRecorder(); });
+    $('fab-upload').addEventListener('click', () => { closeFab(); $('file-input').click(); });
+    $('fab-image').addEventListener('click', () => { closeFab(); $('image-input').click(); });
+    $('new-note-btn').addEventListener('click', openNoteEditor);
+    
+    $('file-input').addEventListener('change', handleFileUpload);
+    $('image-input').addEventListener('change', handleImageUpload);
+    
+    $('save-note').addEventListener('click', saveNote);
+    $('cancel-note').addEventListener('click', () => $('note-modal').classList.add('hidden'));
+    $('note-content').addEventListener('input', () => $('char-count').textContent = $('note-content').value.length + ' chars');
+    $('editor-tag-input').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); addEditorTag(); } });
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.addEventListener('click', closeAllModals));
+    
+    $('recorder-toggle').addEventListener('click', toggleRecording);
+    $('recorder-cancel').addEventListener('click', cancelRecording);
+    $('recorder-save').addEventListener('click', saveVoiceNote);
+    
+    $('close-viewer').addEventListener('click', () => $('view-modal').classList.add('hidden'));
+    $('viewer-star').addEventListener('click', toggleViewerStar);
+    $('viewer-edit').addEventListener('click', editViewerNote);
+    $('viewer-delete').addEventListener('click', deleteViewerNote);
+    
+    $('close-ai').addEventListener('click', () => $('ai-panel').classList.add('hidden'));
+    $('ai-send').addEventListener('click', sendAIMessage);
+    $('ai-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendAIMessage(); });
+    document.querySelectorAll('.suggestion-btn').forEach(btn => {
+        btn.addEventListener('click', () => { $('ai-input').value = btn.textContent.replace(/"/g, ''); sendAIMessage(); });
+    });
+    
+    $('close-settings').addEventListener('click', () => $('settings-panel').classList.add('hidden'));
+    $('theme-select').addEventListener('change', e => { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'theme', e.target.value); applyTheme(); });
+    $('export-btn').addEventListener('click', exportNotes);
+    $('import-btn').addEventListener('click', () => $('import-input').click());
+    $('import-input').addEventListener('change', importNotes);
+    $('clear-btn').addEventListener('click', clearUserData);
+    
+    $('close-analytics').addEventListener('click', () => $('analytics-panel').classList.add('hidden'));
 }
 
-// -----------------------------
-// Utilities
-// -----------------------------
-function dnId(id) { return document.getElementById(id); }
-
-function dnNowISO() { return new Date().toISOString(); }
-
-function dnFormatDate(iso) {
-    const d = new Date(iso);
-    return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-function dnGenerateId() {
-    return 'n_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-function dnDebounce(fn, delay) {
-    let t;
-    return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), delay);
-    };
-}
-
-function dnShowToast(message, type = 'info') {
-    const cont = dnState.el.toastContainer;
-    if (!cont) return;
-    const div = document.createElement('div');
-    div.className = `toast toast-${type}`;
-    div.textContent = message;
-    cont.appendChild(div);
-    requestAnimationFrame(() => div.classList.add('show'));
-    setTimeout(() => {
-        div.classList.remove('show');
-        setTimeout(() => div.remove(), 200);
-    }, 3000);
-}
-
-// Approximate per-user storage (notes only) as % of ~5MB
-function dnEstimateStorage() {
-    const key = DN_CONFIG.STORAGE_KEYS.NOTES_PREFIX + dnState.currentUser.username;
-    const raw = localStorage.getItem(key) || '';
-    const bytes = new Blob([raw]).size;
-    const max = 5 * 1024 * 1024;
-    const pct = Math.min(100, Math.round(bytes / max * 100));
-    return { bytes, pct };
-}
-
-// -----------------------------
-// Persistence: users / session
-// -----------------------------
-function dnLoadUsers() {
-    const raw = localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USERS);
-    dnState.users = raw ? JSON.parse(raw) : {};
-    // Seed default Dave account if missing
-    if (!dnState.users[DN_CONFIG.DEFAULT_USER.username]) {
-        dnState.users[DN_CONFIG.DEFAULT_USER.username] = {
-            username: DN_CONFIG.DEFAULT_USER.username,
-            password: DN_CONFIG.DEFAULT_USER.password,
-            createdAt: dnNowISO(),
-            lastActive: dnNowISO()
-        };
-        dnSaveUsers();
-    }
-}
-
-function dnSaveUsers() {
-    localStorage.setItem(DN_CONFIG.STORAGE_KEYS.USERS, JSON.stringify(dnState.users));
-}
-
-function dnLoadSession() {
-    const raw = localStorage.getItem(DN_CONFIG.STORAGE_KEYS.SESSION);
-    if (!raw) return null;
-    try {
-        return JSON.parse(raw);
-    } catch {
-        return null;
-    }
-}
-
-function dnSaveSession(username, remember) {
-    if (remember && username) {
-        localStorage.setItem(
-            DN_CONFIG.STORAGE_KEYS.SESSION,
-            JSON.stringify({ username })
-        );
+function handleLogin(e) {
+    e.preventDefault();
+    const username = $('login-username').value.trim().toLowerCase();
+    const password = $('login-password').value;
+    const remember = $('remember-me').checked;
+    
+    const users = getUsers();
+    const user = users[username];
+    
+    if (user && user.password === password) {
+        loginUser(username, remember);
+    } else if (username === CONFIG.ADMIN_USER && password === CONFIG.ADMIN_PASS) {
+        if (!users[username]) {
+            users[username] = { password, createdAt: new Date().toISOString(), isAdmin: true };
+            saveUsers(users);
+        }
+        loginUser(username, remember);
     } else {
-        localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.SESSION);
+        $('login-error').textContent = 'Invalid username or password';
     }
 }
 
-function dnSetCurrentUser(username, remember = false) {
-    const user = dnState.users[username];
-    if (!user) return;
-    dnState.currentUser = user;
-    user.lastActive = dnNowISO();
-    dnSaveUsers();
-    dnSaveSession(username, remember);
-    dnLoadUserSettings();
-    dnLoadNotes();
-    dnInitUserUI();
-}
-
-// -----------------------------
-// Persistence: notes & settings
-// -----------------------------
-function dnNotesKey() {
-    return DN_CONFIG.STORAGE_KEYS.NOTES_PREFIX + dnState.currentUser.username;
-}
-function dnSettingsKey() {
-    return DN_CONFIG.STORAGE_KEYS.SETTINGS_PREFIX + dnState.currentUser.username;
-}
-
-function dnLoadNotes() {
-    const raw = localStorage.getItem(dnNotesKey());
-    dnState.notes = raw ? JSON.parse(raw) : [];
-    dnRenderAll();
-}
-
-function dnSaveNotes() {
-    localStorage.setItem(dnNotesKey(), JSON.stringify(dnState.notes));
-    dnRenderAll();
-}
-
-function dnLoadUserSettings() {
-    const raw = localStorage.getItem(dnSettingsKey());
-    const def = { theme: 'dark' };
-    dnState.settings = raw ? { ...def, ...JSON.parse(raw) } : def;
-    document.documentElement.setAttribute('data-theme', dnState.settings.theme);
-    if (dnState.el.themeSelect) dnState.el.themeSelect.value = dnState.settings.theme;
-}
-
-function dnSaveUserSettings() {
-    localStorage.setItem(dnSettingsKey(), JSON.stringify(dnState.settings));
-}
-
-// -----------------------------
-// Auth UI
-// -----------------------------
-function dnShowLogin() {
-    dnState.el.registerView.classList.add('hidden');
-    dnState.el.loginView.classList.remove('hidden');
-}
-function dnShowRegister() {
-    dnState.el.loginView.classList.add('hidden');
-    dnState.el.registerView.classList.remove('hidden');
-}
-
-function dnHandleLogin(e) {
+function handleRegister(e) {
     e.preventDefault();
-    const username = dnState.el.loginUsername.value.trim();
-    const pw = dnState.el.loginPassword.value;
-    const remember = dnState.el.rememberMe.checked;
-    const user = dnState.users[username];
-    if (!user || user.password !== pw) {
-        dnState.el.loginError.textContent = 'Invalid username or password';
-        return;
-    }
-    dnState.el.loginError.textContent = '';
-    dnState.el.authScreen.classList.add('hidden');
-    dnState.el.app.classList.remove('hidden');
-    dnSetCurrentUser(username, remember);
-    dnShowToast(`Welcome back, ${username}!`, 'success');
-
-    // 🔹 Cloud analytics: user login
-    logAnalyticsEvent('user_login', username);
+    const username = $('register-username').value.trim().toLowerCase();
+    const password = $('register-password').value;
+    const confirm = $('register-confirm').value;
+    
+    if (password !== confirm) { $('register-error').textContent = 'Passwords do not match'; return; }
+    
+    const users = getUsers();
+    if (users[username]) { $('register-error').textContent = 'Username already exists'; return; }
+    
+    users[username] = { password, createdAt: new Date().toISOString(), isAdmin: false };
+    saveUsers(users);
+    logActivity(username, 'Account created');
+    loginUser(username, true);
 }
 
-function dnHandleRegister(e) {
-    e.preventDefault();
-    const username = dnState.el.registerUsername.value.trim();
-    const pw = dnState.el.registerPassword.value;
-    const pw2 = dnState.el.registerConfirm.value;
-    if (username.length < 3) {
-        dnState.el.registerError.textContent = 'Username must be at least 3 characters';
-        return;
-    }
-    if (pw.length < 4) {
-        dnState.el.registerError.textContent = 'Password must be at least 4 characters';
-        return;
-    }
-    if (pw !== pw2) {
-        dnState.el.registerError.textContent = 'Passwords do not match';
-        return;
-    }
-    if (dnState.users[username]) {
-        dnState.el.registerError.textContent = 'That username is already taken';
-        return;
-    }
-    dnState.users[username] = {
-        username,
-        password: pw,
-        createdAt: dnNowISO(),
-        lastActive: dnNowISO()
-    };
-    dnSaveUsers();
-    dnState.el.registerError.textContent = '';
-    dnState.el.authScreen.classList.add('hidden');
-    dnState.el.app.classList.remove('hidden');
-    dnSetCurrentUser(username, true);
-    dnShowToast(`Account created. Welcome, ${username}!`, 'success');
-
-    // 🔹 Cloud analytics: new user registered
-    logAnalyticsEvent('user_registered', username);
+function loginUser(username, remember) {
+    state.currentUser = username;
+    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'session', JSON.stringify({ username, remember }));
+    logActivity(username, 'Logged in');
+    showApp();
 }
 
-// -----------------------------
-// Notes CRUD
-// -----------------------------
-function dnCreateNote({ type, title, content, tags = [], attachments = [] }) {
+function logout() {
+    logActivity(state.currentUser, 'Logged out');
+    state.currentUser = null;
+    localStorage.removeItem(CONFIG.STORAGE_PREFIX + 'session');
+    location.reload();
+}
+
+function showApp() {
+    $('auth-screen').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    loadUserData();
+    updateUserUI();
+    renderNotes();
+}
+
+function updateUserUI() {
+    const initial = state.currentUser.charAt(0).toUpperCase();
+    $('user-avatar').textContent = initial;
+    $('dropdown-avatar').textContent = initial;
+    $('user-name').textContent = state.currentUser;
+    $('dropdown-name').textContent = state.currentUser;
+    
+    const users = getUsers();
+    const isAdmin = users[state.currentUser]?.isAdmin || state.currentUser === CONFIG.ADMIN_USER;
+    $('dropdown-role').textContent = isAdmin ? 'Admin' : 'Member';
+    $('analytics-btn').style.display = isAdmin ? 'flex' : 'none';
+}
+
+function getUsers() { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'users') || '{}'); }
+function saveUsers(users) { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'users', JSON.stringify(users)); }
+function loadUserData() { const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.currentUser); state.notes = data ? JSON.parse(data) : []; }
+function saveUserData() { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.currentUser, JSON.stringify(state.notes)); updateStorage(); }
+function logActivity(username, action) {
+    const log = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]');
+    log.unshift({ username, action, time: new Date().toISOString() });
+    if (log.length > 100) log.pop();
+    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'activity', JSON.stringify(log));
+}
+
+function createNote(data) {
     const note = {
-        id: dnGenerateId(),
-        user: dnState.currentUser.username,
-        type,
-        title: title || '(Untitled)',
-        content: content || '',
-        tags,
-        attachments,
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+        type: data.type || 'text',
+        title: data.title || 'Untitled',
+        content: data.content || '',
+        tags: data.tags || [],
         starred: false,
-        createdAt: dnNowISO(),
-        updatedAt: dnNowISO()
+        createdAt: new Date().toISOString(),
+        ...data
     };
-    dnState.notes.unshift(note);
-    dnSaveNotes();
-    dnLogActivity('note_created', note);
+    state.notes.unshift(note);
+    saveUserData();
+    logActivity(state.currentUser, `Created ${note.type} note`);
+    renderNotes();
+    toast('Note saved!', 'success');
     return note;
 }
 
-function dnUpdateNote(id, updates) {
-    const idx = dnState.notes.findIndex(n => n.id === id);
-    if (idx === -1) return;
-    dnState.notes[idx] = { ...dnState.notes[idx], ...updates, updatedAt: dnNowISO() };
-    dnSaveNotes();
-    dnLogActivity('note_updated', dnState.notes[idx]);
+function updateNote(id, updates) {
+    const idx = state.notes.findIndex(n => n.id === id);
+    if (idx !== -1) { state.notes[idx] = { ...state.notes[idx], ...updates }; saveUserData(); renderNotes(); }
 }
 
-function dnDeleteNote(id) {
-    const idx = dnState.notes.findIndex(n => n.id === id);
-    if (idx === -1) return;
-    const note = dnState.notes[idx];
-    dnState.notes.splice(idx, 1);
-    dnSaveNotes();
-    dnLogActivity('note_deleted', note);
+function deleteNote(id) {
+    state.notes = state.notes.filter(n => n.id !== id);
+    saveUserData();
+    logActivity(state.currentUser, 'Deleted note');
+    renderNotes();
+    toast('Note deleted');
 }
 
-function dnGetNote(id) {
-    return dnState.notes.find(n => n.id === id) || null;
-}
-
-// -----------------------------
-// Analytics (local only)
-// -----------------------------
-function dnLogActivity(type, note) {
-    // store recent activity in localStorage for analytics panel
-    const key = 'daveNotes_activity';
-    const raw = localStorage.getItem(key);
-    const list = raw ? JSON.parse(raw) : [];
-    list.unshift({
-        id: dnGenerateId(),
-        type,
-        user: dnState.currentUser.username,
-        noteId: note.id,
-        noteTitle: note.title,
-        at: dnNowISO(),
-        noteType: note.type
+function getFilteredNotes() {
+    let notes = [...state.notes];
+    if (state.filter === 'text') notes = notes.filter(n => n.type === 'text');
+    else if (state.filter === 'voice') notes = notes.filter(n => n.type === 'voice');
+    else if (state.filter === 'files') notes = notes.filter(n => n.type === 'file' || n.type === 'image');
+    else if (state.filter === 'starred') notes = notes.filter(n => n.starred);
+    if (state.tagFilter) notes = notes.filter(n => n.tags.includes(state.tagFilter));
+    if (state.search) {
+        const q = state.search.toLowerCase();
+        notes = notes.filter(n => n.title.toLowerCase().includes(q) || (n.content && n.content.toLowerCase().includes(q)) || n.tags.some(t => t.toLowerCase().includes(q)));
+    }
+    notes.sort((a, b) => {
+        if (state.sort === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
+        if (state.sort === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt);
+        if (state.sort === 'az') return a.title.localeCompare(b.title);
+        if (state.sort === 'za') return b.title.localeCompare(a.title);
+        return 0;
     });
-    while (list.length > 50) list.pop();
-    localStorage.setItem(key, JSON.stringify(list));
-
-    // 🔹 Cloud analytics: mirror note activity
-    if (dnState.currentUser) {
-        try {
-            logAnalyticsEvent(type, dnState.currentUser.username, note.id);
-        } catch (err) {
-            console.error('Cloud analytics failed in dnLogActivity:', err);
-        }
-    }
+    return notes;
 }
 
-function dnOpenAnalytics() {
-    dnState.el.analyticsPanel.classList.remove('hidden');
-    dnRenderAnalytics();
-}
-function dnCloseAnalytics() {
-    dnState.el.analyticsPanel.classList.add('hidden');
-}
-
-function dnRenderAnalytics() {
-    const users = dnState.users;
-    const usernames = Object.keys(users);
-    dnState.el.statUsers.textContent = usernames.length;
-
-    // Aggregate counts
-    let totalNotes = 0, voice = 0, files = 0;
-    const userSummaries = [];
-
-    usernames.forEach(u => {
-        const raw = localStorage.getItem(DN_CONFIG.STORAGE_KEYS.NOTES_PREFIX + u);
-        const notes = raw ? JSON.parse(raw) : [];
-        totalNotes += notes.length;
-        notes.forEach(n => {
-            if (n.type === 'voice') voice++;
-            if (n.type === 'file' || n.type === 'image') files++;
+function renderNotes() {
+    const notes = getFilteredNotes();
+    const container = $('notes-container');
+    if (notes.length === 0) {
+        container.innerHTML = '';
+        $('empty-state').classList.remove('hidden');
+    } else {
+        $('empty-state').classList.add('hidden');
+        container.innerHTML = notes.map(note => createNoteCard(note)).join('');
+        container.querySelectorAll('.note-card').forEach(card => {
+            card.addEventListener('click', e => { if (!e.target.closest('.note-star')) openNoteViewer(card.dataset.id); });
+            card.querySelector('.note-star').addEventListener('click', e => { e.stopPropagation(); toggleStar(card.dataset.id); });
         });
-        userSummaries.push({
-            username: u,
-            notes: notes.length,
-            lastActive: users[u].lastActive
-        });
-    });
-
-    dnState.el.statNotes.textContent = totalNotes;
-    dnState.el.statVoice.textContent = voice;
-    dnState.el.statFiles.textContent = files;
-
-    // User list
-    dnState.el.userList.innerHTML = userSummaries
-        .sort((a,b)=> (b.notes-a.notes))
-        .map(u => `
-        <div class="user-row">
-            <div class="user-initial">${u.username[0].toUpperCase()}</div>
-            <div class="user-meta">
-                <div class="user-name">${u.username}</div>
-                <div class="user-sub">Notes: ${u.notes}</div>
-            </div>
-            <div class="user-date">${u.lastActive ? dnFormatDate(u.lastActive) : ''}</div>
-        </div>
-        `).join('') || '<p class="muted">No users yet.</p>';
-
-    // Activity log
-    const rawAct = localStorage.getItem('daveNotes_activity');
-    const acts = rawAct ? JSON.parse(rawAct) : [];
-    dnState.el.activityLog.innerHTML = acts.slice(0,30).map(a => `
-        <div class="activity-row">
-            <span class="activity-dot"></span>
-            <div class="activity-main">
-                <div><strong>${a.user}</strong> ${a.type.replace('_',' ')} <span class="pill pill-${a.noteType}">${a.noteType}</span></div>
-                <div class="activity-note">${a.noteTitle}</div>
-            </div>
-            <div class="activity-time">${dnFormatDate(a.at)}</div>
-        </div>
-    `).join('') || '<p class="muted">No activity yet.</p>';
+    }
+    container.className = state.view === 'list' ? 'notes-grid list-view' : 'notes-grid';
+    updateCounts();
+    updateTags();
+    $('visible-count').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
 }
 
-// -----------------------------
-// Rendering helpers
-// -----------------------------
-function dnFilteredNotes() {
-    let list = [...dnState.notes];
-
-    // filter by nav
-    if (dnState.filter === 'text') {
-        list = list.filter(n => n.type === 'text');
-    } else if (dnState.filter === 'voice') {
-        list = list.filter(n => n.type === 'voice');
-    } else if (dnState.filter === 'files') {
-        list = list.filter(n => n.type === 'file' || n.type === 'image');
-    } else if (dnState.filter === 'starred') {
-        list = list.filter(n => n.starred);
-    }
-
-    // tag filter
-    if (dnState.activeTag) {
-        list = list.filter(n => n.tags && n.tags.includes(dnState.activeTag));
-    }
-
-    // search
-    if (dnState.search) {
-        const q = dnState.search.toLowerCase();
-        list = list.filter(n =>
-            (n.title && n.title.toLowerCase().includes(q)) ||
-            (n.content && n.content.toLowerCase().includes(q)) ||
-            (n.tags || []).some(t => t.toLowerCase().includes(q))
-        );
-    }
-
-    // sort
-    if (dnState.sort === 'newest') {
-        list.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
-    } else if (dnState.sort === 'oldest') {
-        list.sort((a,b)=> new Date(a.createdAt) - new Date(b.createdAt));
-    } else if (dnState.sort === 'az') {
-        list.sort((a,b)=> (a.title||'').localeCompare(b.title||''));
-    } else if (dnState.sort === 'za') {
-        list.sort((a,b)=> (b.title||'').localeCompare(a.title||''));
-    }
-
-    return list;
-}
-
-function dnRenderTagsSidebar() {
-    const allTags = new Set();
-    dnState.notes.forEach(n => (n.tags || []).forEach(t => allTags.add(t)));
-    dnState.el.tagsList.innerHTML = Array.from(allTags).map(tag => `
-        <button class="tag-chip ${dnState.activeTag === tag ? 'active' : ''}" data-tag="${tag}">${tag}</button>
-    `).join('');
-    dnState.el.tagsList.querySelectorAll('.tag-chip').forEach(btn => {
-        btn.addEventListener('click', () => {
-            dnState.activeTag = (dnState.activeTag === btn.dataset.tag) ? null : btn.dataset.tag;
-            dnRenderAll();
-        });
-    });
-}
-
-function dnTypeBadge(type) {
-    if (type === 'voice') return '🎙️ Voice';
-    if (type === 'file') return '📁 Files';
-    if (type === 'image') return '🖼️ Images';
-    return '📄 Text';
-}
-
-function dnRenderNotes() {
-    const notes = dnFilteredNotes();
-    const cont = dnState.el.notesContainer;
-    const empty = dnState.el.emptyState;
-
-    dnState.el.visibleCount.textContent = `${notes.length} note${notes.length === 1 ? '' : 's'}`;
-
-    if (!notes.length) {
-        cont.innerHTML = '';
-        empty.classList.remove('hidden');
-        return;
-    }
-    empty.classList.add('hidden');
-
-    cont.classList.toggle('list-view', dnState.view === 'list');
-
-    cont.innerHTML = notes.map(n => {
-        const snippet = (n.content || '').slice(0, 180);
-        const tagHtml = (n.tags || []).slice(0,3).map(t => `<span class="note-tag">${t}</span>`).join('');
-        const hasMedia = (n.attachments || []).length;
-        let mediaLabel = '';
-        if (hasMedia) {
-            const imgs = n.attachments.filter(a => a.kind === 'image').length;
-            const files = n.attachments.filter(a => a.kind === 'file').length;
-            const auds = n.attachments.filter(a => a.kind === 'audio').length;
-            const parts = [];
-            if (imgs) parts.push(`${imgs} image${imgs>1?'s':''}`);
-            if (files) parts.push(`${files} file${files>1?'s':''}`);
-            if (auds) parts.push(`${auds} audio`);
-            mediaLabel = parts.join(', ');
-        }
-
-        return `
-        <article class="note-card ${n.starred ? 'starred' : ''}" data-id="${n.id}">
+function createNoteCard(note) {
+    const time = new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const typeIcon = { text: '📄', voice: '🎙️', file: '📎', image: '🖼️' }[note.type] || '📄';
+    const typeClass = { text: 'text', voice: 'voice', file: 'file', image: 'file' }[note.type] || 'text';
+    let preview = '';
+    if (note.type === 'image' && note.mediaData) preview = `<img src="${note.mediaData}" class="note-media-preview" alt="">`;
+    else if (note.content) preview = `<p class="note-preview">${escapeHtml(note.content)}</p>`;
+    return `
+        <div class="note-card ${note.starred ? 'starred' : ''}" data-id="${note.id}">
             <div class="note-card-header">
-                <div>
-                    <h3 class="note-title">${n.title || '(Untitled)'}</h3>
-                    <div class="note-meta">
-                        <span class="type-pill">${dnTypeBadge(n.type)}</span>
-                        <span class="note-date">${dnFormatDate(n.createdAt)}</span>
-                    </div>
-                </div>
-                <button class="note-star" data-id="${n.id}" title="Star">${n.starred ? '★' : '☆'}</button>
+                <span class="note-type ${typeClass}">${typeIcon} ${note.type}</span>
+                <button class="note-star">${note.starred ? '★' : '☆'}</button>
             </div>
-            <div class="note-body">
-                ${snippet ? `<p class="note-snippet">${snippet}${n.content && n.content.length>180 ? '…' : ''}</p>` : ''}
-                ${mediaLabel ? `<p class="note-media">${mediaLabel}</p>` : ''}
-            </div>
+            <h3 class="note-title">${escapeHtml(note.title)}</h3>
+            ${preview}
             <div class="note-card-footer">
-                <div class="note-tags-preview">${tagHtml}</div>
+                <div class="note-tags-row">${note.tags.slice(0, 3).map(t => `<span class="note-tag">${t}</span>`).join('')}</div>
+                <span class="note-time">${time}</span>
             </div>
-        </article>`;
-    }).join('');
+        </div>`;
+}
 
-    // Click handlers
-    cont.querySelectorAll('.note-card').forEach(card => {
-        const id = card.dataset.id;
-        card.addEventListener('click', (e) => {
-            if (e.target.closest('.note-star')) return;
-            dnOpenViewer(id);
+function updateCounts() {
+    $('count-all').textContent = state.notes.length;
+    $('count-text').textContent = state.notes.filter(n => n.type === 'text').length;
+    $('count-voice').textContent = state.notes.filter(n => n.type === 'voice').length;
+    $('count-files').textContent = state.notes.filter(n => n.type === 'file' || n.type === 'image').length;
+    $('count-starred').textContent = state.notes.filter(n => n.starred).length;
+}
+
+function updateTags() {
+    const tags = new Set();
+    state.notes.forEach(n => n.tags.forEach(t => tags.add(t)));
+    $('tags-list').innerHTML = Array.from(tags).map(tag => `<button class="tag-chip ${state.tagFilter === tag ? 'active' : ''}" data-tag="${tag}">${tag}</button>`).join('');
+    $('tags-list').querySelectorAll('.tag-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.tagFilter = state.tagFilter === btn.dataset.tag ? null : btn.dataset.tag;
+            document.querySelectorAll('.tag-chip').forEach(b => b.classList.remove('active'));
+            if (state.tagFilter) btn.classList.add('active');
+            renderNotes();
         });
     });
-    cont.querySelectorAll('.note-star').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const id = btn.dataset.id;
-            const note = dnGetNote(id);
-            if (!note) return;
-            dnUpdateNote(id, { starred: !note.starred });
-        });
-    });
 }
 
-function dnRenderCountsAndStorage() {
-    const all = dnState.notes.length;
-    const text = dnState.notes.filter(n=>n.type==='text').length;
-    const voice = dnState.notes.filter(n=>n.type==='voice').length;
-    const files = dnState.notes.filter(n=>n.type==='file'||n.type==='image').length;
-    const starred = dnState.notes.filter(n=>n.starred).length;
-
-    dnState.el.countAll.textContent = all;
-    dnState.el.countText.textContent = text;
-    dnState.el.countVoice.textContent = voice;
-    dnState.el.countFiles.textContent = files;
-    dnState.el.countStarred.textContent = starred;
-
-    const { pct, bytes } = dnEstimateStorage();
-    dnState.el.storagePercent.textContent = `${pct}%`;
-    dnState.el.storageFill.style.width = `${pct}%`;
-    dnState.el.storageDetail.textContent = `${all} note${all===1?'':'s'} • ${(bytes/1024).toFixed(1)} KB`;
+function updateStorage() {
+    const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.currentUser) || '';
+    const bytes = new Blob([data]).size;
+    const kb = (bytes / 1024).toFixed(1);
+    const percent = Math.min((bytes / (5 * 1024 * 1024)) * 100, 100).toFixed(0);
+    $('storage-percent').textContent = percent + '%';
+    $('storage-fill').style.width = percent + '%';
+    $('storage-detail').textContent = state.notes.length + ' notes • ' + kb + ' KB';
 }
 
-function dnRenderAll() {
-    dnRenderCountsAndStorage();
-    dnRenderTagsSidebar();
-    dnRenderNotes();
+function updateViewTitle() {
+    const titles = { all: 'All Notes', text: 'Text Notes', voice: 'Voice Notes', files: 'Files & Images', starred: 'Starred' };
+    $('view-title').textContent = titles[state.filter] || 'All Notes';
 }
 
-// -----------------------------
-// Modals & editor
-// -----------------------------
-function dnOpenTextEditor(note) {
-    dnState.editingNoteId = note ? note.id : null;
-    dnState.el.noteTitle.value = note ? (note.title || '') : '';
-    dnState.el.noteContent.value = note ? (note.content || '') : '';
-    const tags = note ? (note.tags || []) : [];
-    dnState.el.editorTagsList.innerHTML = tags.map(t => `<span class="tag-pill">${t}</span>`).join('');
-    dnState.el.editorTagInput.value = '';
-    dnUpdateCharCount();
-    dnState.el.noteModal.classList.remove('hidden');
+function toggleStar(id) {
+    const note = state.notes.find(n => n.id === id);
+    if (note) { note.starred = !note.starred; saveUserData(); renderNotes(); }
 }
 
-function dnCloseTextEditor() {
-    dnState.editingNoteId = null;
-    dnState.el.noteModal.classList.add('hidden');
+function openNoteEditor(note = null) {
+    state.editingNote = note;
+    $('note-title').value = note ? note.title : '';
+    $('note-content').value = note ? note.content : '';
+    $('char-count').textContent = (note ? note.content.length : 0) + ' chars';
+    renderEditorTags(note ? note.tags : []);
+    $('note-modal').classList.remove('hidden');
+    $('note-title').focus();
 }
 
-function dnUpdateCharCount() {
-    const len = dnState.el.noteContent.value.length;
-    dnState.el.charCount.textContent = `${len} chars`;
+function renderEditorTags(tags) {
+    $('editor-tags-list').innerHTML = tags.map(tag => `<span class="editor-tag">${tag}<button onclick="removeEditorTag('${tag}')">×</button></span>`).join('');
+    $('editor-tags-list').dataset.tags = JSON.stringify(tags);
 }
 
-function dnHandleSaveText() {
-    const title = dnState.el.noteTitle.value.trim();
-    const content = dnState.el.noteContent.value.trim();
-    const tags = Array.from(dnState.el.editorTagsList.querySelectorAll('.tag-pill')).map(el=>el.textContent);
+window.removeEditorTag = function(tag) {
+    const tags = JSON.parse($('editor-tags-list').dataset.tags || '[]').filter(t => t !== tag);
+    renderEditorTags(tags);
+};
 
-    if (!content && !title) {
-        dnShowToast('Add a title or some content first', 'error');
-        return;
-    }
-
-    if (dnState.editingNoteId) {
-        dnUpdateNote(dnState.editingNoteId, { title, content, tags });
-    } else {
-        dnCreateNote({ type: 'text', title, content, tags });
-    }
-    dnCloseTextEditor();
-    dnShowToast('Note saved', 'success');
-}
-
-// voice modal
-function dnOpenVoiceModal() {
-    dnResetVoiceModal();
-    dnState.el.voiceModal.classList.remove('hidden');
-}
-
-function dnCloseVoiceModal() {
-    dnStopRecordingInternal(true);
-    dnState.el.voiceModal.classList.add('hidden');
-}
-
-function dnResetVoiceModal() {
-    dnState.recording = false;
-    dnState.audioChunks = [];
-    dnState.el.recorderStatus.textContent = 'Ready to Record';
-    dnState.el.recorderTime.textContent = '00:00';
-    dnState.el.recorderSave.disabled = true;
-    dnState.el.voiceTitle.value = '';
-    dnState.el.voiceTranscript.value = '';
-}
-
-async function dnToggleRecording() {
-    if (dnState.recording) {
-        dnStopRecordingInternal(false);
-        return;
-    }
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        dnState.audioChunks = [];
-        dnState.mediaRecorder = new MediaRecorder(stream);
-        dnState.mediaRecorder.ondataavailable = e => dnState.audioChunks.push(e.data);
-        dnState.mediaRecorder.onstop = () => {
-            if (!dnState.audioChunks.length) return;
-            dnState.el.recorderSave.disabled = false;
-        };
-
-        // basic timer
-        dnState.recordingStart = Date.now();
-        dnState.recordingTimer = setInterval(()=>{
-            const secs = Math.floor((Date.now()-dnState.recordingStart)/1000);
-            const m = String(Math.floor(secs/60)).padStart(2,'0');
-            const s = String(secs%60).padStart(2,'0');
-            dnState.el.recorderTime.textContent = `${m}:${s}`;
-        }, 500);
-
-        dnState.mediaRecorder.start();
-        dnState.recording = true;
-        dnState.el.recorderStatus.textContent = 'Recording...';
-        dnState.el.recorderToggle.textContent = '⏹';
-    } catch (err) {
-        console.error(err);
-        dnShowToast('Unable to access microphone', 'error');
+function addEditorTag() {
+    const input = $('editor-tag-input');
+    const tag = input.value.trim().toLowerCase();
+    if (tag) {
+        const tags = JSON.parse($('editor-tags-list').dataset.tags || '[]');
+        if (!tags.includes(tag)) { tags.push(tag); renderEditorTags(tags); }
+        input.value = '';
     }
 }
 
-function dnStopRecordingInternal(cancel) {
-    if (!dnState.mediaRecorder) return;
-    try {
-        dnState.mediaRecorder.stream.getTracks().forEach(t=>t.stop());
-        if (dnState.mediaRecorder.state !== 'inactive') dnState.mediaRecorder.stop();
-    } catch {}
-    clearInterval(dnState.recordingTimer);
-    dnState.recording = false;
-    dnState.el.recorderToggle.textContent = '🎙️';
-    if (cancel) {
-        dnState.audioChunks = [];
-        dnState.el.recorderSave.disabled = true;
-        dnState.el.recorderStatus.textContent = 'Ready to Record';
-    } else {
-        dnState.el.recorderStatus.textContent = 'Recording complete';
+function saveNote() {
+    const title = $('note-title').value.trim() || 'Untitled';
+    const content = $('note-content').value;
+    const tags = JSON.parse($('editor-tags-list').dataset.tags || '[]');
+    if (state.editingNote) { updateNote(state.editingNote.id, { title, content, tags }); toast('Note updated!', 'success'); }
+    else { createNote({ type: 'text', title, content, tags }); }
+    $('note-modal').classList.add('hidden');
+    state.editingNote = null;
+}
+
+function openVoiceRecorder() {
+    $('voice-modal').classList.remove('hidden');
+    $('recorder-status').textContent = 'Ready to Record';
+    $('recorder-time').textContent = '00:00';
+    $('recorder-save').disabled = true;
+    $('transcript-section').classList.add('hidden');
+    $('voice-title').value = '';
+    $('voice-transcript').value = '';
+}
+
+async function toggleRecording() {
+    if (state.recording.active) { stopRecording(); }
+    else {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            state.recording.chunks = [];
+            state.recording.mediaRecorder = new MediaRecorder(stream);
+            state.recording.audioContext = new AudioContext();
+            state.recording.analyser = state.recording.audioContext.createAnalyser();
+            const source = state.recording.audioContext.createMediaStreamSource(stream);
+            source.connect(state.recording.analyser);
+            state.recording.analyser.fftSize = 256;
+            state.recording.mediaRecorder.ondataavailable = e => state.recording.chunks.push(e.data);
+            state.recording.mediaRecorder.onstop = () => {
+                $('recorder-status').textContent = 'Recording Complete';
+                $('recorder-save').disabled = false;
+                $('transcript-section').classList.remove('hidden');
+                $('recorder-toggle').classList.remove('recording');
+                $('recorder-toggle').textContent = '🎙️';
+            };
+            state.recording.mediaRecorder.start();
+            state.recording.active = true;
+            state.recording.startTime = Date.now();
+            $('recorder-status').textContent = 'Recording...';
+            $('recorder-toggle').classList.add('recording');
+            $('recorder-toggle').textContent = '⏹️';
+            updateRecordingTime();
+            state.recording.timer = setInterval(updateRecordingTime, 1000);
+            visualizeAudio();
+        } catch (err) { toast('Cannot access microphone', 'error'); }
     }
 }
 
-async function dnHandleSaveVoice() {
-    if (!dnState.audioChunks.length) {
-        dnShowToast('Record something first', 'error');
-        return;
+function stopRecording() {
+    if (state.recording.mediaRecorder && state.recording.active) {
+        state.recording.mediaRecorder.stop();
+        state.recording.mediaRecorder.stream.getTracks().forEach(t => t.stop());
+        clearInterval(state.recording.timer);
+        state.recording.active = false;
+        if (state.recording.audioContext) state.recording.audioContext.close();
     }
-    const blob = new Blob(dnState.audioChunks, { type: 'audio/webm' });
+}
+
+function cancelRecording() { stopRecording(); state.recording.chunks = []; $('voice-modal').classList.add('hidden'); }
+
+function saveVoiceNote() {
+    const blob = new Blob(state.recording.chunks, { type: 'audio/webm' });
     const reader = new FileReader();
-    reader.onloadend = () => {
-        const dataUrl = reader.result;
-        const title = dnState.el.voiceTitle.value.trim() || 'Voice note';
-        const content = dnState.el.voiceTranscript.value.trim();
-        dnCreateNote({
+    reader.onload = () => {
+        createNote({
             type: 'voice',
-            title,
-            content,
-            attachments: [{
-                kind: 'audio',
-                name: title + '.webm',
-                mime: 'audio/webm',
-                dataUrl
-            }]
+            title: $('voice-title').value.trim() || `Voice Note ${new Date().toLocaleDateString()}`,
+            content: $('voice-transcript').value,
+            audioData: reader.result,
+            duration: Math.floor((Date.now() - state.recording.startTime) / 1000)
         });
-        dnCloseVoiceModal();
-        dnShowToast('Voice note saved', 'success');
+        $('voice-modal').classList.add('hidden');
     };
     reader.readAsDataURL(blob);
 }
 
-// Viewer
-function dnOpenViewer(id) {
-    const note = dnGetNote(id);
-    if (!note) return;
-    dnState.el.viewerTitle.textContent = note.title || '(Untitled)';
-    dnState.el.viewerDate.textContent = dnFormatDate(note.createdAt);
-    dnState.el.viewerType.textContent = dnTypeBadge(note.type);
-    dnState.el.viewerContent.innerHTML = note.content ? `<p>${note.content.replace(/\n/g,'<br>')}</p>` : '';
-    dnState.el.viewerTags.innerHTML = (note.tags||[]).map(t=>`<span class="note-tag">${t}</span>`).join('');
-    dnState.el.viewerStar.textContent = note.starred ? '★' : '☆';
-    dnState.el.viewerStar.dataset.id = note.id;
-    dnState.el.viewerEdit.dataset.id = note.id;
-    dnState.el.viewerDelete.dataset.id = note.id;
-
-    // media
-    const media = note.attachments || [];
-    const imgWrap = dnState.el.viewerMedia;
-    const audioWrap = dnState.el.viewerAudio;
-    imgWrap.innerHTML = '';
-    audioWrap.classList.add('hidden');
-    imgWrap.classList.add('hidden');
-
-    const imgs = media.filter(a=>a.kind==='image');
-    if (imgs.length) {
-        imgWrap.classList.remove('hidden');
-        imgs.forEach(img => {
-            const el = document.createElement('img');
-            el.src = img.dataUrl;
-            el.alt = img.name;
-            imgWrap.appendChild(el);
-        });
-    }
-    const aud = media.find(a=>a.kind==='audio');
-    if (aud) {
-        audioWrap.classList.remove('hidden');
-        dnState.el.audioPlayer.src = aud.dataUrl;
-    }
-
-    dnState.el.viewModal.classList.remove('hidden');
+function updateRecordingTime() {
+    const elapsed = Math.floor((Date.now() - state.recording.startTime) / 1000);
+    $('recorder-time').textContent = `${Math.floor(elapsed / 60).toString().padStart(2, '0')}:${(elapsed % 60).toString().padStart(2, '0')}`;
 }
 
-function dnCloseViewer() {
-    dnState.el.viewModal.classList.add('hidden');
+function visualizeAudio() {
+    const canvas = $('audio-canvas');
+    const ctx = canvas.getContext('2d');
+    const analyser = state.recording.analyser;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    canvas.width = canvas.offsetWidth * 2;
+    canvas.height = canvas.offsetHeight * 2;
+    function draw() {
+        if (!state.recording.active) return;
+        requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let x = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = (dataArray[i] / 255) * canvas.height;
+            ctx.fillStyle = `hsl(${220 + (i / bufferLength) * 40}, 70%, 60%)`;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+            x += barWidth + 1;
+        }
+    }
+    draw();
 }
 
-// -----------------------------
-// File & image uploads
-// -----------------------------
-function dnHandleFileUpload(files, type) {
-    if (!files || !files.length) return;
-    const attachments = [];
-    const isImage = type === 'image';
+function handleFileUpload(e) {
+    Array.from(e.target.files).forEach(file => {
+        if (file.size > CONFIG.MAX_FILE_SIZE) { toast(`${file.name} too large`, 'error'); return; }
+        createNote({ type: 'file', title: file.name, content: `File: ${file.name}\nSize: ${(file.size / 1024).toFixed(1)} KB`, fileName: file.name, fileSize: file.size });
+    });
+    e.target.value = '';
+}
 
-    let remaining = files.length;
-    Array.from(files).forEach(file => {
+function handleImageUpload(e) {
+    Array.from(e.target.files).forEach(file => {
+        if (file.size > CONFIG.MAX_FILE_SIZE) { toast(`${file.name} too large`, 'error'); return; }
         const reader = new FileReader();
-        reader.onloadend = () => {
-            attachments.push({
-                kind: isImage ? 'image' : 'file',
-                name: file.name,
-                mime: file.type,
-                size: file.size,
-                dataUrl: reader.result
-            });
-            remaining--;
-            if (!remaining) {
-                const title = files.length === 1 ? files[0].name : `${files.length} ${isImage ? 'images' : 'files'}`;
-                dnCreateNote({
-                    type: isImage ? 'image' : 'file',
-                    title,
-                    content: '',
-                    attachments
-                });
-                dnShowToast(`${files.length} ${isImage ? 'image(s)' : 'file(s)'} saved`, 'success');
-            }
-        };
+        reader.onload = () => { createNote({ type: 'image', title: file.name, content: '', mediaData: reader.result, fileName: file.name }); };
         reader.readAsDataURL(file);
     });
+    e.target.value = '';
 }
 
-// -----------------------------
-// AI helper (local, not real AI)
-// -----------------------------
-function dnOpenAi() { dnState.el.aiPanel.classList.remove('hidden'); }
-function dnCloseAi() { dnState.el.aiPanel.classList.add('hidden'); }
+function openNoteViewer(id) {
+    const note = state.notes.find(n => n.id === id);
+    if (!note) return;
+    state.editingNote = note;
+    $('viewer-type').textContent = note.type.charAt(0).toUpperCase() + note.type.slice(1);
+    $('viewer-date').textContent = new Date(note.createdAt).toLocaleString();
+    $('viewer-title').textContent = note.title;
+    $('viewer-content').textContent = note.content || '';
+    $('viewer-star').textContent = note.starred ? '★' : '☆';
+    $('viewer-star').style.color = note.starred ? 'var(--warning)' : '';
+    $('viewer-media').classList.add('hidden');
+    $('viewer-audio').classList.add('hidden');
+    if (note.type === 'image' && note.mediaData) { $('viewer-media').innerHTML = `<img src="${note.mediaData}" alt="">`; $('viewer-media').classList.remove('hidden'); }
+    if (note.type === 'voice' && note.audioData) { $('audio-player').src = note.audioData; $('viewer-audio').classList.remove('hidden'); }
+    $('viewer-tags').innerHTML = note.tags.map(t => `<span class="note-tag">${t}</span>`).join('');
+    $('view-modal').classList.remove('hidden');
+}
 
-function dnHandleAiSend() {
-    const input = dnState.el.aiInput.value.trim();
-    if (!input) return;
-    const box = dnState.el.aiMessages;
-    const addMsg = (role, text) => {
-        const div = document.createElement('div');
-        div.className = `ai-msg ai-${role}`;
-        div.textContent = text;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-    };
-    addMsg('user', input);
+function toggleViewerStar() { if (state.editingNote) { toggleStar(state.editingNote.id); $('viewer-star').textContent = state.editingNote.starred ? '★' : '☆'; $('viewer-star').style.color = state.editingNote.starred ? 'var(--warning)' : ''; } }
+function editViewerNote() { if (state.editingNote && state.editingNote.type === 'text') { $('view-modal').classList.add('hidden'); openNoteEditor(state.editingNote); } else { toast('Only text notes can be edited'); } }
+function deleteViewerNote() { if (state.editingNote && confirm('Delete this note?')) { deleteNote(state.editingNote.id); $('view-modal').classList.add('hidden'); } }
 
-    // naive local "AI"
-    const q = input.toLowerCase();
-    let reply = '';
-    if (q.includes('summarize') || q.includes('summary')) {
-        const total = dnState.notes.length;
-        const today = new Date();
-        const recent = dnState.notes.filter(n => (today - new Date(n.createdAt)) < 24*60*60*1000).length;
-        const topTagCounts = {};
-        dnState.notes.forEach(n => (n.tags||[]).forEach(t=>{topTagCounts[t]=(topTagCounts[t]||0)+1;}));
-        const topTags = Object.entries(topTagCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t,c])=>`${t} (${c})`).join(', ');
-        reply = `You have ${total} note${total===1?'':'s'} in total. ${recent} of them were created in the last 24 hours. Top tags: ${topTags || 'none yet'}.`;
-    } else if (q.startsWith('find') || q.includes('about')) {
-        const notes = dnFilteredNotes().filter(n =>
-            (n.title && n.title.toLowerCase().includes(q)) ||
-            (n.content && n.content.toLowerCase().includes(q))
-        ).slice(0,5);
-        if (!notes.length) {
-            reply = `I couldn't find any notes matching "${input}". Try a different phrase or tag.`;
-        } else {
-            reply = 'Here are a few matching notes:\n' +
-                notes.map(n=>`• ${n.title || '(Untitled)'} – ${dnFormatDate(n.createdAt)}`).join('\n');
-        }
-    } else {
-        reply = `I'm a lightweight offline helper. Try things like "summarize my notes" or "find notes about deployment".`;
+function toggleAI() { closeAllPanels(); $('ai-panel').classList.toggle('hidden'); }
+function sendAIMessage() {
+    const input = $('ai-input');
+    const message = input.value.trim();
+    if (!message) return;
+    addAIMessage(message, 'user');
+    input.value = '';
+    const welcome = $('ai-messages').querySelector('.ai-welcome');
+    if (welcome) welcome.remove();
+    setTimeout(() => { addAIMessage(processAIQuery(message), 'assistant'); }, 500);
+}
+function addAIMessage(text, role) {
+    const div = document.createElement('div');
+    div.className = `ai-message ${role}`;
+    div.textContent = text;
+    $('ai-messages').appendChild(div);
+    $('ai-messages').scrollTop = $('ai-messages').scrollHeight;
+}
+function processAIQuery(query) {
+    const q = query.toLowerCase();
+    if (q.includes('find') || q.includes('search') || q.includes('look')) {
+        const words = q.split(/\s+/).filter(w => w.length > 3 && !['find', 'search', 'look', 'notes', 'about', 'the'].includes(w));
+        const matches = state.notes.filter(n => words.some(w => n.title.toLowerCase().includes(w) || (n.content && n.content.toLowerCase().includes(w))));
+        if (matches.length > 0) return `Found ${matches.length} note(s):\n\n${matches.slice(0, 5).map(n => `• "${n.title}"`).join('\n')}`;
+        return "No notes found.";
     }
-    setTimeout(()=> addMsg('bot', reply), 200);
-    dnState.el.aiInput.value = '';
+    if (q.includes('summarize') || q.includes('summary')) return `You have ${state.notes.length} notes:\n• ${state.notes.filter(n => n.type === 'text').length} text\n• ${state.notes.filter(n => n.type === 'voice').length} voice\n• ${state.notes.filter(n => n.type === 'image' || n.type === 'file').length} files\n• ${state.notes.filter(n => n.starred).length} starred`;
+    if (q.includes('what did i') || q.includes('recent')) {
+        const recent = state.notes.slice(0, 5);
+        if (recent.length === 0) return "No notes yet.";
+        return `Recent notes:\n\n${recent.map(n => `• "${n.title}" (${n.type})`).join('\n')}`;
+    }
+    return "Try:\n• \"Find notes about...\"\n• \"Summarize my notes\"\n• \"What did I write?\"";
 }
 
-// -----------------------------
-// Header / sidebar / view controls
-// -----------------------------
-function dnToggleSidebar() {
-    dnState.el.sidebar.classList.toggle('collapsed');
+function applyTheme() {
+    const theme = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    if ($('theme-select')) $('theme-select').value = theme;
 }
-
-function dnSetFilter(filter) {
-    dnState.filter = filter;
-    dnState.el.viewTitle.textContent =
-        filter === 'text' ? 'Text Notes' :
-        filter === 'voice' ? 'Voice Notes' :
-        filter === 'files' ? 'Files & Images' :
-        filter === 'starred' ? 'Starred Notes' : 'All Notes';
-    document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === filter);
-    });
-    dnRenderAll();
+function exportNotes() {
+    const data = { exportDate: new Date().toISOString(), username: state.currentUser, notes: state.notes };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `dave-notes-${state.currentUser}-${new Date().toISOString().split('T')[0]}.json`;
+    a.click(); toast('Exported!', 'success');
 }
-
-function dnSetView(view) {
-    dnState.view = view;
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.view === view);
-    });
-    dnRenderNotes();
-}
-
-function dnSetSort(value) {
-    dnState.sort = value;
-    dnRenderNotes();
-}
-
-function dnHandleSearchInput(e) {
-    dnState.search = e.target.value;
-    dnRenderNotes();
-}
-
-// -----------------------------
-// Export / import / clear
-// -----------------------------
-function dnExportNotes() {
-    const data = {
-        user: dnState.currentUser.username,
-        exportedAt: dnNowISO(),
-        notes: dnState.notes
-    };
-    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dave-notes-${dnState.currentUser.username}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-}
-
-function dnHandleImportFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+function importNotes(e) {
+    const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
         try {
             const data = JSON.parse(reader.result);
-            if (!Array.isArray(data.notes)) throw new Error('Invalid file');
-            dnState.notes = data.notes;
-            dnSaveNotes();
-            dnShowToast('Notes imported', 'success');
-        } catch {
-            dnShowToast('Invalid import file', 'error');
-        }
+            if (data.notes) { state.notes = [...data.notes, ...state.notes]; saveUserData(); renderNotes(); toast(`Imported ${data.notes.length} notes!`, 'success'); }
+        } catch { toast('Invalid file', 'error'); }
     };
-    reader.readAsText(file);
+    reader.readAsText(file); e.target.value = '';
+}
+function clearUserData() { if (confirm('Delete ALL your notes?')) { state.notes = []; saveUserData(); renderNotes(); toast('Data cleared'); } }
+
+function loadAnalytics() {
+    const users = getUsers();
+    const userList = Object.keys(users);
+    let totalNotes = 0, totalVoice = 0, totalFiles = 0;
+    userList.forEach(username => {
+        const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + username);
+        const notes = data ? JSON.parse(data) : [];
+        totalNotes += notes.length;
+        totalVoice += notes.filter(n => n.type === 'voice').length;
+        totalFiles += notes.filter(n => n.type === 'file' || n.type === 'image').length;
+    });
+    $('stat-users').textContent = userList.length;
+    $('stat-notes').textContent = totalNotes;
+    $('stat-voice').textContent = totalVoice;
+    $('stat-files').textContent = totalFiles;
+    $('user-list').innerHTML = userList.map(username => {
+        const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + username);
+        const notes = data ? JSON.parse(data) : [];
+        const user = users[username];
+        return `<div class="user-item"><div class="user-avatar">${username.charAt(0).toUpperCase()}</div><div class="user-item-info"><div class="user-item-name">${username}${user.isAdmin ? ' (Admin)' : ''}</div><div class="user-item-stats">${notes.length} notes</div></div></div>`;
+    }).join('');
+    const activity = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]');
+    $('activity-log').innerHTML = activity.slice(0, 20).map(item => `<div class="activity-item"><strong>${item.username}</strong> ${item.action}<span class="activity-time">${new Date(item.time).toLocaleString()}</span></div>`).join('');
 }
 
-function dnClearMyData() {
-    if (!confirm('This will delete all your notes on this device. Continue?')) return;
-    localStorage.removeItem(dnNotesKey());
-    dnState.notes = [];
-    dnRenderAll();
-    dnShowToast('Your notes were cleared', 'success');
-}
-
-// -----------------------------
-// User menu / logout
-// -----------------------------
-function dnToggleUserMenu() {
-    dnState.el.userDropdown.classList.toggle('hidden');
-}
-
-function dnInitUserUI() {
-    // avatar letters
-    const initial = dnState.currentUser.username[0].toUpperCase();
-    dnState.el.userAvatar.textContent = initial;
-    dnState.el.dropdownAvatar.textContent = initial;
-    dnState.el.userName.textContent = dnState.currentUser.username;
-    dnState.el.dropdownName.textContent = dnState.currentUser.username;
-    dnRenderAll();
-}
-
-function dnLogout() {
-    // 🔹 Cloud analytics: user logout
-    if (dnState.currentUser) {
-        logAnalyticsEvent('user_logout', dnState.currentUser.username);
-    }
-
-    dnSaveSession(null, false);
-    // but keep other users
-    dnState.currentUser = null;
-    dnState.notes = [];
-    dnState.el.app.classList.add('hidden');
-    dnState.el.authScreen.classList.remove('hidden');
-}
-
-// -----------------------------
-// Keyboard shortcuts
-// -----------------------------
-function dnHandleKeydown(e) {
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        dnState.el.searchInput.focus();
-    }
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'n') {
-        e.preventDefault();
-        dnOpenTextEditor();
-    }
-}
-
-// -----------------------------
-// Init
-// -----------------------------
-function dnCacheElements() {
-    dnState.el.authScreen = dnId('auth-screen');
-    dnState.el.loginView = dnId('login-view');
-    dnState.el.registerView = dnId('register-view');
-    dnState.el.loginForm = dnId('login-form');
-    dnState.el.registerForm = dnId('register-form');
-    dnState.el.loginUsername = dnId('login-username');
-    dnState.el.loginPassword = dnId('login-password');
-    dnState.el.rememberMe = dnId('remember-me');
-    dnState.el.loginError = dnId('login-error');
-    dnState.el.registerUsername = dnId('register-username');
-    dnState.el.registerPassword = dnId('register-password');
-    dnState.el.registerConfirm = dnId('register-confirm');
-    dnState.el.registerError = dnId('register-error');
-    dnState.el.showRegister = dnId('show-register');
-    dnState.el.showLogin = dnId('show-login');
-
-    dnState.el.app = dnId('app');
-    dnState.el.sidebarToggle = dnId('sidebar-toggle');
-    dnState.el.sidebar = dnId('sidebar');
-
-    dnState.el.newNoteBtn = dnId('new-note-btn');
-    dnState.el.searchInput = dnId('search-input');
-    dnState.el.viewTitle = dnId('view-title');
-    dnState.el.visibleCount = dnId('visible-count');
-    dnState.el.sortSelect = dnId('sort-select');
-
-    dnState.el.notesContainer = dnId('notes-container');
-    dnState.el.emptyState = dnId('empty-state');
-
-    dnState.el.countAll = dnId('count-all');
-    dnState.el.countText = dnId('count-text');
-    dnState.el.countVoice = dnId('count-voice');
-    dnState.el.countFiles = dnId('count-files');
-    dnState.el.countStarred = dnId('count-starred');
-
-    dnState.el.tagsList = dnId('tags-list');
-    dnState.el.storagePercent = dnId('storage-percent');
-    dnState.el.storageFill = dnId('storage-fill');
-    dnState.el.storageDetail = dnId('storage-detail');
-
-    // FAB & inputs
-    dnState.el.fabMain = dnId('fab-main');
-    dnState.el.fabContainer = dnId('fab-container');
-    dnState.el.fabText = dnId('fab-text');
-    dnState.el.fabVoice = dnId('fab-voice');
-    dnState.el.fabUpload = dnId('fab-upload');
-    dnState.el.fabImage = dnId('fab-image');
-    dnState.el.fileInput = dnId('file-input');
-    dnState.el.imageInput = dnId('image-input');
-
-    // Text editor
-    dnState.el.noteModal = dnId('note-modal');
-    dnState.el.noteTitle = dnId('note-title');
-    dnState.el.noteContent = dnId('note-content');
-    dnState.el.editorTagsList = dnId('editor-tags-list');
-    dnState.el.editorTagInput = dnId('editor-tag-input');
-    dnState.el.saveNote = dnId('save-note');
-    dnState.el.cancelNote = dnId('cancel-note');
-    dnState.el.charCount = dnId('char-count');
-
-    // Voice modal
-    dnState.el.voiceModal = dnId('voice-modal');
-    dnState.el.recorderStatus = dnId('recorder-status');
-    dnState.el.recorderTime = dnId('recorder-time');
-    dnState.el.recorderToggle = dnId('recorder-toggle');
-    dnState.el.recorderCancel = dnId('recorder-cancel');
-    dnState.el.recorderSave = dnId('recorder-save');
-    dnState.el.voiceTitle = dnId('voice-title');
-    dnState.el.voiceTranscript = dnId('voice-transcript');
-
-    // Viewer
-    dnState.el.viewModal = dnId('view-modal');
-    dnState.el.closeViewer = dnId('close-viewer');
-    dnState.el.viewerStar = dnId('viewer-star');
-    dnState.el.viewerEdit = dnId('viewer-edit');
-    dnState.el.viewerDelete = dnId('viewer-delete');
-    dnState.el.viewerType = dnId('viewer-type');
-    dnState.el.viewerDate = dnId('viewer-date');
-    dnState.el.viewerTitle = dnId('viewer-title');
-    dnState.el.viewerContent = dnId('viewer-content');
-    dnState.el.viewerMedia = dnId('viewer-media');
-    dnState.el.viewerAudio = dnId('viewer-audio');
-    dnState.el.audioPlayer = dnId('audio-player');
-    dnState.el.viewerTags = dnId('viewer-tags');
-
-    // AI & settings & analytics
-    dnState.el.aiPanel = dnId('ai-panel');
-    dnState.el.aiMessages = dnId('ai-messages');
-    dnState.el.aiInput = dnId('ai-input');
-    dnState.el.aiSend = dnId('ai-send');
-    dnState.el.aiBtn = dnId('ai-btn');
-    dnState.el.closeAi = dnId('close-ai');
-
-    dnState.el.settingsPanel = dnId('settings-panel');
-    dnState.el.closeSettings = dnId('close-settings');
-    dnState.el.themeSelect = dnId('theme-select');
-    dnState.el.exportBtn = dnId('export-btn');
-    dnState.el.importBtn = dnId('import-btn');
-    dnState.el.importInput = dnId('import-input');
-    dnState.el.clearBtn = dnId('clear-btn');
-
-    dnState.el.analyticsPanel = dnId('analytics-panel');
-    dnState.el.analyticsBtn = dnId('analytics-btn');
-    dnState.el.closeAnalytics = dnId('close-analytics');
-    dnState.el.statUsers = dnId('stat-users');
-    dnState.el.statNotes = dnId('stat-notes');
-    dnState.el.statVoice = dnId('stat-voice');
-    dnState.el.statFiles = dnId('stat-files');
-    dnState.el.userList = dnId('user-list');
-    dnState.el.activityLog = dnId('activity-log');
-
-    // user dropdown
-    dnState.el.userBtn = dnId('user-btn');
-    dnState.el.userDropdown = dnId('user-dropdown');
-    dnState.el.userAvatar = dnId('user-avatar');
-    dnState.el.userName = dnId('user-name');
-    dnState.el.dropdownAvatar = dnId('dropdown-avatar');
-    dnState.el.dropdownName = dnId('dropdown-name');
-    dnState.el.logoutBtn = dnId('logout-btn');
-
-    // toast
-    dnState.el.toastContainer = dnId('toast-container');
-}
-
-function dnBindEvents() {
-    dnState.el.showRegister.addEventListener('click', dnShowRegister);
-    dnState.el.showLogin.addEventListener('click', dnShowLogin);
-    dnState.el.loginForm.addEventListener('submit', dnHandleLogin);
-    dnState.el.registerForm.addEventListener('submit', dnHandleRegister);
-
-    dnState.el.sidebarToggle.addEventListener('click', dnToggleSidebar);
-    dnState.el.newNoteBtn.addEventListener('click', ()=> dnOpenTextEditor());
-    dnState.el.searchInput.addEventListener('input', dnDebounce(dnHandleSearchInput, 200));
-    dnState.el.sortSelect.addEventListener('change', e => dnSetSort(e.target.value));
-
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', ()=> dnSetView(btn.dataset.view));
-    });
-    document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.addEventListener('click', ()=> dnSetFilter(btn.dataset.filter));
-    });
-
-    // FAB
-    dnState.el.fabMain.addEventListener('click', () => {
-        dnState.el.fabContainer.classList.toggle('open');
-    });
-    dnState.el.fabText.addEventListener('click', ()=> { dnOpenTextEditor(); dnState.el.fabContainer.classList.remove('open'); });
-    dnState.el.fabVoice.addEventListener('click', ()=> { dnOpenVoiceModal(); dnState.el.fabContainer.classList.remove('open'); });
-    dnState.el.fabUpload.addEventListener('click', ()=> dnState.el.fileInput.click());
-    dnState.el.fabImage.addEventListener('click', ()=> dnState.el.imageInput.click());
-    dnState.el.fileInput.addEventListener('change', e => dnHandleFileUpload(e.target.files, 'file'));
-    dnState.el.imageInput.addEventListener('change', e => dnHandleFileUpload(e.target.files, 'image'));
-
-    // text editor
-    dnState.el.noteContent.addEventListener('input', dnUpdateCharCount);
-    dnState.el.editorTagInput.addEventListener('keydown', (e)=>{
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const val = dnState.el.editorTagInput.value.trim();
-            if (!val) return;
-            const span = document.createElement('span');
-            span.className = 'tag-pill';
-            span.textContent = val;
-            span.addEventListener('click', ()=> span.remove());
-            dnState.el.editorTagsList.appendChild(span);
-            dnState.el.editorTagInput.value = '';
-        }
-    });
-    dnState.el.saveNote.addEventListener('click', dnHandleSaveText);
-    dnState.el.cancelNote.addEventListener('click', dnCloseTextEditor);
-    dnState.el.noteModal.querySelector('.modal-backdrop').addEventListener('click', dnCloseTextEditor);
-
-    // voice modal
-    dnState.el.recorderToggle.addEventListener('click', dnToggleRecording);
-    dnState.el.recorderCancel.addEventListener('click', ()=> { dnCloseVoiceModal(); });
-    dnState.el.recorderSave.addEventListener('click', dnHandleSaveVoice);
-    dnState.el.voiceModal.querySelector('.modal-backdrop').addEventListener('click', dnCloseVoiceModal);
-
-    // viewer
-    dnState.el.closeViewer.addEventListener('click', dnCloseViewer);
-    dnState.el.viewModal.querySelector('.modal-backdrop').addEventListener('click', dnCloseViewer);
-    dnState.el.viewerStar.addEventListener('click', ()=>{
-        const id = dnState.el.viewerStar.dataset.id;
-        const note = dnGetNote(id);
-        if (!note) return;
-        dnUpdateNote(id, { starred: !note.starred });
-        dnState.el.viewerStar.textContent = !note.starred ? '★' : '☆';
-    });
-    dnState.el.viewerEdit.addEventListener('click', ()=>{
-        const id = dnState.el.viewerEdit.dataset.id;
-        const note = dnGetNote(id);
-        if (!note) return;
-        dnOpenTextEditor(note);
-        dnCloseViewer();
-    });
-    dnState.el.viewerDelete.addEventListener('click', ()=>{
-        const id = dnState.el.viewerDelete.dataset.id;
-        if (!confirm('Delete this note?')) return;
-        dnDeleteNote(id);
-        dnCloseViewer();
-    });
-
-    // AI & settings & analytics
-    dnState.el.aiBtn.addEventListener('click', dnOpenAi);
-    dnState.el.closeAi.addEventListener('click', dnCloseAi);
-    dnState.el.aiSend.addEventListener('click', dnHandleAiSend);
-    dnState.el.aiInput.addEventListener('keydown', e => { if (e.key === 'Enter') dnHandleAiSend(); });
-    document.querySelectorAll('.suggestion-btn').forEach(btn => {
-        btn.addEventListener('click', ()=>{
-            dnState.el.aiInput.value = btn.textContent.replace(/"/g,'');
-            dnHandleAiSend();
-        });
-    });
-
-    dnState.el.themeSelect.addEventListener('change', e => {
-        dnState.settings.theme = e.target.value;
-        document.documentElement.setAttribute('data-theme', dnState.settings.theme);
-        dnSaveUserSettings();
-    });
-    dnState.el.exportBtn.addEventListener('click', dnExportNotes);
-    dnState.el.importBtn.addEventListener('click', ()=> dnState.el.importInput.click());
-    dnState.el.importInput.addEventListener('change', dnHandleImportFile);
-    dnState.el.clearBtn.addEventListener('click', dnClearMyData);
-
-    dnState.el.analyticsBtn.addEventListener('click', dnOpenAnalytics);
-    dnState.el.closeAnalytics.addEventListener('click', dnCloseAnalytics);
-
-    // user dropdown & logout
-    dnState.el.userBtn.addEventListener('click', dnToggleUserMenu);
-    dnState.el.logoutBtn.addEventListener('click', dnLogout);
-    document.addEventListener('click', (e)=>{
-        if (!dnState.el.userDropdown) return;
-        if (!e.target.closest('.user-menu') &&
-            !dnState.el.userDropdown.classList.contains('hidden')) {
-            dnState.el.userDropdown.classList.add('hidden');
-        }
-    });
-
-    document.addEventListener('keydown', dnHandleKeydown);
-}
-
-function dnInit() {
-    dnCacheElements();
-    dnLoadUsers();
-
-    // auto-login if session present
-    const session = dnLoadSession();
-    if (session && session.username && dnState.users[session.username]) {
-        dnState.el.authScreen.classList.add('hidden');
-        dnState.el.app.classList.remove('hidden');
-        dnSetCurrentUser(session.username, true);
-    } else {
-        dnState.el.authScreen.classList.remove('hidden');
-        dnState.el.app.classList.add('hidden');
-    }
-
-    dnBindEvents();
-}
-
-document.addEventListener('DOMContentLoaded', dnInit);
+function toggleSidebar() { $('sidebar').classList.toggle('collapsed'); }
+function closeFab() { $('fab-container').classList.remove('open'); }
+function closeAllModals() { $('note-modal').classList.add('hidden'); $('voice-modal').classList.add('hidden'); $('view-modal').classList.add('hidden'); }
+function closeAllPanels() { $('ai-panel').classList.add('hidden'); $('settings-panel').classList.add('hidden'); $('analytics-panel').classList.add('hidden'); }
+function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+function debounce(fn, delay) { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => fn(...args), delay); }; }
+function toast(message, type = 'success') { const div = document.createElement('div'); div.className = `toast ${type}`; div.textContent = message; $('toast-container').appendChild(div); setTimeout(() => div.remove(), 3000); }
