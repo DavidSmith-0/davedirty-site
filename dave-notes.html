@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dave Notes | Capture Everything</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dave-notes.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-container">
+            <div id="login-view" class="auth-view">
+                <div class="auth-logo">
+                    <div class="logo-glow"></div>
+                    <div class="logo-icon">📝</div>
+                    <h1>Dave Notes</h1>
+                    <p>Capture everything. Access anywhere.</p>
+                </div>
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="login-username" placeholder="Enter username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="Enter password" required>
+                    </div>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me" checked>
+                        <span>Keep me signed in</span>
+                    </label>
+                    <button type="submit" class="auth-btn primary">Sign In →</button>
+                    <p id="login-error" class="auth-error"></p>
+                </form>
+                <div class="auth-footer">
+                    <p>New here? <button type="button" id="show-register" class="link-btn">Create account</button></p>
+                </div>
+            </div>
+            <div id="register-view" class="auth-view hidden">
+                <div class="auth-logo">
+                    <div class="logo-glow"></div>
+                    <div class="logo-icon">📝</div>
+                    <h1>Join Dave Notes</h1>
+                    <p>Create your personal workspace</p>
+                </div>
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="register-username" placeholder="Choose username" required minlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="register-password" placeholder="Create password" required minlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="register-confirm" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" class="auth-btn primary">Create Account →</button>
+                    <p id="register-error" class="auth-error"></p>
+                </form>
+                <div class="auth-footer">
+                    <p>Have an account? <button type="button" id="show-login" class="link-btn">Sign in</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app hidden">
+        <header class="header">
+            <div class="header-left">
+                <button id="sidebar-toggle" class="icon-btn" title="Toggle Sidebar">☰</button>
+                <div class="brand"><span class="brand-icon">📝</span><span class="brand-text">Dave Notes</span></div>
+            </div>
+            <div class="header-center">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="Search notes, tags, files...">
+                    <kbd>⌘K</kbd>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="ai-btn" class="icon-btn ai-btn" title="AI Assistant">🤖</button>
+                <div class="user-menu">
+                    <button id="user-btn" class="user-btn">
+                        <div class="user-avatar" id="user-avatar">D</div>
+                        <span id="user-name">User</span>
+                        <span>▼</span>
+                    </button>
+                    <div id="user-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">
+                            <div class="user-avatar large" id="dropdown-avatar">D</div>
+                            <div class="user-info">
+                                <span class="user-fullname" id="dropdown-name">User</span>
+                                <span class="user-role" id="dropdown-role">Member</span>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" id="settings-btn">⚙️ Settings</button>
+                        <button class="dropdown-item" id="analytics-btn">📊 Analytics</button>
+                        <a href="/" class="dropdown-item">← Back to Site</a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item danger" id="logout-btn">🚪 Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <aside id="sidebar" class="sidebar">
+                <div class="sidebar-content">
+                    <button id="new-note-btn" class="create-btn">+ New Note</button>
+                    <nav class="sidebar-nav">
+                        <button class="nav-item active" data-filter="all">🏠 All Notes <span class="count" id="count-all">0</span></button>
+                        <button class="nav-item" data-filter="text">📄 Text Notes <span class="count" id="count-text">0</span></button>
+                        <button class="nav-item" data-filter="voice">🎙️ Voice Notes <span class="count" id="count-voice">0</span></button>
+                        <button class="nav-item" data-filter="files">📁 Files & Images <span class="count" id="count-files">0</span></button>
+                        <button class="nav-item" data-filter="starred">⭐ Starred <span class="count" id="count-starred">0</span></button>
+                    </nav>
+                    <div class="sidebar-section">
+                        <h3>🏷️ Tags</h3>
+                        <div id="tags-list" class="tags-list"></div>
+                    </div>
+                    <div class="storage-info">
+                        <div class="storage-header"><span>Storage</span><span id="storage-percent">0%</span></div>
+                        <div class="storage-bar"><div class="storage-fill" id="storage-fill"></div></div>
+                        <span class="storage-detail" id="storage-detail">0 notes</span>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <h2 id="view-title">All Notes</h2>
+                        <span class="note-count" id="visible-count">0 notes</span>
+                    </div>
+                    <div class="toolbar-right">
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid" title="Grid">▦</button>
+                            <button class="view-btn" data-view="list" title="List">≡</button>
+                        </div>
+                        <select id="sort-select" class="sort-select">
+                            <option value="newest">Newest</option>
+                            <option value="oldest">Oldest</option>
+                            <option value="az">A-Z</option>
+                            <option value="za">Z-A</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="notes-container" class="notes-grid"></div>
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-icon">📝</div>
+                    <h3>No notes yet</h3>
+                    <p>Click the + button to create your first note</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- FAB Menu -->
+        <div class="fab-container" id="fab-container">
+            <button class="fab fab-main" id="fab-main">
+                <span class="fab-plus">+</span>
+                <span class="fab-close">×</span>
+            </button>
+            <div class="fab-menu">
+                <button class="fab fab-item" id="fab-text"><span>📄</span><label>Text</label></button>
+                <button class="fab fab-item" id="fab-voice"><span>🎙️</span><label>Voice</label></button>
+                <button class="fab fab-item" id="fab-upload"><span>📎</span><label>File</label></button>
+                <button class="fab fab-item" id="fab-image"><span>🖼️</span><label>Image</label></button>
+            </div>
+        </div>
+        <input type="file" id="file-input" class="hidden" multiple>
+        <input type="file" id="image-input" class="hidden" accept="image/*" multiple>
+
+        <!-- Text Note Modal -->
+        <div id="note-modal" class="modal hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content note-editor">
+                <div class="editor-header">
+                    <input type="text" id="note-title" placeholder="Note title...">
+                    <div class="editor-actions">
+                        <button id="save-note" class="btn primary">Save</button>
+                        <button id="cancel-note" class="btn ghost">Cancel</button>
+                    </div>
+                </div>
+                <textarea id="note-content" placeholder="Start writing..."></textarea>
+                <div class="editor-footer">
+                    <div class="editor-tags">
+                        <div id="editor-tags-list"></div>
+                        <input type="text" id="editor-tag-input" placeholder="Add tag...">
+                    </div>
+                    <span id="char-count">0 chars</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Modal -->
+        <div id="voice-modal" class="modal hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content voice-recorder">
+                <h2 id="recorder-status">Ready to Record</h2>
+                <div class="recorder-time" id="recorder-time">00:00</div>
+                <div class="recorder-visualizer"><canvas id="audio-canvas"></canvas></div>
+                <div class="recorder-controls">
+                    <button id="recorder-cancel" class="btn ghost">Cancel</button>
+                    <button id="recorder-toggle" class="recorder-btn">🎙️</button>
+                    <button id="recorder-save" class="btn primary" disabled>Save</button>
+                </div>
+                <div id="transcript-section" class="transcript-section hidden">
+                    <h4>Title & Notes</h4>
+                    <input type="text" id="voice-title" placeholder="Voice note title...">
+                    <textarea id="voice-transcript" placeholder="Add notes or description..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Note Modal -->
+        <div id="view-modal" class="modal hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content note-viewer">
+                <div class="viewer-header">
+                    <button id="close-viewer" class="icon-btn">✕</button>
+                    <div class="viewer-actions">
+                        <button id="viewer-star" class="icon-btn">☆</button>
+                        <button id="viewer-edit" class="icon-btn">✏️</button>
+                        <button id="viewer-delete" class="icon-btn danger">🗑️</button>
+                    </div>
+                </div>
+                <div class="viewer-body">
+                    <div class="viewer-meta">
+                        <span class="type-badge" id="viewer-type">Text</span>
+                        <span id="viewer-date"></span>
+                    </div>
+                    <h2 id="viewer-title"></h2>
+                    <div id="viewer-content"></div>
+                    <div id="viewer-media" class="viewer-media hidden"></div>
+                    <div id="viewer-audio" class="viewer-audio hidden">
+                        <audio id="audio-player" controls></audio>
+                    </div>
+                </div>
+                <div class="viewer-footer">
+                    <div id="viewer-tags" class="viewer-tags"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Panel -->
+        <div id="ai-panel" class="side-panel hidden">
+            <div class="panel-header"><h3>🤖 AI Assistant</h3><button id="close-ai" class="icon-btn">✕</button></div>
+            <div id="ai-messages" class="panel-body">
+                <div class="ai-welcome">
+                    <p>Ask me about your notes!</p>
+                    <div class="ai-suggestions">
+                        <button class="suggestion-btn">"Find notes about work"</button>
+                        <button class="suggestion-btn">"Summarize today"</button>
+                        <button class="suggestion-btn">"What did I write?"</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <input type="text" id="ai-input" placeholder="Ask about your notes...">
+                <button id="ai-send" class="btn primary">→</button>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="side-panel hidden">
+            <div class="panel-header"><h3>⚙️ Settings</h3><button id="close-settings" class="icon-btn">✕</button></div>
+            <div class="panel-body settings-body">
+                <div class="setting-group">
+                    <h4>Appearance</h4>
+                    <div class="setting-item"><label>Theme</label><select id="theme-select"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+                </div>
+                <div class="setting-group">
+                    <h4>Data</h4>
+                    <button id="export-btn" class="btn outline">📥 Export Notes</button>
+                    <button id="import-btn" class="btn outline">📤 Import Notes</button>
+                    <input type="file" id="import-input" class="hidden" accept=".json">
+                    <button id="clear-btn" class="btn danger">🗑️ Clear My Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Panel (Admin Only) -->
+        <div id="analytics-panel" class="side-panel wide hidden">
+            <div class="panel-header"><h3>📊 Analytics</h3><button id="close-analytics" class="icon-btn">✕</button></div>
+            <div class="panel-body">
+                <div class="analytics-grid">
+                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-users">0</div><div class="stat-label">Users</div></div>
+                    <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="stat-notes">0</div><div class="stat-label">Total Notes</div></div>
+                    <div class="stat-card"><div class="stat-icon">🎙️</div><div class="stat-value" id="stat-voice">0</div><div class="stat-label">Voice Notes</div></div>
+                    <div class="stat-card"><div class="stat-icon">📁</div><div class="stat-value" id="stat-files">0</div><div class="stat-label">Files</div></div>
+                </div>
+                <div class="analytics-section"><h4>All Users</h4><div id="user-list" class="user-list"></div></div>
+                <div class="analytics-section"><h4>Recent Activity</h4><div id="activity-log" class="activity-log"></div></div>
+            </div>
+        </div>
+
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+    <script src="dave-notes.js"></script>
+</body>
+</html>
