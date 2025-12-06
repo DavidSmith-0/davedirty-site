@@ -40,6 +40,29 @@ const dnState = {
 };
 
 // -----------------------------
+// Cloud Analytics API Endpoint
+// -----------------------------
+const API_URL = 'https://c60aogjbwa.execute-api.us-east-2.amazonaws.com';
+
+// Generic function to send analytics events
+async function logAnalyticsEvent(eventType, userId, noteId = null) {
+    try {
+        await fetch(`${API_URL}/analytics`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                eventType,
+                userId,
+                noteId,
+                timestamp: new Date().toISOString()
+            })
+        });
+    } catch (err) {
+        console.error('Analytics failed:', err);
+    }
+}
+
+// -----------------------------
 // Utilities
 // -----------------------------
 function dnId(id) { return document.getElementById(id); }
@@ -202,6 +225,9 @@ function dnHandleLogin(e) {
     dnState.el.app.classList.remove('hidden');
     dnSetCurrentUser(username, remember);
     dnShowToast(`Welcome back, ${username}!`, 'success');
+
+    // 🔹 Cloud analytics: user login
+    logAnalyticsEvent('user_login', username);
 }
 
 function dnHandleRegister(e) {
@@ -237,6 +263,9 @@ function dnHandleRegister(e) {
     dnState.el.app.classList.remove('hidden');
     dnSetCurrentUser(username, true);
     dnShowToast(`Account created. Welcome, ${username}!`, 'success');
+
+    // 🔹 Cloud analytics: new user registered
+    logAnalyticsEvent('user_registered', username);
 }
 
 // -----------------------------
@@ -301,6 +330,15 @@ function dnLogActivity(type, note) {
     });
     while (list.length > 50) list.pop();
     localStorage.setItem(key, JSON.stringify(list));
+
+    // 🔹 Cloud analytics: mirror note activity
+    if (dnState.currentUser) {
+        try {
+            logAnalyticsEvent(type, dnState.currentUser.username, note.id);
+        } catch (err) {
+            console.error('Cloud analytics failed in dnLogActivity:', err);
+        }
+    }
 }
 
 function dnOpenAnalytics() {
@@ -907,6 +945,11 @@ function dnInitUserUI() {
 }
 
 function dnLogout() {
+    // 🔹 Cloud analytics: user logout
+    if (dnState.currentUser) {
+        logAnalyticsEvent('user_logout', dnState.currentUser.username);
+    }
+
     dnSaveSession(null, false);
     // but keep other users
     dnState.currentUser = null;
