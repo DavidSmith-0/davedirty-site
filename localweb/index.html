@@ -3,48 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocalWeb Scout - Lead Management Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="localweb.css">
+    <title>LocalWeb Scout - Web Design Services</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0b;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        .nav {
+            background: #19191c;
+            border-bottom: 1px solid #2a2a2e;
+            padding: 16px 24px;
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        .nav a {
+            color: #9ca3af;
+            text-decoration: none;
+            margin-left: 24px;
+        }
+        .nav a:hover { color: #ffffff; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+        .hero {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 20px;
+            color: #9ca3af;
+            margin-bottom: 32px;
+        }
+        .btn {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 8px;
+        }
+        .btn:hover { background: #2563eb; }
+        .packages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+        }
+        .package {
+            background: #1f1f23;
+            border: 1px solid #2a2a2e;
+            border-radius: 16px;
+            padding: 32px;
+        }
+        .package.featured {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+        .badge {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .package h3 {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .price {
+            font-size: 48px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 16px;
+        }
+        .price small {
+            font-size: 24px;
+            color: #9ca3af;
+        }
+        .features {
+            list-style: none;
+            margin: 24px 0;
+        }
+        .features li {
+            padding: 8px 0;
+            color: #9ca3af;
+        }
+        .features li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: 700;
+        }
+        .addons {
+            background: #1f1f23;
+            border: 1px solid #2a2a2e;
+            border-radius: 16px;
+            padding: 48px 32px;
+            margin-bottom: 80px;
+        }
+        .addons h2 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 48px;
+        }
+        .addon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        .addon {
+            background: #19191c;
+            border: 1px solid #2a2a2e;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .addon h4 {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        .addon p {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .addon .price-small {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        .cta {
+            background: #1f1f23;
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 48px;
+            text-align: center;
+        }
+        .cta h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .cta p {
+            color: #9ca3af;
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+    </style>
 </head>
 <body>
     <nav class="nav">
-        <div class="nav-container">
-            <a href="/" class="nav-brand">
-                <span class="brand-icon">LWS</span>
-                <span>LocalWeb Scout</span>
-            </a>
-            <div class="nav-links">
-                <a href="services.html" class="nav-link">Services & Pricing</a>
+        <div class="nav-content">
+            <div class="logo">LocalWeb Scout</div>
+            <div>
+                <a href="/">Home</a>
+                <a href="mailto:david.smith.32@hotmail.com">Contact</a>
             </div>
-            <a href="/" class="btn-back">← Home</a>
         </div>
     </nav>
 
     <div class="container">
-        <header class="page-header" style="text-align: center; max-width: 800px; margin: 60px auto;">
-            <h1 style="font-size: 48px; margin-bottom: 16px;">LocalWeb Scout</h1>
-            <p class="subtitle" style="font-size: 20px;">Professional Web Design Business Platform</p>
-            <p style="color: var(--text-secondary); margin-top: 24px;">Find local businesses, manage leads, close deals, and build recurring revenue.</p>
-            <div style="margin-top: 32px; display: flex; gap: 16px; justify-content: center;">
-                <a href="services.html" class="btn-primary" style="text-decoration: none;">View Services & Pricing</a>
-            </div>
-        </header>
+        <div class="hero">
+            <h1>Professional Web Design Services</h1>
+            <p>From simple business websites to enterprise solutions with cloud infrastructure</p>
+            <a href="mailto:david.smith.32@hotmail.com?subject=Website Inquiry" class="btn">Get Started</a>
+        </div>
 
-        <section style="margin: 80px 0;">
-            <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px;">Coming Soon: Full CRM</h2>
-            <div style="max-width: 600px; margin: 0 auto; text-align: center;">
-                <p style="color: var(--text-secondary); line-height: 1.8;">
-                    We're building a complete lead management system with pipeline tracking, 
-                    automated follow-ups, and analytics. In the meantime, check out our 
-                    professional services and pricing packages.
-                </p>
+        <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px;">Service Packages</h2>
+        
+        <div class="packages">
+            <div class="package">
+                <div class="badge">Most Popular</div>
+                <h3>Starter Website</h3>
+                <div class="price">$799</div>
+                <p style="color: #9ca3af; margin-bottom: 24px;">Perfect for small businesses getting online</p>
+                <ul class="features">
+                    <li>Up to 5 pages</li>
+                    <li>Mobile-responsive design</li>
+                    <li>Contact form</li>
+                    <li>Google Maps integration</li>
+                    <li>Basic SEO</li>
+                    <li>Social media links</li>
+                    <li>2 weeks delivery</li>
+                </ul>
+                <p style="color: #9ca3af; font-size: 14px;"><strong>Great for:</strong> Restaurants, Cafes, Local Services</p>
             </div>
-        </section>
+
+            <div class="package featured">
+                <div class="badge">Best Value</div>
+                <h3>Professional Website</h3>
+                <div class="price">$1,499</div>
+                <p style="color: #9ca3af; margin-bottom: 24px;">Complete solution with advanced features</p>
+                <ul class="features">
+                    <li>Up to 10 pages</li>
+                    <li>Custom design</li>
+                    <li>Blog functionality</li>
+                    <li>Photo gallery</li>
+                    <li>Advanced SEO</li>
+                    <li>Google Analytics</li>
+                    <li>Email newsletter</li>
+                    <li>3 weeks delivery</li>
+                </ul>
+                <p style="color: #9ca3af; font-size: 14px;"><strong>Great for:</strong> Retail, Healthcare, Real Estate</p>
+            </div>
+
+            <div class="package">
+                <div class="badge">Enterprise</div>
+                <h3>Premium Solution</h3>
+                <div class="price">$2,999<small>+</small></div>
+                <p style="color: #9ca3af; margin-bottom: 24px;">Enterprise-grade with cloud infrastructure</p>
+                <ul class="features">
+                    <li>Unlimited pages</li>
+                    <li>E-commerce / Online store</li>
+                    <li>Customer portal</li>
+                    <li>AWS cloud infrastructure</li>
+                    <li>AI chatbot integration</li>
+                    <li>Advanced analytics</li>
+                    <li>1 year hosting included</li>
+                    <li>4-6 weeks delivery</li>
+                </ul>
+                <p style="color: #9ca3af; font-size: 14px;"><strong>Great for:</strong> E-commerce, SaaS, Large Businesses</p>
+            </div>
+        </div>
+
+        <div class="addons">
+            <h2>Add-On Services</h2>
+            <div class="addon-grid">
+                <div class="addon">
+                    <h4>Cloud Hosting</h4>
+                    <p>AWS-powered hosting with auto-scaling and 99.9% uptime</p>
+                    <div class="price-small">$199 + $29/mo</div>
+                </div>
+                <div class="addon">
+                    <h4>AI Chatbot</h4>
+                    <p>24/7 AI assistant to answer customer questions</p>
+                    <div class="price-small">$399 + $49/mo</div>
+                </div>
+                <div class="addon">
+                    <h4>SEO Package</h4>
+                    <p>Advanced optimization and Google My Business setup</p>
+                    <div class="price-small">$499 one-time</div>
+                </div>
+                <div class="addon">
+                    <h4>Email Marketing</h4>
+                    <p>Newsletter setup and campaign management</p>
+                    <div class="price-small">$299 + $79/mo</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px;">Maintenance Plans</h2>
+        
+        <div class="packages">
+            <div class="package">
+                <h3>Basic Care</h3>
+                <div class="price">$79<small>/mo</small></div>
+                <ul class="features">
+                    <li>Monthly security updates</li>
+                    <li>2 hours content updates</li>
+                    <li>Performance monitoring</li>
+                    <li>Email support</li>
+                </ul>
+            </div>
+
+            <div class="package featured">
+                <div class="badge">Popular</div>
+                <h3>Professional Care</h3>
+                <div class="price">$149<small>/mo</small></div>
+                <ul class="features">
+                    <li>Weekly security updates</li>
+                    <li>5 hours content updates</li>
+                    <li>Performance optimization</li>
+                    <li>Priority support</li>
+                    <li>SEO monitoring</li>
+                </ul>
+            </div>
+
+            <div class="package">
+                <h3>Premium Care</h3>
+                <div class="price">$299<small>/mo</small></div>
+                <ul class="features">
+                    <li>Real-time monitoring</li>
+                    <li>Unlimited updates</li>
+                    <li>24/7 support</li>
+                    <li>Advanced SEO</li>
+                    <li>Monthly strategy calls</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="cta">
+            <h2>Ready to Get Started?</h2>
+            <p>Let's discuss your project and create a custom solution for your business.</p>
+            <a href="mailto:david.smith.32@hotmail.com?subject=Website Inquiry" class="btn">Contact Us</a>
+            <a href="/" class="btn" style="background: #1f1f23; border: 1px solid #2a2a2e;">View Portfolio</a>
+        </div>
     </div>
-
-    <script src="localweb.js"></script>
 </body>
 </html>
