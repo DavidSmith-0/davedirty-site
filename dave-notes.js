@@ -868,6 +868,42 @@ function updateStorageModeUI() {
     updateStorageUI();
 }
 
+function handleFileUpload(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    files.forEach(file => {
+        const attachment = { name: file.name, size: file.size, type: file.type };
+        createNote({
+            type: 'file',
+            title: file.name || 'File',
+            content: '',
+            attachments: [attachment]
+        });
+    });
+    e.target.value = '';
+}
+
+function handleImageUpload(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const dataUrl = reader.result;
+            const attachment = { name: file.name, size: file.size, type: file.type };
+            createNote({
+                type: 'image',
+                title: file.name || 'Image',
+                content: '',
+                attachments: [attachment],
+                mediaData: dataUrl
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+}
+
 /**
  * Handle search input events. This updates state.search and re-renders notes.
  * The actual handler used in setupEventListeners() is debounced.
