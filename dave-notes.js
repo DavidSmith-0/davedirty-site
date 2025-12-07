@@ -1,5 +1,6 @@
 /**
  * DAVE NOTES v2 - Professional Note-Taking Application
+ * Mobile-First Design with Responsive Features
  */
 
 const CONFIG = {
@@ -23,6 +24,7 @@ const state = {
     search: '',
     editingNote: null,
     storageMode: 'local',
+    sidebarOpen: false,
     recording: { active: false, mediaRecorder: null, chunks: [], startTime: null, timer: null, audioContext: null, analyser: null }
 };
 
@@ -35,6 +37,15 @@ function init() {
     applyTheme();
     checkSession();
     setupEventListeners();
+    handleResize();
+    window.addEventListener('resize', debounce(handleResize, 100));
+}
+
+function handleResize() {
+    // Close sidebar on larger screens
+    if (window.innerWidth > 1024 && state.sidebarOpen) {
+        closeSidebar();
+    }
 }
 
 function checkSession() {
@@ -50,12 +61,14 @@ function checkSession() {
 }
 
 function setupEventListeners() {
+    // Auth
     $('login-form').addEventListener('submit', handleLogin);
     $('register-form').addEventListener('submit', handleRegister);
     $('show-register').addEventListener('click', () => toggleAuthView('register'));
     $('show-login').addEventListener('click', () => toggleAuthView('login'));
     $('local-mode-btn').addEventListener('click', enterLocalMode);
     
+    // Password toggles
     $$('.password-toggle').forEach(btn => {
         btn.addEventListener('click', e => {
             const wrapper = e.target.closest('.input-wrapper');
@@ -64,22 +77,34 @@ function setupEventListeners() {
         });
     });
     
+    // Sidebar
     $('sidebar-toggle').addEventListener('click', toggleSidebar);
+    $('sidebar-overlay').addEventListener('click', closeSidebar);
+    
+    // Search
     $('search-input').addEventListener('input', debounce(handleSearch, 300));
-    $('user-trigger').addEventListener('click', () => $('user-dropdown').classList.toggle('hidden'));
-    $('btn-settings').addEventListener('click', () => openPanel('settings-panel'));
-    $('btn-admin').addEventListener('click', () => { openPanel('admin-panel'); loadAdminData(); });
-    $('btn-logout').addEventListener('click', logout);
+    
+    // User menu
+    $('user-trigger').addEventListener('click', e => {
+        e.stopPropagation();
+        $('user-dropdown').classList.toggle('hidden');
+    });
     
     document.addEventListener('click', e => {
         if (!e.target.closest('#user-menu')) $('user-dropdown').classList.add('hidden');
     });
     
+    $('btn-settings').addEventListener('click', () => { closeDropdown(); openPanel('settings-panel'); });
+    $('btn-admin').addEventListener('click', () => { closeDropdown(); openPanel('admin-panel'); loadAdminData(); });
+    $('btn-logout').addEventListener('click', logout);
+    
+    // Keyboard shortcuts
     document.addEventListener('keydown', e => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); $('search-input').focus(); }
-        if (e.key === 'Escape') closeAllModals();
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); $('search-input')?.focus(); }
+        if (e.key === 'Escape') { closeAllModals(); closeSidebar(); closeAllPanels(); }
     });
     
+    // Navigation
     $$('.nav-item').forEach(btn => {
         btn.addEventListener('click', () => {
             state.filter = btn.dataset.filter;
@@ -88,9 +113,11 @@ function setupEventListeners() {
             btn.classList.add('active');
             updatePageTitle();
             renderNotes();
+            if (window.innerWidth <= 1024) closeSidebar();
         });
     });
     
+    // View toggle
     $$('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             state.view = btn.dataset.view;
@@ -100,10 +127,14 @@ function setupEventListeners() {
         });
     });
     
+    // Sort
     $('sort-select').addEventListener('change', e => { state.sort = e.target.value; renderNotes(); });
-    $('new-note-btn').addEventListener('click', () => openEditor());
+    
+    // New note buttons
+    $('new-note-btn').addEventListener('click', () => { closeSidebar(); openEditor(); });
     if ($('empty-create-btn')) $('empty-create-btn').addEventListener('click', () => openEditor());
     
+    // FAB
     $('fab-main').addEventListener('click', () => $('fab-container').classList.toggle('open'));
     $$('.fab-item').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -116,28 +147,36 @@ function setupEventListeners() {
         });
     });
     
+    // File inputs
     $('file-input').addEventListener('change', handleFileUpload);
     $('image-input').addEventListener('change', handleImageUpload);
+    
+    // Editor modal
     $('editor-cancel').addEventListener('click', () => closeModal('editor-modal'));
     $('editor-save').addEventListener('click', saveNote);
     $('editor-content').addEventListener('input', updateCharCount);
     $('editor-tag-input').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } });
     
+    // Voice modal
     $('voice-close').addEventListener('click', cancelRecording);
     $('voice-cancel').addEventListener('click', cancelRecording);
     $('voice-toggle').addEventListener('click', toggleRecording);
     $('voice-save').addEventListener('click', saveVoiceNote);
     
+    // Viewer modal
     $('viewer-close').addEventListener('click', () => closeModal('viewer-modal'));
     $('viewer-star').addEventListener('click', toggleViewerStar);
     $('viewer-edit').addEventListener('click', editFromViewer);
     $('viewer-delete').addEventListener('click', deleteFromViewer);
     
+    // Modal backdrops
     $$('.modal-backdrop').forEach(el => el.addEventListener('click', closeAllModals));
     
+    // Panels
     $('settings-close').addEventListener('click', () => closePanel('settings-panel'));
     $('admin-close').addEventListener('click', () => closePanel('admin-panel'));
     
+    // Theme
     $$('.theme-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             setTheme(btn.dataset.theme);
@@ -146,17 +185,47 @@ function setupEventListeners() {
         });
     });
     
+    // Storage mode
     $('storage-mode-select').addEventListener('change', e => {
         state.storageMode = e.target.value;
         updateStorageModeUI();
     });
     
+    // Data management
     $('export-btn').addEventListener('click', exportNotes);
     $('import-btn').addEventListener('click', () => $('import-file').click());
     $('import-file').addEventListener('change', importNotes);
     $('clear-data-btn').addEventListener('click', clearAllData);
 }
 
+// ============================================================
+// SIDEBAR
+// ============================================================
+function toggleSidebar() {
+    state.sidebarOpen ? closeSidebar() : openSidebar();
+}
+
+function openSidebar() {
+    state.sidebarOpen = true;
+    $('sidebar').classList.add('active');
+    $('sidebar-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    state.sidebarOpen = false;
+    $('sidebar').classList.remove('active');
+    $('sidebar-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function closeDropdown() {
+    $('user-dropdown').classList.add('hidden');
+}
+
+// ============================================================
+// AUTH
+// ============================================================
 function toggleAuthView(view) {
     $('login-view').classList.toggle('hidden', view !== 'login');
     $('register-view').classList.toggle('hidden', view !== 'register');
@@ -267,25 +336,9 @@ function updateUserUI() {
 
 function getUsers() { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'users') || '{}'); }
 function saveUsers(users) { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'users', JSON.stringify(users)); }
-
-function loadUserData() {
-    const key = CONFIG.STORAGE_PREFIX + 'notes_' + state.user.email;
-    state.notes = JSON.parse(localStorage.getItem(key) || '[]');
-}
-
-function saveUserData() {
-    const key = CONFIG.STORAGE_PREFIX + 'notes_' + state.user.email;
-    localStorage.setItem(key, JSON.stringify(state.notes));
-    updateStorageUI();
-}
-
-function logActivity(email, action) {
-    const log = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]');
-    log.unshift({ email, action, time: new Date().toISOString() });
-    if (log.length > 200) log.length = 200;
-    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'activity', JSON.stringify(log));
-}
-
+function loadUserData() { state.notes = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.user.email) || '[]'); }
+function saveUserData() { localStorage.setItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.user.email, JSON.stringify(state.notes)); updateStorageUI(); }
+function logActivity(email, action) { const log = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]'); log.unshift({ email, action, time: new Date().toISOString() }); if (log.length > 200) log.length = 200; localStorage.setItem(CONFIG.STORAGE_PREFIX + 'activity', JSON.stringify(log)); }
 function showError(id, msg) { $(id).textContent = msg; setTimeout(() => $(id).textContent = '', 3000); }
 
 // ============================================================
@@ -339,11 +392,7 @@ function getFilteredNotes() {
     
     if (state.search) {
         const q = state.search.toLowerCase();
-        notes = notes.filter(n => 
-            n.title?.toLowerCase().includes(q) ||
-            n.content?.toLowerCase().includes(q) ||
-            n.tags?.some(t => t.toLowerCase().includes(q))
-        );
+        notes = notes.filter(n => n.title?.toLowerCase().includes(q) || n.content?.toLowerCase().includes(q) || n.tags?.some(t => t.toLowerCase().includes(q)));
     }
     
     notes.sort((a, b) => {
@@ -390,30 +439,21 @@ function createNoteCard(note) {
     const icons = { text: '#icon-file-text', voice: '#icon-mic', image: '#icon-image', file: '#icon-paperclip' };
     const time = new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     let preview = '';
-    if (note.type === 'image' && note.mediaData) {
-        preview = `<img src="${note.mediaData}" class="note-media-thumb" alt="">`;
-    } else if (note.content) {
-        preview = `<p class="note-preview">${escapeHtml(note.content)}</p>`;
-    }
+    if (note.type === 'image' && note.mediaData) preview = `<img src="${note.mediaData}" class="note-media-thumb" alt="">`;
+    else if (note.content) preview = `<p class="note-preview">${escapeHtml(note.content)}</p>`;
     
-    return `
-        <div class="note-card${note.starred ? ' starred' : ''}" data-id="${note.id}">
-            <div class="note-card-header">
-                <span class="type-badge ${note.type}">
-                    <svg><use href="${icons[note.type] || icons.text}"/></svg>
-                    <span>${note.type}</span>
-                </span>
-                <button class="note-star" aria-label="Star">
-                    <svg><use href="${note.starred ? '#icon-star-filled' : '#icon-star'}"/></svg>
-                </button>
-            </div>
-            <h3 class="note-title">${escapeHtml(note.title)}</h3>
-            ${preview}
-            <div class="note-card-footer">
-                <div class="note-tags">${(note.tags || []).slice(0, 3).map(t => `<span class="note-tag">${t}</span>`).join('')}</div>
-                <span class="note-time">${time}</span>
-            </div>
-        </div>`;
+    return `<div class="note-card${note.starred ? ' starred' : ''}" data-id="${note.id}">
+        <div class="note-card-header">
+            <span class="type-badge ${note.type}"><svg><use href="${icons[note.type] || icons.text}"/></svg><span>${note.type}</span></span>
+            <button class="note-star" aria-label="Star"><svg><use href="${note.starred ? '#icon-star-filled' : '#icon-star'}"/></svg></button>
+        </div>
+        <h3 class="note-title">${escapeHtml(note.title)}</h3>
+        ${preview}
+        <div class="note-card-footer">
+            <div class="note-tags">${(note.tags || []).slice(0, 3).map(t => `<span class="note-tag">${t}</span>`).join('')}</div>
+            <span class="note-time">${time}</span>
+        </div>
+    </div>`;
 }
 
 function updateCounts() {
@@ -427,15 +467,14 @@ function updateCounts() {
 function updateTags() {
     const tags = new Set();
     state.notes.forEach(n => (n.tags || []).forEach(t => tags.add(t)));
-    $('sidebar-tags').innerHTML = Array.from(tags).map(tag =>
-        `<button class="tag-chip${state.tagFilter === tag ? ' active' : ''}" data-tag="${tag}">${tag}</button>`
-    ).join('');
+    $('sidebar-tags').innerHTML = Array.from(tags).map(tag => `<button class="tag-chip${state.tagFilter === tag ? ' active' : ''}" data-tag="${tag}">${tag}</button>`).join('');
     $('sidebar-tags').querySelectorAll('.tag-chip').forEach(btn => {
         btn.addEventListener('click', () => {
             state.tagFilter = state.tagFilter === btn.dataset.tag ? null : btn.dataset.tag;
             $$('.tag-chip').forEach(b => b.classList.remove('active'));
             if (state.tagFilter) btn.classList.add('active');
             renderNotes();
+            if (window.innerWidth <= 1024) closeSidebar();
         });
     });
 }
@@ -460,13 +499,11 @@ function openEditor(note = null) {
     updateCharCount();
     renderEditorTags(note?.tags || []);
     openModal('editor-modal');
-    $('editor-title').focus();
+    setTimeout(() => $('editor-title').focus(), 100);
 }
 
 function renderEditorTags(tags) {
-    $('editor-tag-chips').innerHTML = tags.map(tag =>
-        `<span class="tag-chip-edit">${tag}<button type="button" onclick="removeTag('${tag}')"><svg><use href="#icon-x"/></svg></button></span>`
-    ).join('');
+    $('editor-tag-chips').innerHTML = tags.map(tag => `<span class="tag-chip-edit">${tag}<button type="button" onclick="removeTag('${tag}')"><svg><use href="#icon-x"/></svg></button></span>`).join('');
     $('editor-tag-chips').dataset.tags = JSON.stringify(tags);
 }
 
@@ -486,7 +523,7 @@ function addTag() {
 }
 
 function updateCharCount() {
-    $('char-count').textContent = `${$('editor-content').value.length} characters`;
+    $('char-count').textContent = `${$('editor-content').value.length} chars`;
 }
 
 function saveNote() {
@@ -626,209 +663,7 @@ function visualizeAudio() {
     }
     draw();
 }
-
-// ============================================================
-// FILE UPLOADS
-// ============================================================
-function handleFileUpload(e) {
-    const maxSize = (state.user?.maxUploadBytes || CONFIG.MAX_UPLOAD_MB * 1024 * 1024);
-    Array.from(e.target.files).forEach(file => {
-        if (file.size > maxSize) {
-            toast(`${file.name} exceeds size limit`, 'error');
-            return;
-        }
-        createNote({
-            type: 'file',
-            title: file.name,
-            content: `File: ${file.name}\nSize: ${formatBytes(file.size)}\nType: ${file.type || 'unknown'}`,
-            fileName: file.name,
-            fileSize: file.size,
-            fileType: file.type
-        });
-    });
-    e.target.value = '';
-}
-
-function handleImageUpload(e) {
-    const maxSize = (state.user?.maxUploadBytes || CONFIG.MAX_UPLOAD_MB * 1024 * 1024);
-    Array.from(e.target.files).forEach(file => {
-        if (file.size > maxSize) {
-            toast(`${file.name} exceeds size limit`, 'error');
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => {
-            createNote({
-                type: 'image',
-                title: file.name,
-                content: '',
-                mediaData: reader.result,
-                fileName: file.name,
-                fileSize: file.size
-            });
-        };
-        reader.readAsDataURL(file);
-    });
-    e.target.value = '';
-}
-
-// ============================================================
-// NOTE VIEWER
-// ============================================================
-function openViewer(id) {
-    const note = state.notes.find(n => n.id === id);
-    if (!note) return;
-    state.editingNote = note;
-    
-    const icons = { text: '#icon-file-text', voice: '#icon-mic', image: '#icon-image', file: '#icon-paperclip' };
-    $('viewer-type').innerHTML = `<svg><use href="${icons[note.type] || icons.text}"/></svg><span>${note.type}</span>`;
-    $('viewer-type').className = `type-badge ${note.type}`;
-    $('viewer-date').textContent = new Date(note.createdAt).toLocaleString();
-    $('viewer-title').textContent = note.title;
-    $('viewer-content').textContent = note.content || '';
-    $('viewer-star').innerHTML = `<svg><use href="${note.starred ? '#icon-star-filled' : '#icon-star'}"/></svg>`;
-    $('viewer-star').style.color = note.starred ? 'var(--warning)' : '';
-    
-    $('viewer-media').classList.add('hidden');
-    $('viewer-audio').classList.add('hidden');
-    
-    if (note.type === 'image' && note.mediaData) {
-        $('viewer-media').innerHTML = `<img src="${note.mediaData}" alt="">`;
-        $('viewer-media').classList.remove('hidden');
-    }
-    if (note.type === 'voice' && note.audioData) {
-        $('audio-player').src = note.audioData;
-        $('viewer-audio').classList.remove('hidden');
-    }
-    
-    $('viewer-tags').innerHTML = (note.tags || []).map(t => `<span class="note-tag">${t}</span>`).join('');
-    openModal('viewer-modal');
-}
-
-function toggleViewerStar() {
-    if (state.editingNote) {
-        toggleStar(state.editingNote.id);
-        $('viewer-star').innerHTML = `<svg><use href="${state.editingNote.starred ? '#icon-star-filled' : '#icon-star'}"/></svg>`;
-        $('viewer-star').style.color = state.editingNote.starred ? 'var(--warning)' : '';
-    }
-}
-
-function editFromViewer() {
-    if (state.editingNote?.type === 'text') {
-        closeModal('viewer-modal');
-        openEditor(state.editingNote);
-    } else {
-        toast('Only text notes can be edited');
-    }
-}
-
-function deleteFromViewer() {
-    if (state.editingNote && confirm('Delete this note?')) {
-        deleteNote(state.editingNote.id);
-        closeModal('viewer-modal');
-    }
-}
-
-// ============================================================
-// STORAGE & UI
-// ============================================================
-function updateStorageUI() {
-    const data = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + state.user?.email) || '';
-    const bytes = new Blob([data]).size;
-    const quotaBytes = state.user?.quotaLimitBytes || CONFIG.DEFAULT_QUOTA_GB * 1024 * 1024 * 1024;
-    const percent = Math.min((bytes / quotaBytes) * 100, 100);
-    
-    $('storage-percent').textContent = percent.toFixed(0) + '%';
-    $('storage-fill').style.width = percent + '%';
-    $('storage-mini-fill').style.width = percent + '%';
-    $('storage-mini-text').textContent = percent.toFixed(0) + '%';
-    $('storage-used').textContent = formatBytes(bytes);
-    $('storage-limit').textContent = '/ ' + formatBytes(quotaBytes);
-    $('settings-storage-used').textContent = formatBytes(bytes);
-    $('settings-storage-quota').textContent = formatBytes(quotaBytes);
-}
-
-function updateStorageModeUI() {
-    const isCloud = state.storageMode === 'cloud';
-    $('storage-mode-badge').innerHTML = `<svg><use href="${isCloud ? '#icon-cloud' : '#icon-database'}"/></svg><span>${isCloud ? 'Cloud Sync' : 'Local Only'}</span>`;
-    $('storage-mode-select').value = state.storageMode;
-}
-
-function handleSearch(e) {
-    state.search = e.target.value;
-    renderNotes();
-}
-
-// ============================================================
-// ADMIN DASHBOARD
-// ============================================================
-function loadAdminData() {
-    const users = getUsers();
-    const userList = Object.keys(users);
-    let totalNotes = 0, textCount = 0, voiceCount = 0, fileCount = 0, imageCount = 0, totalBytes = 0;
-    
-    userList.forEach(email => {
-        const notesKey = CONFIG.STORAGE_PREFIX + 'notes_' + email;
-        const data = localStorage.getItem(notesKey);
-        const notes = data ? JSON.parse(data) : [];
-        totalNotes += notes.length;
-        textCount += notes.filter(n => n.type === 'text').length;
-        voiceCount += notes.filter(n => n.type === 'voice').length;
-        fileCount += notes.filter(n => n.type === 'file').length;
-        imageCount += notes.filter(n => n.type === 'image').length;
-        totalBytes += new Blob([data || '']).size;
-    });
-    
-    $('admin-total-users').textContent = userList.length;
-    $('admin-active-users').textContent = userList.filter(e => {
-        const u = users[e];
-        return u.lastActiveAt && (Date.now() - new Date(u.lastActiveAt).getTime() < 86400000);
-    }).length;
-    $('admin-total-notes').textContent = totalNotes;
-    $('admin-storage-used').textContent = formatBytes(totalBytes);
-    
-    // Chart
-    const maxCount = Math.max(textCount, voiceCount, fileCount, imageCount, 1);
-    const chartHeight = 80;
-    $('chart-types').innerHTML = `
-        <div class="chart-bar text" style="height:${(textCount/maxCount)*chartHeight}px"><span class="chart-bar-label">Text (${textCount})</span></div>
-        <div class="chart-bar voice" style="height:${(voiceCount/maxCount)*chartHeight}px"><span class="chart-bar-label">Voice (${voiceCount})</span></div>
-        <div class="chart-bar file" style="height:${(fileCount/maxCount)*chartHeight}px"><span class="chart-bar-label">File (${fileCount})</span></div>
-        <div class="chart-bar image" style="height:${(imageCount/maxCount)*chartHeight}px"><span class="chart-bar-label">Image (${imageCount})</span></div>
-    `;
-    
-    // Users table
-    $('users-table-body').innerHTML = userList.map(email => {
-        const u = users[email];
-        const notesData = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'notes_' + email);
-        const notes = notesData ? JSON.parse(notesData) : [];
-        const bytes = new Blob([notesData || '']).size;
-        return `<tr>
-            <td><div class="user-cell"><div class="user-avatar"><span>${(u.displayName || email)[0].toUpperCase()}</span></div><span>${u.displayName || email}</span></div></td>
-            <td><span class="user-role-badge">${u.role}</span></td>
-            <td>${notes.length}</td>
-            <td>${formatBytes(bytes)}</td>
-            <td><span class="status-badge ${u.status}">${u.status}</span></td>
-            <td><button class="btn-icon" title="Actions"><svg><use href="#icon-more-vertical"/></svg></button></td>
-        </tr>`;
-    }).join('');
-    
-    // Activity
-    const activity = JSON.parse(localStorage.getItem(CONFIG.STORAGE_PREFIX + 'activity') || '[]');
-    $('activity-list').innerHTML = activity.slice(0, 20).map(item => `
-        <div class="activity-item">
-            <div class="user-avatar"><span>${(item.email || '?')[0].toUpperCase()}</span></div>
-            <span class="activity-text"><strong>${item.email}</strong> ${item.action}</span>
-            <span class="activity-time">${formatTime(item.time)}</span>
-        </div>
-    `).join('');
-}
-
-// ============================================================
-// SETTINGS & DATA
-// ============================================================
-function exportNotes() {
-    const data = { version: CONFIG.VERSION, exportDate: new Date().toISOString(), user: state.user?.email, notes: state.notes };
+Date: new Date().toISOString(), user: state.user?.email, notes: state.notes };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -884,11 +719,6 @@ function setTheme(theme) {
 // ============================================================
 // UI HELPERS
 // ============================================================
-function toggleSidebar() {
-    $('sidebar').classList.toggle('collapsed');
-    $('sidebar').classList.toggle('active');
-}
-
 function closeFab() {
     $('fab-container').classList.remove('open');
 }
@@ -911,14 +741,17 @@ function closeAllModals() {
 function openPanel(id) {
     closeAllPanels();
     $(id).classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
 function closePanel(id) {
     $(id).classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function closeAllPanels() {
     $$('.panel.active').forEach(p => p.classList.remove('active'));
+    document.body.style.overflow = '';
 }
 
 function toast(message, type = 'success') {
