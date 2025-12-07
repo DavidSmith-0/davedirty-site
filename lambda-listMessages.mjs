@@ -4,7 +4,7 @@ const client = new DynamoDBClient({ region: "us-east-2" });
 const TABLE_NAME = "FanMessages";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://davedirty.com",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Allow-Methods": "OPTIONS,GET"
 };

@@ -6,8 +6,8 @@ const TABLE_NAME = "FanMessages";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Allow-Methods": "OPTIONS,POST"
+  "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+  "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
 };
 
 export const handler = async (event) => {
@@ -24,7 +24,6 @@ export const handler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     const { name, message } = body;
 
-    // Validate input
     if (!name || !message) {
       return {
         statusCode: 400,
@@ -33,40 +32,16 @@ export const handler = async (event) => {
       };
     }
 
-    // Validate length
-    if (name.length > 50 || message.length > 500) {
-      return {
-        statusCode: 400,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: "Name or message too long" })
-      };
-    }
-
-    // Extract metadata from the request
-    const ip =
-      event.requestContext?.http?.sourceIp ||
-      event.requestContext?.identity?.sourceIp ||
-      event.headers?.["x-forwarded-for"]?.split(",")[0]?.trim() ||
-      "unknown";
-
-    const ua =
-      event.headers?.["user-agent"] ||
-      event.headers?.["User-Agent"] ||
-      "unknown";
-
+    const messageId = crypto.randomUUID();
     const now = new Date().toISOString();
 
-    // Create DynamoDB item with metadata
     const item = {
-      id: { S: crypto.randomUUID() },
-      name: { S: name.trim() },
-      message: { S: message.trim() },
-      createdAt: { S: now },
-      ip: { S: String(ip) },
-      userAgent: { S: String(ua) }
+      id: { S: messageId },
+      name: { S: name },
+      message: { S: message },
+      createdAt: { S: now }
     };
 
-    // Store in DynamoDB
     await client.send(
       new PutItemCommand({
         TableName: TABLE_NAME,
@@ -74,19 +49,13 @@ export const handler = async (event) => {
       })
     );
 
-    console.log(`Message created: ${item.id.S} from ${ip}`);
-
     return {
       statusCode: 200,
       headers: corsHeaders,
-      body: JSON.stringify({ 
-        success: true,
-        messageId: item.id.S 
-      })
+      body: JSON.stringify({ success: true, messageId })
     };
   } catch (err) {
     console.error("Error in createMessage:", err);
-
     return {
       statusCode: 500,
       headers: corsHeaders,

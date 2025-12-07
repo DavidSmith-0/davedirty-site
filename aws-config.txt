@@ -1,0 +1,7 @@
+USER_POOL_ID=us-east-2_7Ofe9wlf9
+CLIENT_ID=3dgl75bp53rnqqdtfbm0cgq2lc
+BUCKET_NAME=davenotes-attachments-1765104495
+API_ID=ezw60mwtm3
+API_ENDPOINT=https://ezw60mwtm3.execute-api.us-east-2.amazonaws.com/prod
+ACCOUNT_ID=886436930419
+REGION=us-east-2
