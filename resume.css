@@ -1,0 +1,498 @@
+/* Resume Page Styles */
+
+:root {
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --bg-dark: #0a0a0b;
+    --bg-elevated: #19191c;
+    --bg-card: #1f1f23;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --border: #2a2a2e;
+    --success: #10b981;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Navigation */
+.nav {
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.brand-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.nav-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.btn-print {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.btn-print:hover {
+    background: var(--primary-hover);
+}
+
+.btn-back {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.btn-back:hover {
+    color: var(--primary);
+}
+
+/* Container */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+}
+
+/* Resume Header */
+.resume-header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+}
+
+.resume-header h1 {
+    font-size: 48px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.resume-header .title {
+    font-size: 20px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.contact-info {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.contact-info a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.contact-info a:hover {
+    color: var(--primary);
+}
+
+/* Resume Sections */
+.resume-section {
+    margin-bottom: 48px;
+}
+
+.resume-section h2 {
+    font-size: 28px;
+    margin-bottom: 24px;
+    color: var(--primary);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 12px;
+}
+
+.resume-section > p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+
+/* Competencies Grid */
+.competencies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.competency-category {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.competency-category h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: var(--primary);
+}
+
+.competency-category ul {
+    list-style: none;
+    padding: 0;
+}
+
+.competency-category li {
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.competency-category li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+}
+
+/* Job Entry */
+.job {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.job h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.job .company {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.job .location {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.job .dates {
+    color: var(--text-secondary);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.responsibilities {
+    list-style: none;
+    padding: 0;
+}
+
+.responsibilities li {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    padding-left: 24px;
+    position: relative;
+    line-height: 1.7;
+}
+
+.responsibilities li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-size: 20px;
+}
+
+.responsibilities strong {
+    color: var(--text-primary);
+}
+
+/* Education */
+.education-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.education-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 12px;
+    gap: 20px;
+}
+
+.education-item h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.education-item .institution {
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.education-item .dates {
+    color: var(--text-secondary);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.education-details {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.education-details strong {
+    color: var(--text-primary);
+}
+
+.education-details em {
+    color: var(--text-secondary);
+}
+
+/* Certifications List */
+.certifications-list {
+    list-style: none;
+    padding: 0;
+}
+
+.certifications-list li {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.certifications-list strong {
+    color: var(--text-primary);
+}
+
+/* Additional Info Grid */
+.additional-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.info-category {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.info-category h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--primary);
+}
+
+.info-category p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* Closing Statement */
+.closing-statement {
+    background: var(--bg-card);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+}
+
+.closing-statement p {
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+/* Footer */
+.footer {
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    text-align: center;
+    margin-top: 64px;
+}
+
+.footer p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.footer a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.print-note {
+    font-size: 12px !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .resume-header h1 {
+        font-size: 36px;
+    }
+    
+    .job-header,
+    .education-header {
+        flex-direction: column;
+        align-items: start;
+    }
+    
+    .job .dates,
+    .education-item .dates {
+        margin-top: 8px;
+    }
+    
+    .contact-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .competencies-grid,
+    .additional-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+        color: #000;
+    }
+    
+    .nav,
+    .btn-print,
+    .btn-back,
+    .footer {
+        display: none;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .resume-section {
+        page-break-inside: avoid;
+    }
+    
+    .resume-header h1 {
+        color: #1e40af;
+        -webkit-text-fill-color: #1e40af;
+    }
+    
+    .resume-section h2 {
+        color: #1e40af;
+        border-bottom-color: #e5e7eb;
+    }
+    
+    .competency-category,
+    .job,
+    .education-item,
+    .certifications-list li,
+    .info-category,
+    .closing-statement {
+        background: white;
+        border-color: #e5e7eb;
+        color: #000;
+    }
+    
+    .company,
+    .institution,
+    .competency-category h3,
+    .info-category h3 {
+        color: #1e40af;
+    }
+    
+    * {
+        color: #000 !important;
+    }
+    
+    a {
+        color: #1e40af !important;
+        text-decoration: none;
+    }
+}
