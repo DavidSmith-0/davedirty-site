@@ -663,11 +663,20 @@ function visualizeAudio() {
     }
     draw();
 }
-Date: new Date().toISOString(), user: state.user?.email, notes: state.notes };
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function exportNotes() {
+    const data = {
+        date: new Date().toISOString(),
+        user: state.user?.email,
+        notes: state.notes
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
     a.download = `davenotes-export-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
