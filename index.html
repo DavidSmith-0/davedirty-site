@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dave Dirty - Developer & Creator</title>
+    <meta name="description" content="Portfolio and projects by Dave Dirty - Full-stack developer, creator, and innovator.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">DD</span>
+                <span class="brand-text">Dave Dirty</span>
+            </div>
+            <div class="nav-links">
+                <a href="#projects" class="nav-link">Projects</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <a href="#projects" class="mobile-link">Projects</a>
+        <a href="#about" class="mobile-link">About</a>
+        <a href="#contact" class="mobile-link">Contact</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Building Tools<br>That Matter</h1>
+                <p class="hero-subtitle">Full-stack developer crafting innovative web applications with modern technologies and cloud infrastructure.</p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn btn-primary">View Projects</a>
+                    <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="code-window">
+                    <div class="code-header">
+                        <span class="code-dot red"></span>
+                        <span class="code-dot yellow"></span>
+                        <span class="code-dot green"></span>
+                    </div>
+                    <div class="code-content">
+                        <div class="code-line"><span class="keyword">const</span> developer = {</div>
+                        <div class="code-line">  <span class="property">name:</span> <span class="string">'Dave'</span>,</div>
+                        <div class="code-line">  <span class="property">skills:</span> [<span class="string">'JavaScript'</span>, <span class="string">'AWS'</span>, <span class="string">'React'</span>],</div>
+                        <div class="code-line">  <span class="property">passion:</span> <span class="string">'Building great products'</span></div>
+                        <div class="code-line">};</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="container">
+            <h2 class="section-title">Projects</h2>
+            <p class="section-subtitle">Applications I've built from concept to deployment</p>
+            
+            <div class="projects-grid">
+                <!-- Dave Notes -->
+                <div class="project-card featured">
+                    <div class="project-header">
+                        <div class="project-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                            </svg>
+                        </div>
+                        <span class="project-badge">Featured</span>
+                    </div>
+                    <h3 class="project-title">Dave Notes</h3>
+                    <p class="project-description">Full-featured note-taking application with cloud sync, voice notes, image uploads, and cross-device synchronization. Built with vanilla JavaScript and AWS infrastructure.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">AWS Lambda</span>
+                        <span class="tech-tag">DynamoDB</span>
+                        <span class="tech-tag">S3</span>
+                        <span class="tech-tag">API Gateway</span>
+                    </div>
+                    <div class="project-features">
+                        <div class="feature">✓ Cloud Sync</div>
+                        <div class="feature">✓ Voice Notes</div>
+                        <div class="feature">✓ File Uploads</div>
+                        <div class="feature">✓ Admin Dashboard</div>
+                    </div>
+                    <a href="/davenotes" class="project-link">
+                        Launch App
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                            <polyline points="7,7 17,7 17,17"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Discussion Board -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Discussion Board</h3>
+                    <p class="project-description">Community discussion platform with real-time messaging, user interactions, and AWS-powered backend for scalable conversations.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">AWS</span>
+                        <span class="tech-tag">DynamoDB</span>
+                    </div>
+                    <a href="/discussion" class="project-link">
+                        Visit Board
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                            <polyline points="7,7 17,7 17,17"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Coming Soon Card -->
+                <div class="project-card coming-soon">
+                    <div class="project-header">
+                        <div class="project-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                        </div>
+                        <span class="project-badge">Coming Soon</span>
+                    </div>
+                    <h3 class="project-title">More Projects</h3>
+                    <p class="project-description">Currently working on new innovative applications. Stay tuned for updates!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <h2 class="section-title">About Me</h2>
+                    <p class="about-text">I'm a full-stack developer passionate about building elegant, user-friendly applications that solve real problems. My focus is on creating professional-grade tools with modern web technologies and scalable cloud infrastructure.</p>
+                    <p class="about-text">Currently specializing in JavaScript, AWS cloud services, and building applications that emphasize great UX and robust functionality.</p>
+                    
+                    <div class="skills-grid">
+                        <div class="skill-category">
+                            <h4>Frontend</h4>
+                            <ul>
+                                <li>JavaScript / ES6+</li>
+                                <li>HTML5 / CSS3</li>
+                                <li>Responsive Design</li>
+                                <li>React (learning)</li>
+                            </ul>
+                        </div>
+                        <div class="skill-category">
+                            <h4>Backend & Cloud</h4>
+                            <ul>
+                                <li>AWS Lambda</li>
+                                <li>DynamoDB</li>
+                                <li>API Gateway</li>
+                                <li>S3 / Cognito</li>
+                            </ul>
+                        </div>
+                        <div class="skill-category">
+                            <h4>Tools & Practices</h4>
+                            <ul>
+                                <li>Git / GitHub</li>
+                                <li>REST APIs</li>
+                                <li>Agile Development</li>
+                                <li>Cloud Architecture</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">2+</div>
+                        <div class="stat-label">Projects Deployed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">AWS</div>
+                        <div class="stat-label">Cloud Infrastructure</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Self-Taught</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <p class="section-subtitle">Interested in working together or have feedback?</p>
+            
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                    <h3>Email</h3>
+                    <p>Send me a message</p>
+                    <a href="mailto:dave@davedirty.com" class="contact-link">dave@davedirty.com</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                        </svg>
+                    </div>
+                    <h3>GitHub</h3>
+                    <p>Check out my code</p>
+                    <a href="https://github.com/DavidSmith-0" target="_blank" class="contact-link">@DavidSmith-0</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3>Feedback</h3>
+                    <p>Share your thoughts</p>
+                    <a href="/discussion" class="contact-link">Discussion Board</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="brand-icon">DD</span>
+                    <span>Dave Dirty</span>
+                </div>
+                <div class="footer-links">
+                    <a href="/davenotes">Dave Notes</a>
+                    <a href="/discussion">Discussion</a>
+                    <a href="https://github.com/DavidSmith-0" target="_blank">GitHub</a>
+                </div>
+                <div class="footer-copy">
+                    <p>© 2025 Dave Dirty. Built with passion.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="home.js"></script>
+</body>
+</html>
