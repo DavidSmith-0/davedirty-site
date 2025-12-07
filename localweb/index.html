@@ -3,324 +3,1114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocalWeb Scout - Web Design Services</title>
+    <title>LocalWeb Scout - Professional Web Design</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg-dark: #0a0a0b;
+            --bg-elevated: #19191c;
+            --bg-card: #1f1f23;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border: #2a2a2e;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0a0b;
-            color: #ffffff;
+            background: var(--bg-dark);
+            color: var(--text-primary);
             line-height: 1.6;
         }
+        
+        /* Navigation */
         .nav {
-            background: #19191c;
-            border-bottom: 1px solid #2a2a2e;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
             padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
+        
         .nav-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        
         .logo {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
-            color: #3b82f6;
-        }
-        .nav a {
-            color: #9ca3af;
-            text-decoration: none;
-            margin-left: 24px;
-        }
-        .nav a:hover { color: #ffffff; }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 60px 24px;
-        }
-        .hero {
-            text-align: center;
-            margin-bottom: 80px;
-        }
-        .hero h1 {
-            font-size: 48px;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 32px;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover { color: var(--text-primary); }
+        
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 80px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 56px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
         .hero p {
             font-size: 20px;
-            color: #9ca3af;
-            margin-bottom: 32px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
         }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        /* Buttons */
         .btn {
             display: inline-block;
-            background: #3b82f6;
-            color: white;
-            padding: 16px 32px;
+            padding: 14px 32px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
-            margin: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
         }
-        .btn:hover { background: #2563eb; }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 16px;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 60px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Package Comparison */
         .packages {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
             gap: 24px;
             margin-bottom: 80px;
         }
+        
         .package {
-            background: #1f1f23;
-            border: 1px solid #2a2a2e;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
             border-radius: 16px;
             padding: 32px;
+            position: relative;
+            transition: all 0.3s;
         }
+        
+        .package:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
+        
         .package.featured {
-            border-color: #3b82f6;
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
         }
+        
         .badge {
-            background: #3b82f6;
+            position: absolute;
+            top: -12px;
+            right: 32px;
+            background: var(--primary);
             color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
+            padding: 6px 16px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 16px;
-        }
-        .package h3 {
-            font-size: 24px;
-            margin-bottom: 16px;
-        }
-        .price {
-            font-size: 48px;
             font-weight: 700;
-            color: #3b82f6;
-            margin-bottom: 16px;
+            text-transform: uppercase;
         }
+        
+        .package h3 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+        
+        .package .description {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            min-height: 48px;
+        }
+        
+        .price {
+            font-size: 52px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 24px;
+        }
+        
         .price small {
-            font-size: 24px;
-            color: #9ca3af;
+            font-size: 20px;
+            color: var(--text-secondary);
         }
+        
         .features {
             list-style: none;
             margin: 24px 0;
         }
+        
         .features li {
-            padding: 8px 0;
-            color: #9ca3af;
+            padding: 10px 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: start;
+            gap: 12px;
         }
+        
         .features li:before {
-            content: "✓ ";
-            color: #10b981;
+            content: "✓";
+            color: var(--success);
             font-weight: 700;
+            font-size: 18px;
         }
-        .addons {
-            background: #1f1f23;
-            border: 1px solid #2a2a2e;
-            border-radius: 16px;
-            padding: 48px 32px;
+        
+        .example-preview {
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+            border: 1px solid var(--border);
+        }
+        
+        .example-preview h4 {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .example-preview .preview-box {
+            background: white;
+            border-radius: 4px;
+            padding: 24px;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        
+        .example-preview .preview-box strong {
+            color: #000;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        /* Demo Sites Gallery */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 32px;
             margin-bottom: 80px;
         }
-        .addons h2 {
-            text-align: center;
-            font-size: 32px;
-            margin-bottom: 48px;
-        }
-        .addon-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-        }
-        .addon {
-            background: #19191c;
-            border: 1px solid #2a2a2e;
+        
+        .demo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .demo-preview {
+            height: 240px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .demo-preview.restaurant {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .demo-preview.retail {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .demo-preview.professional {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .demo-preview.healthcare {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .demo-preview.realestate {
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+        }
+        
+        .demo-preview.construction {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        
+        .demo-mockup {
+            width: 90%;
+            height: 90%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .demo-mockup .mock-header {
+            height: 50px;
+            background: #f3f4f6;
+            border-radius: 4px;
+        }
+        
+        .demo-mockup .mock-content {
+            flex: 1;
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+        
+        .demo-mockup .mock-sidebar {
+            height: 100px;
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        
+        .demo-info {
             padding: 24px;
         }
-        .addon h4 {
-            font-size: 18px;
-            margin-bottom: 12px;
+        
+        .demo-info h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
         }
-        .addon p {
-            color: #9ca3af;
+        
+        .demo-info p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
             font-size: 14px;
+        }
+        
+        .demo-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 16px;
         }
-        .addon .price-small {
-            color: #3b82f6;
-            font-weight: 600;
+        
+        .feature-tag {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
         }
-        .cta {
-            background: #1f1f23;
-            border: 2px solid #3b82f6;
+        
+        .demo-pricing {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .demo-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .demo-timeline {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        /* Contact Form Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
             border-radius: 16px;
-            padding: 48px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-header h2 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .modal-header p {
+            color: var(--text-secondary);
+        }
+        
+        .modal-body {
+            padding: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .modal-actions {
+            padding: 24px 32px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        /* Before/After */
+        .before-after {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 48px 32px;
+            margin: 80px 0;
+        }
+        
+        .ba-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 48px;
+        }
+        
+        .ba-item {
             text-align: center;
         }
-        .cta h2 {
-            font-size: 32px;
-            margin-bottom: 16px;
+        
+        .ba-item h3 {
+            margin-bottom: 24px;
+            font-size: 24px;
         }
-        .cta p {
-            color: #9ca3af;
-            font-size: 18px;
-            margin-bottom: 32px;
+        
+        .ba-box {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .ba-box.before {
+            border-color: #ef4444;
+        }
+        
+        .ba-box.after {
+            border-color: var(--success);
+        }
+        
+        .ba-problems {
+            list-style: none;
+            text-align: left;
+        }
+        
+        .ba-problems li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 12px;
+        }
+        
+        .ba-problems li:before {
+            content: "✗";
+            color: #ef4444;
+            font-weight: 700;
+        }
+        
+        .ba-benefits {
+            list-style: none;
+            text-align: left;
+        }
+        
+        .ba-benefits li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 12px;
+        }
+        
+        .ba-benefits li:before {
+            content: "✓";
+            color: var(--success);
+            font-weight: 700;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--success);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 2000;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .packages { grid-template-columns: 1fr; }
+            .demo-grid { grid-template-columns: 1fr; }
+            .ba-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .nav-links a { margin-left: 16px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-content">
             <div class="logo">LocalWeb Scout</div>
-            <div>
-                <a href="/">Home</a>
-                <a href="mailto:david.smith.32@hotmail.com">Contact</a>
+            <div class="nav-links">
+                <a href="#packages">Packages</a>
+                <a href="#examples">Examples</a>
+                <a href="#demos">Demos</a>
+                <a href="/" style="color: var(--text-secondary);">← Home</a>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="hero">
-            <h1>Professional Web Design Services</h1>
-            <p>From simple business websites to enterprise solutions with cloud infrastructure</p>
-            <a href="mailto:david.smith.32@hotmail.com?subject=Website Inquiry" class="btn">Get Started</a>
+    <!-- Hero -->
+    <div class="hero">
+        <h1>Professional Web Design<br>That Drives Results</h1>
+        <p>From simple business websites to enterprise cloud solutions. See exactly what you get at each tier with real examples and live demos.</p>
+        <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="openContactForm()">Get Started</button>
+            <a href="#examples" class="btn btn-secondary">View Examples</a>
         </div>
+    </div>
 
-        <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px;">Service Packages</h2>
+    <!-- Packages with Examples -->
+    <div class="container" id="packages">
+        <h2 class="section-title">Choose Your Package</h2>
+        <p class="section-subtitle">Each package includes everything you need to succeed online. See detailed examples of what you'll receive.</p>
         
         <div class="packages">
+            <!-- Starter Package -->
             <div class="package">
                 <div class="badge">Most Popular</div>
                 <h3>Starter Website</h3>
+                <p class="description">Perfect for small businesses getting online for the first time</p>
                 <div class="price">$799</div>
-                <p style="color: #9ca3af; margin-bottom: 24px;">Perfect for small businesses getting online</p>
+                
+                <div class="example-preview">
+                    <h4>What You Get</h4>
+                    <div class="preview-box">
+                        <strong>Example: Mario's Pizza</strong>
+                        • Home page with hero image and menu highlights<br>
+                        • About Us page with restaurant story<br>
+                        • Full Menu page (organized by category)<br>
+                        • Location page with Google Maps<br>
+                        • Contact page with phone, email, hours<br>
+                        • Mobile-friendly design (looks great on phones)<br>
+                        • Contact form that emails you directly<br>
+                        • Social media links (Facebook, Instagram)
+                    </div>
+                </div>
+                
                 <ul class="features">
-                    <li>Up to 5 pages</li>
+                    <li>Up to 5 pages of content</li>
                     <li>Mobile-responsive design</li>
-                    <li>Contact form</li>
-                    <li>Google Maps integration</li>
-                    <li>Basic SEO</li>
-                    <li>Social media links</li>
+                    <li>Contact form integration</li>
+                    <li>Google Maps embedded</li>
+                    <li>Basic SEO (get found on Google)</li>
+                    <li>2 rounds of revisions</li>
                     <li>2 weeks delivery</li>
                 </ul>
-                <p style="color: #9ca3af; font-size: 14px;"><strong>Great for:</strong> Restaurants, Cafes, Local Services</p>
+                
+                <button class="btn btn-primary" style="width: 100%;" onclick="openContactForm('Starter')">Select Starter</button>
             </div>
 
+            <!-- Professional Package -->
             <div class="package featured">
                 <div class="badge">Best Value</div>
                 <h3>Professional Website</h3>
+                <p class="description">Complete solution with advanced features and custom design</p>
                 <div class="price">$1,499</div>
-                <p style="color: #9ca3af; margin-bottom: 24px;">Complete solution with advanced features</p>
+                
+                <div class="example-preview">
+                    <h4>What You Get</h4>
+                    <div class="preview-box">
+                        <strong>Example: Smith Dental Care</strong>
+                        • Custom-designed homepage (not a template)<br>
+                        • Services page with detailed descriptions<br>
+                        • Meet the Team page with doctor bios<br>
+                        • Patient Resources section<br>
+                        • Blog for dental tips and news<br>
+                        • Insurance Information page<br>
+                        • Photo gallery of the practice<br>
+                        • Online appointment request form<br>
+                        • Patient testimonials section<br>
+                        • Google Analytics tracking your visitors
+                    </div>
+                </div>
+                
                 <ul class="features">
-                    <li>Up to 10 pages</li>
-                    <li>Custom design</li>
-                    <li>Blog functionality</li>
-                    <li>Photo gallery</li>
-                    <li>Advanced SEO</li>
-                    <li>Google Analytics</li>
-                    <li>Email newsletter</li>
+                    <li>Up to 10 pages (fully custom)</li>
+                    <li>Custom design from scratch</li>
+                    <li>Blog/News functionality</li>
+                    <li>Photo gallery integration</li>
+                    <li>Advanced SEO + sitemap</li>
+                    <li>Google Analytics setup</li>
+                    <li>Email newsletter signup</li>
+                    <li>3 rounds of revisions</li>
                     <li>3 weeks delivery</li>
                 </ul>
-                <p style="color: #9ca3af; font-size: 14px;"><strong>Great for:</strong> Retail, Healthcare, Real Estate</p>
+                
+                <button class="btn btn-primary" style="width: 100%;" onclick="openContactForm('Professional')">Select Professional</button>
             </div>
 
+            <!-- Premium Package -->
             <div class="package">
                 <div class="badge">Enterprise</div>
                 <h3>Premium Solution</h3>
+                <p class="description">Enterprise-grade with cloud infrastructure and AI features</p>
                 <div class="price">$2,999<small>+</small></div>
-                <p style="color: #9ca3af; margin-bottom: 24px;">Enterprise-grade with cloud infrastructure</p>
+                
+                <div class="example-preview">
+                    <h4>What You Get</h4>
+                    <div class="preview-box">
+                        <strong>Example: Urban Fashion Boutique</strong>
+                        • Full e-commerce store with shopping cart<br>
+                        • Product catalog (unlimited products)<br>
+                        • Secure checkout with Stripe/PayPal<br>
+                        • Customer accounts (save addresses, track orders)<br>
+                        • Inventory management dashboard<br>
+                        • AI chatbot for 24/7 customer service<br>
+                        • Email marketing integration<br>
+                        • Advanced analytics dashboard<br>
+                        • AWS cloud hosting (super fast, secure)<br>
+                        • Automated backup system<br>
+                        • Custom admin panel<br>
+                        • 3 months of ongoing support
+                    </div>
+                </div>
+                
                 <ul class="features">
                     <li>Unlimited pages</li>
                     <li>E-commerce / Online store</li>
-                    <li>Customer portal</li>
+                    <li>Customer login portal</li>
                     <li>AWS cloud infrastructure</li>
-                    <li>AI chatbot integration</li>
+                    <li>AI chatbot (24/7 support)</li>
+                    <li>API integrations</li>
                     <li>Advanced analytics</li>
-                    <li>1 year hosting included</li>
+                    <li>1 year premium hosting</li>
+                    <li>3 months support included</li>
+                    <li>Unlimited revisions</li>
                     <li>4-6 weeks delivery</li>
                 </ul>
-                <p style="color: #9ca3af; font-size: 14px;"><strong>Great for:</strong> E-commerce, SaaS, Large Businesses</p>
+                
+                <button class="btn btn-primary" style="width: 100%;" onclick="openContactForm('Premium')">Select Premium</button>
             </div>
-        </div>
-
-        <div class="addons">
-            <h2>Add-On Services</h2>
-            <div class="addon-grid">
-                <div class="addon">
-                    <h4>Cloud Hosting</h4>
-                    <p>AWS-powered hosting with auto-scaling and 99.9% uptime</p>
-                    <div class="price-small">$199 + $29/mo</div>
-                </div>
-                <div class="addon">
-                    <h4>AI Chatbot</h4>
-                    <p>24/7 AI assistant to answer customer questions</p>
-                    <div class="price-small">$399 + $49/mo</div>
-                </div>
-                <div class="addon">
-                    <h4>SEO Package</h4>
-                    <p>Advanced optimization and Google My Business setup</p>
-                    <div class="price-small">$499 one-time</div>
-                </div>
-                <div class="addon">
-                    <h4>Email Marketing</h4>
-                    <p>Newsletter setup and campaign management</p>
-                    <div class="price-small">$299 + $79/mo</div>
-                </div>
-            </div>
-        </div>
-
-        <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px;">Maintenance Plans</h2>
-        
-        <div class="packages">
-            <div class="package">
-                <h3>Basic Care</h3>
-                <div class="price">$79<small>/mo</small></div>
-                <ul class="features">
-                    <li>Monthly security updates</li>
-                    <li>2 hours content updates</li>
-                    <li>Performance monitoring</li>
-                    <li>Email support</li>
-                </ul>
-            </div>
-
-            <div class="package featured">
-                <div class="badge">Popular</div>
-                <h3>Professional Care</h3>
-                <div class="price">$149<small>/mo</small></div>
-                <ul class="features">
-                    <li>Weekly security updates</li>
-                    <li>5 hours content updates</li>
-                    <li>Performance optimization</li>
-                    <li>Priority support</li>
-                    <li>SEO monitoring</li>
-                </ul>
-            </div>
-
-            <div class="package">
-                <h3>Premium Care</h3>
-                <div class="price">$299<small>/mo</small></div>
-                <ul class="features">
-                    <li>Real-time monitoring</li>
-                    <li>Unlimited updates</li>
-                    <li>24/7 support</li>
-                    <li>Advanced SEO</li>
-                    <li>Monthly strategy calls</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="cta">
-            <h2>Ready to Get Started?</h2>
-            <p>Let's discuss your project and create a custom solution for your business.</p>
-            <a href="mailto:david.smith.32@hotmail.com?subject=Website Inquiry" class="btn">Contact Us</a>
-            <a href="/" class="btn" style="background: #1f1f23; border: 1px solid #2a2a2e;">View Portfolio</a>
         </div>
     </div>
+
+    <!-- Industry Demos -->
+    <div class="container" id="demos">
+        <h2 class="section-title">See What Your Site Could Look Like</h2>
+        <p class="section-subtitle">Click any example to see detailed mockups and features for your industry</p>
+        
+        <div class="demo-grid">
+            <!-- Restaurant Demo -->
+            <div class="demo-card" onclick="openDemo('restaurant')">
+                <div class="demo-preview restaurant">
+                    <div class="demo-mockup">
+                        <div class="mock-header"></div>
+                        <div class="mock-content"></div>
+                        <div class="mock-sidebar"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3>Restaurant & Cafe</h3>
+                    <p>Perfect for restaurants, cafes, bars, and food services</p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Online Menu</span>
+                        <span class="feature-tag">Reservations</span>
+                        <span class="feature-tag">Photo Gallery</span>
+                        <span class="feature-tag">Location Map</span>
+                    </div>
+                    <div class="demo-pricing">
+                        <div class="demo-price">From $799</div>
+                        <div class="demo-timeline">2-3 weeks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Retail Demo -->
+            <div class="demo-card" onclick="openDemo('retail')">
+                <div class="demo-preview retail">
+                    <div class="demo-mockup">
+                        <div class="mock-header"></div>
+                        <div class="mock-content"></div>
+                        <div class="mock-sidebar"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3>Retail & E-commerce</h3>
+                    <p>Full online store with shopping cart and payments</p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Product Catalog</span>
+                        <span class="feature-tag">Shopping Cart</span>
+                        <span class="feature-tag">Payments</span>
+                        <span class="feature-tag">Inventory</span>
+                    </div>
+                    <div class="demo-pricing">
+                        <div class="demo-price">From $1,499</div>
+                        <div class="demo-timeline">3-4 weeks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Services Demo -->
+            <div class="demo-card" onclick="openDemo('professional')">
+                <div class="demo-preview professional">
+                    <div class="demo-mockup">
+                        <div class="mock-header"></div>
+                        <div class="mock-content"></div>
+                        <div class="mock-sidebar"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3>Professional Services</h3>
+                    <p>For lawyers, accountants, consultants, agencies</p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Service Pages</span>
+                        <span class="feature-tag">Team Bios</span>
+                        <span class="feature-tag">Case Studies</span>
+                        <span class="feature-tag">Contact Forms</span>
+                    </div>
+                    <div class="demo-pricing">
+                        <div class="demo-price">From $999</div>
+                        <div class="demo-timeline">2-3 weeks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Healthcare Demo -->
+            <div class="demo-card" onclick="openDemo('healthcare')">
+                <div class="demo-preview healthcare">
+                    <div class="demo-mockup">
+                        <div class="mock-header"></div>
+                        <div class="mock-content"></div>
+                        <div class="mock-sidebar"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3>Healthcare & Medical</h3>
+                    <p>HIPAA-compliant for doctors, dentists, clinics</p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Appointments</span>
+                        <span class="feature-tag">Services</span>
+                        <span class="feature-tag">Insurance Info</span>
+                        <span class="feature-tag">Patient Portal</span>
+                    </div>
+                    <div class="demo-pricing">
+                        <div class="demo-price">From $1,299</div>
+                        <div class="demo-timeline">3-4 weeks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real Estate Demo -->
+            <div class="demo-card" onclick="openDemo('realestate')">
+                <div class="demo-preview realestate">
+                    <div class="demo-mockup">
+                        <div class="mock-header"></div>
+                        <div class="mock-content"></div>
+                        <div class="mock-sidebar"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3>Real Estate</h3>
+                    <p>Property listings with search and agent profiles</p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Listings</span>
+                        <span class="feature-tag">Search Filters</span>
+                        <span class="feature-tag">Photo Galleries</span>
+                        <span class="feature-tag">Agent Profiles</span>
+                    </div>
+                    <div class="demo-pricing">
+                        <div class="demo-price">From $1,199</div>
+                        <div class="demo-timeline">3 weeks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Construction Demo -->
+            <div class="demo-card" onclick="openDemo('construction')">
+                <div class="demo-preview construction">
+                    <div class="demo-mockup">
+                        <div class="mock-header"></div>
+                        <div class="mock-content"></div>
+                        <div class="mock-sidebar"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3>Construction & Trades</h3>
+                    <p>For contractors, builders, plumbers, electricians</p>
+                    <div class="demo-features">
+                        <span class="feature-tag">Project Gallery</span>
+                        <span class="feature-tag">Quote Forms</span>
+                        <span class="feature-tag">Services</span>
+                        <span class="feature-tag">Testimonials</span>
+                    </div>
+                    <div class="demo-pricing">
+                        <div class="demo-price">From $899</div>
+                        <div class="demo-timeline">2 weeks</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Before/After -->
+    <div class="container" id="examples">
+        <div class="before-after">
+            <h2 class="section-title">The Difference a Professional Website Makes</h2>
+            <p class="section-subtitle">See how a professional website transforms your business</p>
+            
+            <div class="ba-grid">
+                <div class="ba-item">
+                    <h3 style="color: #ef4444;">Without a Website</h3>
+                    <div class="ba-box before">
+                        <ul class="ba-problems">
+                            <li>Hard to find on Google</li>
+                            <li>Customers can't find your hours</li>
+                            <li>No way to showcase your work</li>
+                            <li>Missing out on online orders</li>
+                            <li>Competitors look more professional</li>
+                            <li>Can't capture leads 24/7</li>
+                            <li>Relying only on word of mouth</li>
+                            <li>No online credibility</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="ba-item">
+                    <h3 style="color: var(--success);">With a Professional Website</h3>
+                    <div class="ba-box after">
+                        <ul class="ba-benefits">
+                            <li>Rank higher on Google searches</li>
+                            <li>Customers find info 24/7</li>
+                            <li>Beautiful portfolio of your work</li>
+                            <li>Take orders/bookings online</li>
+                            <li>Professional brand image</li>
+                            <li>Capture leads while you sleep</li>
+                            <li>Reach new customers online</li>
+                            <li>Build trust and credibility</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="container">
+        <div style="background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); border-radius: 16px; padding: 60px 32px; text-align: center;">
+            <h2 style="font-size: 36px; margin-bottom: 16px;">Ready to Transform Your Business?</h2>
+            <p style="font-size: 18px; margin-bottom: 32px; opacity: 0.9;">Let's discuss your project and create a website that drives real results</p>
+            <button class="btn btn-primary" style="background: white; color: var(--primary);" onclick="openContactForm()">Get Your Free Consultation</button>
+        </div>
+    </div>
+
+    <!-- Contact Form Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Get Started Today</h2>
+                <p>Tell us about your project and we'll create a custom proposal</p>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm" onsubmit="handleSubmit(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Your Name *</label>
+                            <input type="text" required placeholder="John Smith">
+                        </div>
+                        <div class="form-group">
+                            <label>Business Name *</label>
+                            <input type="text" required placeholder="Smith's Pizza">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" required placeholder="john@business.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" placeholder="(555) 123-4567">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Package Interested In *</label>
+                        <select id="packageSelect" required>
+                            <option value="">Select a package...</option>
+                            <option value="Starter">Starter Website ($799)</option>
+                            <option value="Professional">Professional Website ($1,499)</option>
+                            <option value="Premium">Premium Solution ($2,999+)</option>
+                            <option value="Not Sure">Not sure yet - need advice</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Industry</label>
+                        <select>
+                            <option value="">Select your industry...</option>
+                            <option value="Restaurant">Restaurant / Cafe</option>
+                            <option value="Retail">Retail / Shop</option>
+                            <option value="Professional">Professional Services</option>
+                            <option value="Healthcare">Healthcare / Medical</option>
+                            <option value="Real Estate">Real Estate</option>
+                            <option value="Construction">Construction / Trades</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tell Us About Your Project *</label>
+                        <textarea required placeholder="What kind of website do you need? What features are important to you? When do you want to launch?"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Current Website (if any)</label>
+                        <input type="url" placeholder="https://yoursite.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Timeline</label>
+                        <select>
+                            <option value="">When do you need it?</option>
+                            <option value="ASAP">As soon as possible</option>
+                            <option value="1-2 months">1-2 months</option>
+                            <option value="3-6 months">3-6 months</option>
+                            <option value="Flexible">Flexible / Just exploring</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeContactForm()">Cancel</button>
+                <button class="btn btn-primary" onclick="document.getElementById('contactForm').requestSubmit()">Send Inquiry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function openContactForm(packageName) {
+            document.getElementById('contactModal').classList.add('active');
+            if (packageName) {
+                document.getElementById('packageSelect').value = packageName;
+            }
+        }
+        
+        function closeContactForm() {
+            document.getElementById('contactModal').classList.remove('active');
+        }
+        
+        function handleSubmit(e) {
+            e.preventDefault();
+            showToast('Thank you! We\'ll contact you within 24 hours to discuss your project.');
+            setTimeout(() => {
+                closeContactForm();
+                e.target.reset();
+            }, 2000);
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+        
+        function openDemo(industry) {
+            showToast(`Great choice! The ${industry} package is perfect for your business. Click "Get Started" to discuss your specific needs.`);
+        }
+        
+        // Close modal on outside click
+        document.getElementById('contactModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeContactForm();
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
