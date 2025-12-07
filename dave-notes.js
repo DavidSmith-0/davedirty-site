@@ -867,3 +867,17 @@ function updateStorageModeUI() {
     }
     updateStorageUI();
 }
+
+/**
+ * Handle search input events. This updates state.search and re-renders notes.
+ * The actual handler used in setupEventListeners() is debounced.
+ *
+ * @param {Event} e Input event from the search box.
+ */
+function handleSearch(e) {
+    // Save the lowercased, trimmed search text into state
+    state.search = e.target.value.trim().toLowerCase();
+    // Re-render notes so the filter takes effect
+    renderNotes();
+    // updateCounts() and updateTags() are called inside renderNotes().
+}
