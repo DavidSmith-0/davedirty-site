@@ -13,12 +13,12 @@ const CONFIG = {
     MAX_UPLOAD_MB: 20,
     ROLES: { OWNER: 'owner', ADMIN: 'admin', USER: 'user' },
     STORAGE_MODES: { LOCAL: 'local', CLOUD: 'cloud' },
-    // AWS Configuration (to be filled when deploying)
+    // AWS Configuration
     AWS: {
-        API_ENDPOINT: '', // e.g., 'https://xyz.execute-api.us-east-2.amazonaws.com/prod'
-        COGNITO_USER_POOL_ID: '', // e.g., 'us-east-2_XXXXXXXXX'
-        COGNITO_CLIENT_ID: '', // e.g., 'abc123def456'
-        S3_BUCKET: '', // e.g., 'davenotes-attachments'
+        API_ENDPOINT: 'https://ezw60mwtm3.execute-api.us-east-2.amazonaws.com/prod',
+        COGNITO_USER_POOL_ID: 'us-east-2_7Ofe9wlf9',
+        COGNITO_CLIENT_ID: '3dgl75bp53rnqqdtfbm0cgq2lc',
+        S3_BUCKET: 'davenotes-attachments-1765104495',
         REGION: 'us-east-2'
     }
 };
