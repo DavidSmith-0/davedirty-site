@@ -807,3 +807,63 @@ function debounce(fn, delay) {
         timeout = setTimeout(() => fn(...args), delay);
     };
 }
+
+function computeUsedBytes() {
+    if (!state.user || state.storageMode === 'local') return 0;
+    let total = 0;
+    state.notes.forEach(note => {
+        if (Array.isArray(note.attachments)) {
+            note.attachments.forEach(att => {
+                if (typeof att.size === 'number') total += att.size;
+            });
+        }
+        if (note.type === 'text' && note.content) {
+            total += new Blob([note.content]).size;
+        }
+    });
+    return total;
+}
+
+function updateStorageUI() {
+    if (!state.user) return;
+    let used = (state.storageMode === 'local') ? 0 : computeUsedBytes();
+    if (state.user.email && state.user.email !== 'local') {
+        const users = getUsers();
+        if (users[state.user.email]) {
+            users[state.user.email].usedBytes = used;
+            saveUsers(users);
+        }
+        state.user.usedBytes = used;
+    }
+    const quota = state.user.quotaLimitBytes;
+    let percent = 0;
+    if (state.storageMode === 'cloud' && quota && quota !== Infinity) {
+        percent = Math.min(100, Math.round((used / quota) * 100));
+    }
+    $('storage-mini-fill').style.width = percent + '%';
+    $('storage-mini-text').textContent = percent + '%';
+    $('storage-fill').style.width = percent + '%';
+    $('storage-percent').textContent = percent + '%';
+    $('storage-used').textContent = formatBytes(used);
+    const limitText = (quota === Infinity || state.storageMode === 'local') ?
+        'Unlimited' : formatBytes(quota);
+    $('storage-limit').textContent =
+        (state.storageMode === 'local') ? '' : ' / ' + limitText;
+    $('settings-storage-used').textContent = formatBytes(used);
+    $('settings-storage-quota').textContent = limitText;
+}
+
+function updateStorageModeUI() {
+    $('storage-mode-select').value = state.storageMode;
+    const badge = $('storage-mode-badge');
+    const useEl = badge.querySelector('svg use');
+    const textEl = badge.querySelector('span');
+    if (state.storageMode === 'local') {
+        useEl.setAttribute('href', '#icon-cloud-off');
+        textEl.textContent = 'Local Only';
+    } else {
+        useEl.setAttribute('href', '#icon-cloud');
+        textEl.textContent = 'Cloud Sync';
+    }
+    updateStorageUI();
+}
