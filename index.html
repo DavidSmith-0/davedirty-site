@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dave Dirty - Developer & Creator</title>
-    <meta name="description" content="Portfolio and projects by Dave Dirty - Full-stack developer, creator, and innovator.">
+    <title>Dave Dirty - Cloud Engineer & Developer</title>
+    <meta name="description" content="U.S. Air Force veteran transitioning to cloud infrastructure engineering. Specializing in AWS, cloud architecture, and DevOps with 10 years of military leadership experience.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -21,6 +21,7 @@
             <div class="nav-links">
                 <a href="#projects" class="nav-link">Projects</a>
                 <a href="#about" class="nav-link">About</a>
+                <a href="#experience" class="nav-link">Experience</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </div>
             <button class="mobile-menu-toggle" id="mobile-toggle">
@@ -35,6 +36,7 @@
     <div class="mobile-menu" id="mobile-menu">
         <a href="#projects" class="mobile-link">Projects</a>
         <a href="#about" class="mobile-link">About</a>
+        <a href="#experience" class="mobile-link">Experience</a>
         <a href="#contact" class="mobile-link">Contact</a>
     </div>
 
@@ -42,11 +44,25 @@
     <section class="hero">
         <div class="hero-container">
             <div class="hero-content">
-                <h1 class="hero-title">Building Tools<br>That Matter</h1>
-                <p class="hero-subtitle">Full-stack developer crafting innovative web applications with modern technologies and cloud infrastructure.</p>
+                <h1 class="hero-title">Cloud Infrastructure<br>& Engineering</h1>
+                <p class="hero-subtitle">U.S. Air Force veteran with 10 years of leadership experience, now architecting cloud solutions. Pursuing M.S. in Cloud Computing Systems with focus on AWS infrastructure, DevOps, and scalable architectures.</p>
                 <div class="hero-buttons">
                     <a href="#projects" class="btn btn-primary">View Projects</a>
                     <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+                </div>
+                <div style="margin-top: 24px; display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 14px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+                        </svg>
+                        <span>Active DoD Secret Clearance</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 14px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                        <span>10 Years USAF Service</span>
+                    </div>
                 </div>
             </div>
             <div class="hero-visual">
@@ -57,10 +73,11 @@
                         <span class="code-dot green"></span>
                     </div>
                     <div class="code-content">
-                        <div class="code-line"><span class="keyword">const</span> developer = {</div>
-                        <div class="code-line">  <span class="property">name:</span> <span class="string">'Dave'</span>,</div>
-                        <div class="code-line">  <span class="property">skills:</span> [<span class="string">'JavaScript'</span>, <span class="string">'AWS'</span>, <span class="string">'React'</span>],</div>
-                        <div class="code-line">  <span class="property">passion:</span> <span class="string">'Building great products'</span></div>
+                        <div class="code-line"><span class="keyword">const</span> cloudEngineer = {</div>
+                        <div class="code-line">  <span class="property">specialty:</span> <span class="string">'AWS Architecture'</span>,</div>
+                        <div class="code-line">  <span class="property">background:</span> <span class="string">'USAF Veteran'</span>,</div>
+                        <div class="code-line">  <span class="property">education:</span> <span class="string">'M.S. Cloud Computing'</span>,</div>
+                        <div class="code-line">  <span class="property">clearance:</span> <span class="string">'Secret (Active)'</span></div>
                         <div class="code-line">};</div>
                     </div>
                 </div>
@@ -72,7 +89,7 @@
     <section class="projects" id="projects">
         <div class="container">
             <h2 class="section-title">Projects</h2>
-            <p class="section-subtitle">Applications I've built from concept to deployment</p>
+            <p class="section-subtitle">Cloud-powered applications demonstrating full-stack development and AWS expertise</p>
             
             <div class="projects-grid">
                 <!-- Dave Notes -->
@@ -87,19 +104,20 @@
                         <span class="project-badge">Featured</span>
                     </div>
                     <h3 class="project-title">Dave Notes</h3>
-                    <p class="project-description">Full-featured note-taking application with cloud sync, voice notes, image uploads, and cross-device synchronization. Built with vanilla JavaScript and AWS infrastructure.</p>
+                    <p class="project-description">Enterprise-grade note-taking application with cloud synchronization, demonstrating AWS serverless architecture, cross-device sync, and secure authentication. Built from scratch with vanilla JavaScript and complete AWS infrastructure.</p>
                     <div class="project-tech">
-                        <span class="tech-tag">JavaScript</span>
                         <span class="tech-tag">AWS Lambda</span>
                         <span class="tech-tag">DynamoDB</span>
-                        <span class="tech-tag">S3</span>
                         <span class="tech-tag">API Gateway</span>
+                        <span class="tech-tag">S3</span>
+                        <span class="tech-tag">Cognito</span>
+                        <span class="tech-tag">JavaScript</span>
                     </div>
                     <div class="project-features">
-                        <div class="feature">✓ Cloud Sync</div>
-                        <div class="feature">✓ Voice Notes</div>
-                        <div class="feature">✓ File Uploads</div>
-                        <div class="feature">✓ Admin Dashboard</div>
+                        <div class="feature">✓ Serverless Architecture</div>
+                        <div class="feature">✓ Real-time Sync</div>
+                        <div class="feature">✓ RESTful API</div>
+                        <div class="feature">✓ Secure Auth</div>
                     </div>
                     <a href="/davenotes" class="project-link">
                         Launch App
@@ -120,11 +138,11 @@
                         </div>
                     </div>
                     <h3 class="project-title">Discussion Board</h3>
-                    <p class="project-description">Community discussion platform with real-time messaging, user interactions, and AWS-powered backend for scalable conversations.</p>
+                    <p class="project-description">Community discussion platform with AWS backend, demonstrating scalable data storage and retrieval patterns using DynamoDB.</p>
                     <div class="project-tech">
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">AWS</span>
+                        <span class="tech-tag">AWS Lambda</span>
                         <span class="tech-tag">DynamoDB</span>
+                        <span class="tech-tag">JavaScript</span>
                     </div>
                     <a href="/discussion" class="project-link">
                         Visit Board
@@ -144,10 +162,10 @@
                                 <polyline points="12,6 12,12 16,14"/>
                             </svg>
                         </div>
-                        <span class="project-badge">Coming Soon</span>
+                        <span class="project-badge">In Development</span>
                     </div>
-                    <h3 class="project-title">More Projects</h3>
-                    <p class="project-description">Currently working on new innovative applications. Stay tuned for updates!</p>
+                    <h3 class="project-title">Multi-Cloud Architecture</h3>
+                    <p class="project-description">Capstone project designing scalable multi-cloud deployment across AWS and Azure platforms. Part of M.S. Cloud Computing Systems program.</p>
                 </div>
             </div>
         </div>
@@ -159,51 +177,137 @@
             <div class="about-grid">
                 <div class="about-content">
                     <h2 class="section-title">About Me</h2>
-                    <p class="about-text">I'm a full-stack developer passionate about building elegant, user-friendly applications that solve real problems. My focus is on creating professional-grade tools with modern web technologies and scalable cloud infrastructure.</p>
-                    <p class="about-text">Currently specializing in JavaScript, AWS cloud services, and building applications that emphasize great UX and robust functionality.</p>
+                    <p class="about-text">Decorated U.S. Air Force veteran with 10 years of service, bringing military-honed leadership, discipline, and problem-solving skills to cloud infrastructure engineering. During my Air Force career as a Pavements & Construction Equipment Operator, I led teams under high-pressure conditions, managed $2M+ in assets, and delivered critical infrastructure projects on time and under budget.</p>
+                    <p class="about-text">Now pursuing an M.S. in Cloud Computing Systems (4.0 GPA) with B.S. in Computer Science/Software Development (3.9 GPA). Specializing in AWS cloud architecture, DevOps practices, and Infrastructure as Code. Combining hands-on project management experience with advanced technical education to architect scalable, secure cloud solutions.</p>
                     
                     <div class="skills-grid">
                         <div class="skill-category">
-                            <h4>Frontend</h4>
+                            <h4>Cloud & Infrastructure</h4>
                             <ul>
-                                <li>JavaScript / ES6+</li>
-                                <li>HTML5 / CSS3</li>
-                                <li>Responsive Design</li>
-                                <li>React (learning)</li>
+                                <li>AWS (Lambda, EC2, S3, DynamoDB)</li>
+                                <li>Infrastructure as Code</li>
+                                <li>Docker / Containerization</li>
+                                <li>Cloud Security</li>
                             </ul>
                         </div>
                         <div class="skill-category">
-                            <h4>Backend & Cloud</h4>
+                            <h4>Development & DevOps</h4>
                             <ul>
-                                <li>AWS Lambda</li>
-                                <li>DynamoDB</li>
-                                <li>API Gateway</li>
-                                <li>S3 / Cognito</li>
-                            </ul>
-                        </div>
-                        <div class="skill-category">
-                            <h4>Tools & Practices</h4>
-                            <ul>
-                                <li>Git / GitHub</li>
+                                <li>Python, JavaScript, Java</li>
+                                <li>CI/CD Pipelines</li>
                                 <li>REST APIs</li>
-                                <li>Agile Development</li>
-                                <li>Cloud Architecture</li>
+                                <li>Terraform / CloudFormation</li>
+                            </ul>
+                        </div>
+                        <div class="skill-category">
+                            <h4>Leadership & Management</h4>
+                            <ul>
+                                <li>Team Leadership (5-10 personnel)</li>
+                                <li>Project Management</li>
+                                <li>Agile Methodologies</li>
+                                <li>Cross-functional Collaboration</li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 <div class="about-stats">
                     <div class="stat-card">
-                        <div class="stat-number">2+</div>
-                        <div class="stat-label">Projects Deployed</div>
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">Years USAF Service</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">AWS</div>
-                        <div class="stat-label">Cloud Infrastructure</div>
+                        <div class="stat-number">4.0</div>
+                        <div class="stat-label">M.S. GPA</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Self-Taught</div>
+                        <div class="stat-number">Secret</div>
+                        <div class="stat-label">Active DoD Clearance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">$2M+</div>
+                        <div class="stat-label">Assets Managed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section class="experience" id="experience" style="padding: 80px 24px; background: var(--bg-dark);">
+        <div class="container">
+            <h2 class="section-title">Experience & Education</h2>
+            <p class="section-subtitle">Military leadership transitioning to cloud engineering</p>
+            
+            <div style="max-width: 900px; margin: 0 auto;">
+                <!-- Education -->
+                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="font-size: 24px; margin-bottom: 8px;">M.S. in Cloud Computing Systems</h3>
+                            <p style="color: var(--primary); font-weight: 600;">University of Maryland Global Campus (UMGC)</p>
+                        </div>
+                        <span style="color: var(--text-secondary); white-space: nowrap;">2025 - 2027</span>
+                    </div>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">Current GPA: 4.0 | Advanced coursework in cloud architecture, AWS/Azure services, cloud security, DevOps, and Infrastructure as Code. Capstone project on multi-cloud deployment architecture.</p>
+                </div>
+
+                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="font-size: 24px; margin-bottom: 8px;">B.S. in Information & Computer Science</h3>
+                            <p style="color: var(--primary); font-weight: 600;">Park University</p>
+                        </div>
+                        <span style="color: var(--text-secondary); white-space: nowrap;">2021 - 2025</span>
+                    </div>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">GPA: 3.9 | Software Development concentration. Dean's List. Full-stack development, database design, systems analysis, and web technologies.</p>
+                </div>
+
+                <!-- Military Experience -->
+                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="font-size: 24px; margin-bottom: 8px;">Pavements & Construction Equipment Operator</h3>
+                            <p style="color: var(--primary); font-weight: 600;">United States Air Force</p>
+                        </div>
+                        <span style="color: var(--text-secondary); white-space: nowrap;">2015 - 2025</span>
+                    </div>
+                    <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 20px;">
+                        <li>Led teams of 5-10 personnel managing $100K+ infrastructure projects</li>
+                        <li>Managed $2M+ equipment inventory with 95%+ operational readiness</li>
+                        <li>Deployed 4 times to Middle East in support of contingency operations</li>
+                        <li>Awarded Air Force Commendation Medal for project completed 3 months early, saving $500K</li>
+                        <li>Named NCO of the Quarter (2024) for exceptional leadership</li>
+                    </ul>
+                </div>
+
+                <!-- Certifications -->
+                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px;">
+                    <h3 style="font-size: 24px; margin-bottom: 16px;">Certifications & Training</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            <span>Active DoD Secret Clearance</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            <span>AWS Solutions Architect (pursuing)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            <span>Airman Leadership School (ALS)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            <span>OSHA 30-Hour Construction</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -214,7 +318,7 @@
     <section class="contact" id="contact">
         <div class="container">
             <h2 class="section-title">Get in Touch</h2>
-            <p class="section-subtitle">Interested in working together or have feedback?</p>
+            <p class="section-subtitle">Open to cloud engineering and DevOps opportunities</p>
             
             <div class="contact-grid">
                 <div class="contact-card">
@@ -225,7 +329,7 @@
                         </svg>
                     </div>
                     <h3>Email</h3>
-                    <p>Send me a message</p>
+                    <p>Let's discuss opportunities</p>
                     <a href="mailto:dave@davedirty.com" class="contact-link">dave@davedirty.com</a>
                 </div>
 
@@ -236,19 +340,19 @@
                         </svg>
                     </div>
                     <h3>GitHub</h3>
-                    <p>Check out my code</p>
+                    <p>View my projects and code</p>
                     <a href="https://github.com/DavidSmith-0" target="_blank" class="contact-link">@DavidSmith-0</a>
                 </div>
 
                 <div class="contact-card">
                     <div class="contact-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
                         </svg>
                     </div>
-                    <h3>Feedback</h3>
-                    <p>Share your thoughts</p>
-                    <a href="/discussion" class="contact-link">Discussion Board</a>
+                    <h3>LinkedIn</h3>
+                    <p>Connect professionally</p>
+                    <a href="#" class="contact-link">View Profile</a>
                 </div>
             </div>
         </div>
@@ -268,7 +372,7 @@
                     <a href="https://github.com/DavidSmith-0" target="_blank">GitHub</a>
                 </div>
                 <div class="footer-copy">
-                    <p>© 2025 Dave Dirty. Built with passion.</p>
+                    <p>© 2025 Dave Dirty. U.S. Air Force Veteran | Cloud Engineer</p>
                 </div>
             </div>
         </div>
