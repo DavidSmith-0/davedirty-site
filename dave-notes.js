@@ -268,10 +268,18 @@ function setupEventListeners() {
     });
     
     // Storage mode
-    $('storage-mode-select').addEventListener('change', e => {
+    $('storage-mode-select').addEventListener('change', async e => {
         state.storageMode = e.target.value;
         updateStorageModeUI();
-        toast(`Switched to ${e.target.value === 'local' ? 'local storage' : 'cloud sync'}`, 'success');
+        
+        // If switching to cloud mode, sync
+        if (e.target.value === 'cloud') {
+            toast('Switching to cloud sync...', 'info');
+            await syncNotesToCloud(); // Upload local notes
+            await loadNotesFromCloud(); // Download cloud notes
+        } else {
+            toast('Switched to local storage', 'success');
+        }
     });
     
     // Data management
@@ -515,6 +523,12 @@ function createNote(data) {
     logActivity(state.user.email, `Created ${note.type} note`);
     renderNotes();
     toast('Note created', 'success');
+    
+    // Sync to cloud if in cloud mode
+    if (state.storageMode === 'cloud') {
+        syncNoteToCloud(note);
+    }
+    
     return note;
 }
 
@@ -529,6 +543,11 @@ function updateNote(id, updates) {
         saveUserData();
         renderNotes();
         toast('Note updated', 'success');
+        
+        // Sync to cloud if in cloud mode
+        if (state.storageMode === 'cloud') {
+            syncNoteToCloud(state.notes[idx]);
+        }
     }
 }
 
@@ -540,6 +559,12 @@ function deleteNote(id) {
         logActivity(state.user.email, 'Deleted note');
         renderNotes();
         toast('Note deleted');
+        
+        // Delete from cloud if in cloud mode
+        if (state.storageMode === 'cloud') {
+            deleteNoteFromCloud(id);
+        }
+        
         return true;
     }
     return false;
@@ -1584,6 +1609,7 @@ function updateStorageModeUI() {
     const useEl = badge.querySelector('svg use');
     const textEl = badge.querySelector('span');
     
+    // Update badge
     if (state.storageMode === 'local') {
         useEl.setAttribute('href', '#icon-cloud-off');
         textEl.textContent = 'Local Only';
@@ -1592,6 +1618,12 @@ function updateStorageModeUI() {
         useEl.setAttribute('href', '#icon-cloud');
         textEl.textContent = 'Cloud Sync';
         badge.classList.remove('local');
+    }
+    
+    // Show/hide cloud sync controls
+    const cloudControls = $('cloud-sync-controls');
+    if (cloudControls) {
+        cloudControls.style.display = state.storageMode === 'cloud' ? 'block' : 'none';
     }
     
     updateStorageUI();
@@ -1664,20 +1696,158 @@ async function initCloudServices() {
 }
 
 /**
- * Sync notes to DynamoDB
+ * Load notes from cloud
+ */
+async function loadNotesFromCloud() {
+    if (!CONFIG.AWS.API_ENDPOINT || !state.user) return 0;
+    
+    try {
+        const response = await fetch(`${CONFIG.AWS.API_ENDPOINT}/notes?userId=${state.user.email}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to load notes from cloud');
+        }
+        
+        const data = await response.json();
+        
+        if (data.notes && Array.isArray(data.notes)) {
+            // Convert cloud notes to local format
+            const cloudNotes = data.notes.map(note => ({
+                id: note.noteId,
+                type: note.type,
+                title: note.title,
+                content: note.content,
+                tags: note.tags || [],
+                starred: note.starred || false,
+                createdAt: note.createdAt,
+                updatedAt: note.updatedAt,
+                audioData: note.audioData,
+                imageData: note.imageData,
+                attachments: note.attachments
+            }));
+            
+            // Merge with local notes (prefer cloud version)
+            const cloudNoteIds = new Set(cloudNotes.map(n => n.id));
+            const localOnlyNotes = state.notes.filter(n => !cloudNoteIds.has(n.id));
+            
+            state.notes = [...cloudNotes, ...localOnlyNotes]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            renderNotes();
+            console.log(`Loaded ${cloudNotes.length} notes from cloud`);
+            return cloudNotes.length;
+        }
+        
+        return 0;
+    } catch (error) {
+        console.error('Failed to load notes from cloud:', error);
+        toast('Failed to sync from cloud', 'error');
+        return 0;
+    }
+}
+
+/**
+ * Refresh notes from cloud (pull latest)
+ */
+async function refreshFromCloud() {
+    if (state.storageMode !== 'cloud' || !CONFIG.AWS.API_ENDPOINT) {
+        toast('Cloud sync not enabled', 'warning');
+        return;
+    }
+    
+    toast('Refreshing from cloud...', 'info');
+    const count = await loadNotesFromCloud();
+    
+    if (count > 0) {
+        toast(`Loaded ${count} notes from cloud`, 'success');
+    } else {
+        toast('Already up to date', 'info');
+    }
+}
+
+/**
+ * Delete note from cloud
+ */
+async function deleteNoteFromCloud(noteId) {
+    if (state.storageMode !== 'cloud' || !CONFIG.AWS.API_ENDPOINT) return;
+    
+    try {
+        const response = await fetch(`${CONFIG.AWS.API_ENDPOINT}/notes/${noteId}?userId=${state.user.email}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to delete note from cloud');
+        }
+        
+        console.log('Note deleted from cloud:', noteId);
+        return true;
+    } catch (error) {
+        console.error('Failed to delete note from cloud:', error);
+        return false;
+    }
+}
+
+/**
+ * Sync a single note to DynamoDB
+ */
+async function syncNoteToCloud(note) {
+    if (state.storageMode !== 'cloud' || !CONFIG.AWS.API_ENDPOINT) return;
+    
+    try {
+        const response = await fetch(`${CONFIG.AWS.API_ENDPOINT}/notes?userId=${state.user.email}`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                noteId: note.id,
+                type: note.type,
+                title: note.title,
+                content: note.content,
+                tags: note.tags,
+                starred: note.starred,
+                createdAt: note.createdAt,
+                updatedAt: note.updatedAt,
+                audioData: note.audioData,
+                imageData: note.imageData,
+                attachments: note.attachments
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to sync note');
+        }
+        
+        console.log('Note synced to cloud:', note.id);
+    } catch (error) {
+        console.error('Cloud sync error:', error);
+        toast('Failed to sync to cloud', 'error');
+    }
+}
+
+/**
+ * Sync all notes to cloud (used when switching to cloud mode)
  */
 async function syncNotesToCloud() {
     if (state.storageMode !== 'cloud' || !CONFIG.AWS.API_ENDPOINT) return;
     
     try {
-        // TODO: Implement API call to sync notes
-        // const response = await fetch(`${CONFIG.AWS.API_ENDPOINT}/notes`, {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ notes: state.notes })
-        // });
+        toast('Syncing notes to cloud...', 'info');
         
-        console.log('Cloud sync ready for implementation');
+        for (const note of state.notes) {
+            await syncNoteToCloud(note);
+        }
+        
+        toast('All notes synced to cloud', 'success');
     } catch (error) {
         console.error('Cloud sync error:', error);
         toast('Cloud sync failed', 'error');

@@ -99,6 +99,9 @@
         <symbol id="icon-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
         </symbol>
+        <symbol id="icon-refresh-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23,4 23,10 17,10"/><polyline points="1,20 1,14 7,14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </symbol>
         <symbol id="icon-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
         </symbol>
@@ -324,7 +327,7 @@
                             <div class="user-avatar large" id="dropdown-avatar"><span>D</span></div>
                             <div class="user-details">
                                 <span class="user-name" id="dropdown-name">User</span>
-                                <span class="user-email" id="dropdown-email">user@example.com</span>
+                                <span class="user-email" id="dropdown-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bbcec8dec9fbdec3dad6cbd7de95d8d4d6">[email&#160;protected]</a></span>
                                 <span class="user-role-badge" id="dropdown-role">User</span>
                             </div>
                         </div>
@@ -655,6 +658,19 @@
                         <option value="cloud">Cloud Sync</option>
                     </select>
                 </div>
+                
+                <!-- Cloud Sync Controls (shown only in cloud mode) -->
+                <div class="setting-item" id="cloud-sync-controls" style="display: none; margin-top: 16px;">
+                    <button class="btn-secondary" id="refresh-cloud-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg style="width: 18px; height: 18px;"><use href="#icon-refresh-cw"/></svg>
+                        <span>Refresh from Cloud</span>
+                    </button>
+                    <div style="margin-top: 8px; padding: 12px; background: var(--bg-elevated); border-radius: 8px; font-size: 13px; color: var(--text-secondary);">
+                        <svg style="width: 14px; height: 14px; display: inline; margin-right: 6px;"><use href="#icon-cloud"/></svg>
+                        Pull latest notes from all your devices
+                    </div>
+                </div>
+                
                 <div class="storage-details" id="storage-details">
                     <div class="storage-stat">
                         <span class="storage-stat-label">Used</span>
@@ -826,10 +842,4 @@
     <div class="toast-container" id="toast-container"></div>
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay hidden" id="loading">
-        <div class="loading-spinner"></div>
-    </div>
-
-    <script src="dave-notes.js"></script>
-</body>
-</html>
+    <div class="loading-overlay hidden" id="loadi
