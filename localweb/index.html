@@ -3,272 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocalWeb Scout — Professional Web Development</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>LocalWeb Scout — Websites for Small Businesses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --white: #FFFFFF;
+            --gray: #666666;
+            --light-gray: #F5F5F5;
+            --green: #00D084;
+        }
+        
+        body {
+            font-family: 'Work Sans', sans-serif;
+            color: var(--black);
+            line-height: 1.5;
+            background: var(--white);
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--white);
+            border-bottom: 1px solid #E0E0E0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-cta {
+            background: var(--black);
+            color: var(--white);
+            padding: 12px 24px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .nav-cta:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Hero */
+        .hero {
+            padding: 160px 32px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -2px;
+        }
+        
+        .hero-subtitle {
+            font-size: 24px;
+            color: var(--gray);
+            margin-bottom: 48px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 18px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .btn-primary:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--white);
+            color: var(--black);
+            border: 2px solid var(--black);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--light-gray);
+        }
+        
+        /* Section */
+        .section {
+            padding: 80px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        
+        .section-subtitle {
+            font-size: 20px;
+            color: var(--gray);
+            margin-bottom: 64px;
+        }
+        
+        /* Pricing - Simple Grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 64px;
+        }
+        
+        .price-card {
+            border: 2px solid #E0E0E0;
+            padding: 48px;
+            background: var(--white);
+            transition: all 0.3s;
+        }
+        
+        .price-card:hover {
+            border-color: var(--black);
+            transform: translateY(-4px);
+        }
+        
+        .price-card.popular {
+            border-color: var(--green);
+            position: relative;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 48px;
+            background: var(--green);
+            color: var(--white);
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .price-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .price-amount {
+            font-size: 56px;
+            font-weight: 800;
+            margin: 24px 0;
+            letter-spacing: -2px;
+        }
+        
+        .price-timeline {
+            color: var(--gray);
+            margin-bottom: 32px;
+            font-size: 15px;
+        }
+        
+        .price-features {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+        
+        .price-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #F0F0F0;
+            font-size: 15px;
+        }
+        
+        .price-features li:last-child {
+            border-bottom: none;
+        }
+        
+        /* Process Section */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 64px;
+        }
+        
+        .process-step {
+            text-align: center;
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--black);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 auto 24px;
+        }
+        
+        .step-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .step-description {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+        
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .feature-card {
+            padding: 32px;
+            background: var(--light-gray);
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .feature-description {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: var(--black);
+            color: var(--white);
+            padding: 120px 32px;
+            text-align: center;
+            margin-top: 80px;
+        }
+        
+        .cta-section h2 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+        
+        .cta-section p {
+            font-size: 20px;
+            opacity: 0.8;
+            margin-bottom: 48px;
+        }
+        
+        .cta-section .btn {
+            background: var(--green);
+            color: var(--black);
+        }
+        
+        .cta-section .btn:hover {
+            background: #00FF9D;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--white);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .modal-header {
+            padding: 48px 48px 32px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .modal-header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .modal-body {
+            padding: 48px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--black);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .modal-actions {
+            padding: 24px 48px;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--light-gray);
+            padding: 48px 32px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 40px;
+            }
+            
+            .section-title {
+                font-size: 32px;
+            }
+            
+            .pricing-grid,
+            .process-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-section h2 {
+                font-size: 36px;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav>
         <div class="nav-container">
             <div class="logo">LocalWeb Scout</div>
-            <div class="nav-links">
-                <a href="#packages">Packages</a>
-                <a href="#demos">Live Demos</a>
-                <a href="outreach.html">Email Outreach</a>
-                <a href="#" onclick="openModal(); return false;" class="btn-nav">Get Started</a>
-            </div>
+            <button class="nav-cta" onclick="openModal()">Get Started</button>
         </div>
     </nav>
 
     <div class="hero">
-        <div class="hero-content">
-            <h1>Websites that attract customers & drive growth</h1>
-            <p>Professional web development for businesses ready to stand out online. From elegant landing pages to full e-commerce platforms—built to convert.</p>
-            <div class="hero-buttons">
-                <button class="btn btn-primary" onclick="openModal()">Start Your Project</button>
-                <a href="#demos" class="btn btn-secondary">Explore Live Demos</a>
+        <h1>Professional Websites<br>for Small Businesses</h1>
+        <p class="hero-subtitle">Affordable, fast, and built to get you customers. Starting at just $299.</p>
+        <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="openModal()">Start Your Website</button>
+            <a href="#pricing" class="btn btn-secondary">View Pricing</a>
+        </div>
+    </div>
+
+    <div class="section" id="pricing">
+        <h2 class="section-title">Simple, Affordable Pricing</h2>
+        <p class="section-subtitle">No hidden fees. No surprises. Pay once, own forever.</p>
+        
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3 class="price-name">Starter</h3>
+                <div class="price-amount">$299</div>
+                <div class="price-timeline">5-7 days delivery</div>
+                <ul class="price-features">
+                    <li>Single page website</li>
+                    <li>Mobile-responsive</li>
+                    <li>Contact form</li>
+                    <li>Google Maps</li>
+                    <li>Basic SEO</li>
+                    <li>Free hosting setup</li>
+                    <li>30 days support</li>
+                </ul>
+                <button class="btn btn-primary" style="width: 100%;" onclick="openModal('Starter')">Choose Starter</button>
+            </div>
+
+            <div class="price-card popular">
+                <div class="popular-badge">Most Popular</div>
+                <h3 class="price-name">Business</h3>
+                <div class="price-amount">$499</div>
+                <div class="price-timeline">7-10 days delivery</div>
+                <ul class="price-features">
+                    <li>Up to 5 pages</li>
+                    <li>Custom design</li>
+                    <li>Contact forms</li>
+                    <li>Photo gallery</li>
+                    <li>Advanced SEO</li>
+                    <li>Google Analytics</li>
+                    <li>Free hosting setup</li>
+                    <li>60 days support</li>
+                </ul>
+                <button class="btn btn-primary" style="width: 100%;" onclick="openModal('Business')">Choose Business</button>
+            </div>
+
+            <div class="price-card">
+                <h3 class="price-name">Pro</h3>
+                <div class="price-amount">$799</div>
+                <div class="price-timeline">10-14 days delivery</div>
+                <ul class="price-features">
+                    <li>Up to 10 pages</li>
+                    <li>Premium design</li>
+                    <li>Blog functionality</li>
+                    <li>Booking/scheduling</li>
+                    <li>E-commerce ready</li>
+                    <li>Advanced analytics</li>
+                    <li>Priority support</li>
+                    <li>90 days support</li>
+                </ul>
+                <button class="btn btn-primary" style="width: 100%;" onclick="openModal('Pro')">Choose Pro</button>
             </div>
         </div>
     </div>
 
-    <div class="section" id="packages">
-        <div class="section-header">
-            <div class="section-label">Investment</div>
-            <h2 class="section-title">Choose the right solution</h2>
-            <p class="section-description">Transparent pricing. All packages include hosting setup, SEO optimization, and 30 days of support.</p>
-        </div>
-
-        <div class="packages">
-            <div class="package-card">
-                <div class="package-badge">Popular</div>
-                <h3 class="package-name">Foundation</h3>
-                <p class="package-description">Essential web presence for local businesses</p>
-                <div class="package-price">$799</div>
-                <div class="package-timeline">2 week delivery</div>
-                
-                <div class="package-example">
-                    <div class="package-example-label">Perfect For</div>
-                    <div class="package-example-text">
-                        Restaurants • Professional services • Local shops • Service providers
-                    </div>
-                </div>
-                
-                <ul class="package-features">
-                    <li>Up to 5 custom pages</li>
-                    <li>Mobile-responsive design</li>
-                    <li>Contact form & maps</li>
-                    <li>Basic SEO optimization</li>
-                    <li>Social media integration</li>
-                    <li>2 rounds of revisions</li>
-                </ul>
-                
-                <button class="btn btn-primary btn-full" onclick="openModal('Foundation')">Select Foundation</button>
+    <div class="section" id="process">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">From idea to launch in days, not weeks.</p>
+        
+        <div class="process-grid">
+            <div class="process-step">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Fill Out Form</h3>
+                <p class="step-description">Tell us about your business, what you need, and your industry.</p>
             </div>
-
-            <div class="package-card">
-                <div class="package-badge">Best Value</div>
-                <h3 class="package-name">Professional</h3>
-                <p class="package-description">Complete solution with advanced features</p>
-                <div class="package-price">$1,499</div>
-                <div class="package-timeline">3 week delivery</div>
-                
-                <div class="package-example">
-                    <div class="package-example-label">Perfect For</div>
-                    <div class="package-example-text">
-                        Healthcare • Retail • Real estate • Professional firms
-                    </div>
-                </div>
-                
-                <ul class="package-features">
-                    <li>Up to 10 custom pages</li>
-                    <li>Custom design (no templates)</li>
-                    <li>Blog & content management</li>
-                    <li>Advanced SEO + sitemap</li>
-                    <li>Google Analytics setup</li>
-                    <li>Booking/appointment forms</li>
-                    <li>3 rounds of revisions</li>
-                </ul>
-                
-                <button class="btn btn-primary btn-full" onclick="openModal('Professional')">Select Professional</button>
+            
+            <div class="process-step">
+                <div class="step-number">2</div>
+                <h3 class="step-title">We Build</h3>
+                <p class="step-description">Our automated system creates your custom website in days.</p>
             </div>
-
-            <div class="package-card">
-                <div class="package-badge">Enterprise</div>
-                <h3 class="package-name">Commerce</h3>
-                <p class="package-description">Full e-commerce with cloud infrastructure</p>
-                <div class="package-price">$2,999<small>+</small></div>
-                <div class="package-timeline">4-6 week delivery</div>
-                
-                <div class="package-example">
-                    <div class="package-example-label">Perfect For</div>
-                    <div class="package-example-text">
-                        Online stores • SaaS • Membership sites • Complex applications
-                    </div>
-                </div>
-                
-                <ul class="package-features">
-                    <li>Unlimited pages</li>
-                    <li>Full e-commerce platform</li>
-                    <li>Customer accounts & login</li>
-                    <li>AWS cloud hosting</li>
-                    <li>AI chatbot integration</li>
-                    <li>API integrations</li>
-                    <li>3 months premium support</li>
-                    <li>Unlimited revisions</li>
-                </ul>
-                
-                <button class="btn btn-primary btn-full" onclick="openModal('Commerce')">Select Commerce</button>
+            
+            <div class="process-step">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Review & Revise</h3>
+                <p class="step-description">Check your site, request changes, we perfect it.</p>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Launch</h3>
+                <p class="step-description">Go live and start getting customers online.</p>
             </div>
         </div>
     </div>
 
-    <div class="section" id="demos">
-        <div class="section-header">
-            <div class="section-label">Examples</div>
-            <h2 class="section-title">Explore our work</h2>
-            <p class="section-description">Click any demo to see a fully functional example site.</p>
-        </div>
-
-        <div class="demo-gallery">
-            <a href="demos/restaurant.html" class="demo-item" target="_blank">
-                <div class="demo-preview" style="background: linear-gradient(135deg, #FF6B6B 0%, #C92A2A 100%);">
-                    <div class="demo-title">Trattoria</div>
-                </div>
-                <div class="demo-info">
-                    <div class="demo-category">Restaurant</div>
-                    <h3 class="demo-name">Italian Restaurant</h3>
-                    <p class="demo-description">Menu, reservations, gallery, and reviews</p>
-                    <div class="demo-meta">
-                        <div class="demo-price">From $799</div>
-                        <div class="demo-link">View Demo →</div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="demos/retail.html" class="demo-item" target="_blank">
-                <div class="demo-preview" style="background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);">
-                    <div class="demo-title">Boutique</div>
-                </div>
-                <div class="demo-info">
-                    <div class="demo-category">E-commerce</div>
-                    <h3 class="demo-name">Fashion Boutique</h3>
-                    <p class="demo-description">Full shopping cart and checkout</p>
-                    <div class="demo-meta">
-                        <div class="demo-price">From $2,999</div>
-                        <div class="demo-link">View Demo →</div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="demos/professional.html" class="demo-item" target="_blank">
-                <div class="demo-preview" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);">
-                    <div class="demo-title">Legal</div>
-                </div>
-                <div class="demo-info">
-                    <div class="demo-category">Professional</div>
-                    <h3 class="demo-name">Law Firm</h3>
-                    <p class="demo-description">Practice areas and attorney profiles</p>
-                    <div class="demo-meta">
-                        <div class="demo-price">From $1,499</div>
-                        <div class="demo-link">View Demo →</div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="demos/healthcare.html" class="demo-item" target="_blank">
-                <div class="demo-preview" style="background: linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%);">
-                    <div class="demo-title">Dental</div>
-                </div>
-                <div class="demo-info">
-                    <div class="demo-category">Healthcare</div>
-                    <h3 class="demo-name">Dental Practice</h3>
-                    <p class="demo-description">Online booking and patient forms</p>
-                    <div class="demo-meta">
-                        <div class="demo-price">From $1,299</div>
-                        <div class="demo-link">View Demo →</div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="demos/realestate.html" class="demo-item" target="_blank">
-                <div class="demo-preview" style="background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%);">
-                    <div class="demo-title">Realty</div>
-                </div>
-                <div class="demo-info">
-                    <div class="demo-category">Real Estate</div>
-                    <h3 class="demo-name">Real Estate Agency</h3>
-                    <p class="demo-description">Property listings and virtual tours</p>
-                    <div class="demo-meta">
-                        <div class="demo-price">From $1,199</div>
-                        <div class="demo-link">View Demo →</div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="demos/construction.html" class="demo-item" target="_blank">
-                <div class="demo-preview" style="background: linear-gradient(135deg, #FFA726 0%, #FB8C00 100%);">
-                    <div class="demo-title">Build Co</div>
-                </div>
-                <div class="demo-info">
-                    <div class="demo-category">Construction</div>
-                    <h3 class="demo-name">Construction Company</h3>
-                    <p class="demo-description">Project portfolio and quote requests</p>
-                    <div class="demo-meta">
-                        <div class="demo-price">From $899</div>
-                        <div class="demo-link">View Demo →</div>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <div class="value-section">
-        <div class="value-content">
-            <div class="value-text">
-                <h2>Why businesses choose us</h2>
-                <p>We build websites that don't just look good—they drive results.</p>
-                <ul class="value-points">
-                    <li>Fast turnaround without compromising quality</li>
-                    <li>Mobile-first design that works everywhere</li>
-                    <li>SEO optimization to get found on Google</li>
-                    <li>Security-first with SSL and backups</li>
-                    <li>Ongoing support when you need it</li>
-                </ul>
+    <div class="section">
+        <h2 class="section-title">What's Included</h2>
+        <p class="section-subtitle">Everything you need to succeed online.</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3 class="feature-title">Mobile-First Design</h3>
+                <p class="feature-description">Looks perfect on phones, tablets, and computers. 70% of your customers browse on mobile.</p>
             </div>
-            <div class="value-stats">
-                <div class="stat-box">
-                    <div class="stat-number">97%</div>
-                    <div class="stat-label">Client satisfaction</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">2-3</div>
-                    <div class="stat-label">Week delivery</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">100+</div>
-                    <div class="stat-label">Sites launched</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">Support</div>
-                </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">SEO Optimized</h3>
+                <p class="feature-description">Get found on Google. We optimize every page so customers can find you when they search.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">Lightning Fast</h3>
+                <p class="feature-description">Loads in under 2 seconds. Fast sites rank higher and convert better.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">Easy to Update</h3>
+                <p class="feature-description">Need to change hours or add a menu item? We'll show you how or do it for you.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">Secure & Safe</h3>
+                <p class="feature-description">SSL certificate included. Your site and customer data are protected.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">Ongoing Support</h3>
+                <p class="feature-description">Questions after launch? We're here to help via email or phone.</p>
             </div>
         </div>
     </div>
 
     <div class="cta-section">
-        <div class="cta-content">
-            <h2>Ready to get started?</h2>
-            <p>Tell us about your project and we'll create a custom proposal.</p>
-            <button class="btn btn-primary" onclick="openModal()">Start Your Project</button>
-        </div>
+        <h2>Ready to Get Started?</h2>
+        <p>Join hundreds of small businesses getting more customers online.</p>
+        <button class="btn" onclick="openModal()">Start Your Website — $299</button>
     </div>
+
+    <footer>
+        <p>&copy; 2024 LocalWeb Scout. Professional websites for small businesses.</p>
+        <p style="margin-top: 12px;">Questions? Email: david.smith.32@hotmail.com</p>
+    </footer>
 
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Start Your Project</h2>
-                <p>Tell us about your business</p>
+                <h2>Start Your Website</h2>
+                <p style="color: var(--gray); margin-top: 8px;">Tell us about your business</p>
             </div>
             <div class="modal-body">
                 <form id="contactForm" onsubmit="handleSubmit(event)">
@@ -298,10 +626,9 @@
                         <label>Package *</label>
                         <select name="package" id="packageSelect" required>
                             <option value="">Select...</option>
-                            <option value="Foundation">Foundation — $799</option>
-                            <option value="Professional">Professional — $1,499</option>
-                            <option value="Commerce">Commerce — $2,999+</option>
-                            <option value="Custom">Custom</option>
+                            <option value="Starter">Starter — $299</option>
+                            <option value="Business">Business — $499</option>
+                            <option value="Pro">Pro — $799</option>
                         </select>
                     </div>
                     
@@ -314,31 +641,19 @@
                                 <option value="Retail">Retail</option>
                                 <option value="Professional">Professional</option>
                                 <option value="Healthcare">Healthcare</option>
-                                <option value="Real Estate">Real Estate</option>
                                 <option value="Construction">Construction</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Timeline</label>
-                            <select name="timeline">
-                                <option value="">When?</option>
-                                <option value="ASAP">ASAP</option>
-                                <option value="1-2 months">1-2 months</option>
-                                <option value="3+ months">3+ months</option>
-                                <option value="Flexible">Flexible</option>
-                            </select>
+                            <label>Current Website</label>
+                            <input type="url" name="current_site" placeholder="If you have one">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label>Project Details *</label>
-                        <textarea name="details" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Current Website</label>
-                        <input type="url" name="current_site">
+                        <label>Tell Us About Your Business *</label>
+                        <textarea name="details" required placeholder="What do you do? What do you need on your website?"></textarea>
                     </div>
                 </form>
             </div>
@@ -349,6 +664,54 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        function openModal(packageName) {
+            document.getElementById('contactModal').classList.add('active');
+            if (packageName) {
+                document.getElementById('packageSelect').value = packageName;
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('contactModal').classList.remove('active');
+        }
+        
+        function handleSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            // Store locally
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            submissions.push({
+                ...data,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('submissions', JSON.stringify(submissions));
+            
+            alert('Thank you! We\'ll review your information and email you within 24 hours with next steps.');
+            
+            closeModal();
+            e.target.reset();
+        }
+        
+        document.getElementById('contactModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

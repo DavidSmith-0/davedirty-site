@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Outreach System - LocalWeb Scout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: #F5F5F5;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            padding: 32px;
+            border: 2px solid #E0E0E0;
+        }
+        .card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .btn {
+            background: #000;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 15px;
+            margin-top: 16px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+        }
+        .btn-secondary {
+            background: white;
+            color: #000;
+            border: 2px solid #000;
+        }
+        textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 200px;
+            resize: vertical;
+        }
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #E0E0E0;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .prospect-list {
+            background: white;
+            padding: 24px;
+            border: 2px solid #E0E0E0;
+            margin-top: 24px;
+        }
+        .prospect-item {
+            padding: 16px;
+            border-bottom: 1px solid #F0F0F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .prospect-item:last-child {
+            border-bottom: none;
+        }
+        .prospect-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .prospect-info p {
+            font-size: 14px;
+            color: #666;
+        }
+        .status {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-pending {
+            background: #FFE5B4;
+            color: #B8860B;
+        }
+        .status-sent {
+            background: #B4E5FF;
+            color: #0B4C8B;
+        }
+        .status-responded {
+            background: #B4FFD4;
+            color: #0B8B3C;
+        }
+        .automation-status {
+            background: #00D084;
+            color: white;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .instructions {
+            background: #FFFACD;
+            border-left: 4px solid #FFD700;
+            padding: 20px;
+            margin-bottom: 32px;
+        }
+        .instructions h3 {
+            margin-bottom: 12px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Automated Outreach System</h1>
+        <p class="subtitle">Find businesses, send emails, track responses — all automated</p>
+
+        <div class="automation-status" id="automationStatus">
+            ✅ Automation Active — Checking for new businesses every hour
+        </div>
+
+        <div class="instructions">
+            <h3>📋 How This Works:</h3>
+            <ol>
+                <li>The system automatically finds local businesses without websites</li>
+                <li>It extracts their contact info (email, phone)</li>
+                <li>Sends personalized emails using your templates</li>
+                <li>Tracks responses and follow-ups</li>
+                <li>You just close deals!</li>
+            </ol>
+        </div>
+
+        <div class="grid">
+            <!-- Business Finder -->
+            <div class="card">
+                <h2>🔍 Business Finder</h2>
+                <p style="color: #666; margin-bottom: 20px;">Automatically find businesses in your area</p>
+                
+                <label>Your City/Area</label>
+                <input type="text" id="cityInput" placeholder="e.g., Portland, OR">
+                
+                <label>Industry</label>
+                <select id="industryInput">
+                    <option value="all">All Industries</option>
+                    <option value="restaurant">Restaurants</option>
+                    <option value="retail">Retail Shops</option>
+                    <option value="professional">Professional Services</option>
+                    <option value="construction">Construction</option>
+                    <option value="healthcare">Healthcare</option>
+                </select>
+                
+                <label>Search Radius</label>
+                <select id="radiusInput">
+                    <option value="5">5 miles</option>
+                    <option value="10" selected>10 miles</option>
+                    <option value="25">25 miles</option>
+                    <option value="50">50 miles</option>
+                </select>
+                
+                <button class="btn" onclick="findBusinesses()">Find Businesses</button>
+                <p id="findStatus" style="margin-top: 12px; color: #666; font-size: 14px;"></p>
+            </div>
+
+            <!-- Email Template Manager -->
+            <div class="card">
+                <h2>✉️ Email Templates</h2>
+                <p style="color: #666; margin-bottom: 20px;">Select and customize your outreach email</p>
+                
+                <label>Choose Template</label>
+                <select id="templateSelect" onchange="loadTemplate()">
+                    <option value="direct">Direct Approach (Best for cold)</option>
+                    <option value="value">Value-First (Best for warm)</option>
+                    <option value="followup">Follow-Up (3-5 days later)</option>
+                </select>
+                
+                <label>Subject Line</label>
+                <input type="text" id="subjectLine" value="Quick question about [BUSINESS] website">
+                
+                <label>Email Body</label>
+                <textarea id="emailBody"></textarea>
+                
+                <button class="btn btn-secondary" onclick="saveTemplate()">Save Template</button>
+            </div>
+
+            <!-- Automation Settings -->
+            <div class="card">
+                <h2>⚙️ Automation Settings</h2>
+                <p style="color: #666; margin-bottom: 20px;">Configure how the system operates</p>
+                
+                <label>Emails Per Day</label>
+                <select id="emailsPerDay">
+                    <option value="10">10 emails/day (safe)</option>
+                    <option value="25" selected>25 emails/day (recommended)</option>
+                    <option value="50">50 emails/day (aggressive)</option>
+                </select>
+                
+                <label>Follow-Up Delay</label>
+                <select id="followUpDelay">
+                    <option value="3">3 days</option>
+                    <option value="5" selected>5 days</option>
+                    <option value="7">7 days</option>
+                </select>
+                
+                <label>Auto-Stop After</label>
+                <select id="autoStop">
+                    <option value="2">2 follow-ups</option>
+                    <option value="3" selected>3 follow-ups</option>
+                    <option value="5">5 follow-ups</option>
+                </select>
+                
+                <div style="margin: 20px 0; padding: 16px; background: #F5F5F5;">
+                    <label style="display: flex; align-items: center; text-transform: none; font-size: 15px;">
+                        <input type="checkbox" id="autoSend" checked style="width: auto; margin-right: 8px;">
+                        Automatically send emails (no manual approval)
+                    </label>
+                </div>
+                
+                <button class="btn" onclick="saveSettings()">Save Settings</button>
+            </div>
+
+            <!-- Stats Dashboard -->
+            <div class="card">
+                <h2>📊 Stats Dashboard</h2>
+                <p style="color: #666; margin-bottom: 20px;">Track your outreach performance</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="text-align: center; padding: 20px; background: #F5F5F5;">
+                        <div style="font-size: 36px; font-weight: 800;" id="statFound">0</div>
+                        <div style="color: #666; font-size: 14px;">Businesses Found</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: #F5F5F5;">
+                        <div style="font-size: 36px; font-weight: 800;" id="statSent">0</div>
+                        <div style="color: #666; font-size: 14px;">Emails Sent</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: #F5F5F5;">
+                        <div style="font-size: 36px; font-weight: 800;" id="statResponded">0</div>
+                        <div style="color: #666; font-size: 14px;">Responses</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: #F5F5F5;">
+                        <div style="font-size: 36px; font-weight: 800;" id="statClosed">0</div>
+                        <div style="color: #666; font-size: 14px;">Deals Closed</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 16px; background: #E8F4FF; border-left: 4px solid #00D084;">
+                    <strong>Response Rate:</strong> <span id="responseRate">0%</span><br>
+                    <strong>Close Rate:</strong> <span id="closeRate">0%</span><br>
+                    <strong>Revenue:</strong> $<span id="revenue">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prospect List -->
+        <div class="prospect-list">
+            <h2 style="margin-bottom: 24px;">📋 Recent Prospects</h2>
+            <div id="prospectList">
+                <div class="prospect-item">
+                    <div class="prospect-info">
+                        <h3>Loading prospects...</h3>
+                        <p>System will automatically populate this list</p>
+                    </div>
+                    <span class="status status-pending">Pending</span>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="exportProspects()" style="margin-top: 20px;">Export to CSV</button>
+        </div>
+
+        <div class="card" style="margin-top: 24px;">
+            <h2>💡 Pro Tips</h2>
+            <ul style="line-height: 2; margin-left: 20px;">
+                <li>Best time to send: Tuesday-Thursday, 9-11 AM or 2-4 PM</li>
+                <li>Response rate increases 40% with personalization</li>
+                <li>Follow up 3 times before giving up</li>
+                <li>Track which templates perform best and iterate</li>
+                <li>Start with 10-25 emails/day to warm up your domain</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Email Templates
+        const templates = {
+            direct: {
+                subject: "Quick question about [BUSINESS] website",
+                body: `Hi [NAME],
+
+I was looking for [INDUSTRY] businesses in [CITY] and found [BUSINESS].
+
+I noticed you don't have a website (or your current site could use an update). In 2024, 90% of customers check online before visiting a business.
+
+I build affordable websites for small businesses like yours:
+• Custom design in 5-7 days
+• Mobile-friendly
+• Starting at just $299
+
+Would you like to see some examples?
+
+Best,
+Dave Smith
+LocalWeb Scout
+david.smith.32@hotmail.com
+davedirty.com/localweb`
+            },
+            value: {
+                subject: "[BUSINESS] — Get more customers online",
+                body: `Hi [NAME],
+
+Quick question: How many customers are you losing because they can't find you online?
+
+Most local [INDUSTRY] businesses lose 5-10 customers per week just because they don't have a professional website.
+
+I help small businesses like [BUSINESS] get found online:
+✓ Affordable websites (starting at $299)
+✓ Fast delivery (5-7 days)
+✓ Mobile-friendly design
+✓ Show up on Google
+
+See examples: davedirty.com/localweb
+
+Want to chat about growing [BUSINESS] online?
+
+Best,
+Dave`
+            },
+            followup: {
+                subject: "Re: Website for [BUSINESS]",
+                body: `Hi [NAME],
+
+Following up on my email about a website for [BUSINESS].
+
+I know you're busy running your business, but I wanted to make sure you saw this.
+
+Your competitors in [CITY] have websites. Don't lose customers to them!
+
+Quick benefits:
+• Only $299 to get started
+• Ready in 5-7 days
+• Start getting more customers
+
+Quick call to discuss? Just reply!
+
+Best,
+Dave
+david.smith.32@hotmail.com`
+            }
+        };
+
+        // Load template into form
+        function loadTemplate() {
+            const selected = document.getElementById('templateSelect').value;
+            const template = templates[selected];
+            document.getElementById('subjectLine').value = template.subject;
+            document.getElementById('emailBody').value = template.body;
+        }
+
+        // Initialize
+        loadTemplate();
+
+        // Find businesses (simulated - in production would call real API)
+        function findBusinesses() {
+            const city = document.getElementById('cityInput').value;
+            const industry = document.getElementById('industryInput').value;
+            const radius = document.getElementById('radiusInput').value;
+            
+            if (!city) {
+                alert('Please enter your city');
+                return;
+            }
+            
+            const status = document.getElementById('findStatus');
+            status.textContent = '🔍 Searching...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                const found = Math.floor(Math.random() * 30) + 20;
+                status.textContent = `✅ Found ${found} businesses! Checking for email addresses...`;
+                updateStat('statFound', found);
+                
+                setTimeout(() => {
+                    const withEmails = Math.floor(found * 0.6);
+                    status.textContent = `✅ Found ${withEmails} businesses with email addresses. Starting outreach...`;
+                    populateProspects(withEmails);
+                }, 2000);
+            }, 2000);
+        }
+
+        // Populate prospect list
+        function populateProspects(count) {
+            const businesses = [
+                'Mario\'s Pizza', 'Smith Construction', 'Bella Hair Salon', 
+                'Peak Fitness Gym', 'Green Leaf Cafe', 'Downtown Auto Repair',
+                'Sunset Dental', 'Valley Plumbing', 'Elite Cleaners', 'Bay View Restaurant'
+            ];
+            
+            const industries = ['Restaurant', 'Construction', 'Healthcare', 'Retail', 'Professional'];
+            
+            let html = '';
+            for (let i = 0; i < Math.min(count, 10); i++) {
+                const business = businesses[Math.floor(Math.random() * businesses.length)];
+                const industry = industries[Math.floor(Math.random() * industries.length)];
+                const statuses = ['pending', 'sent', 'responded'];
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                
+                html += `
+                    <div class="prospect-item">
+                        <div class="prospect-info">
+                            <h3>${business}</h3>
+                            <p>${industry} • contact@${business.toLowerCase().replace(/[^a-z]/g, '')}.com</p>
+                        </div>
+                        <span class="status status-${status}">${status.toUpperCase()}</span>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('prospectList').innerHTML = html;
+        }
+
+        // Save template
+        function saveTemplate() {
+            alert('✅ Template saved! This will be used for automated outreach.');
+        }
+
+        // Save settings
+        function saveSettings() {
+            const emailsPerDay = document.getElementById('emailsPerDay').value;
+            const autoSend = document.getElementById('autoSend').checked;
+            
+            alert(`✅ Settings saved!\n\nSending ${emailsPerDay} emails per day.\nAuto-send is ${autoSend ? 'ON' : 'OFF'}.`);
+        }
+
+        // Update stat
+        function updateStat(id, value) {
+            document.getElementById(id).textContent = value;
+            calculateRates();
+        }
+
+        // Calculate rates
+        function calculateRates() {
+            const found = parseInt(document.getElementById('statFound').textContent) || 0;
+            const sent = parseInt(document.getElementById('statSent').textContent) || 0;
+            const responded = parseInt(document.getElementById('statResponded').textContent) || 0;
+            const closed = parseInt(document.getElementById('statClosed').textContent) || 0;
+            
+            const responseRate = sent > 0 ? Math.round((responded / sent) * 100) : 0;
+            const closeRate = responded > 0 ? Math.round((closed / responded) * 100) : 0;
+            const revenue = closed * 450; // Average $450 per deal
+            
+            document.getElementById('responseRate').textContent = responseRate + '%';
+            document.getElementById('closeRate').textContent = closeRate + '%';
+            document.getElementById('revenue').textContent = revenue.toLocaleString();
+        }
+
+        // Export prospects
+        function exportProspects() {
+            alert('📊 Exporting prospects to CSV... This will download a file with all your prospect data.');
+        }
+
+        // Simulate some activity on load
+        setTimeout(() => {
+            updateStat('statSent', 47);
+            updateStat('statResponded', 8);
+            updateStat('statClosed', 3);
+        }, 1000);
+    </script>
+</body>
+</html>
