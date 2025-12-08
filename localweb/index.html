@@ -589,7 +589,7 @@
 
     <footer>
         <p>&copy; 2024 LocalWeb Scout. Professional websites for small businesses.</p>
-        <p style="margin-top: 12px;">Questions? Email: david.smith.32@hotmail.com</p>
+        <p style="margin-top: 12px;">Questions? Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e88c899e818cc69b85819c80c6dbdaa880879c85898184c68b8785">[email&#160;protected]</a></p>
     </footer>
 
     <div id="contactModal" class="modal">
@@ -664,7 +664,7 @@
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         function openModal(packageName) {
             document.getElementById('contactModal').classList.add('active');
             if (packageName) {
@@ -706,12 +706,3 @@
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
-</body>
-</html>
