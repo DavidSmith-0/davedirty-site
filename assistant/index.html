@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .feature {
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: transform 0.3s;
+        }
+        .feature:hover { transform: translateY(-5px); }
+        .feature-icon { font-size: 48px; margin-bottom: 10px; }
+        .feature h3 { margin-bottom: 8px; }
+        .feature p { font-size: 14px; color: #666; }
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            border-left: 4px solid #2196f3;
+        }
+        .status strong { color: #1976d2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 AI Study Assistant</h1>
+        <p class="subtitle">Your intelligent learning companion powered by AI</p>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">💬</div>
+                <h3>Ask Questions</h3>
+                <p>Get instant answers from your study materials</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📝</div>
+                <h3>Summaries</h3>
+                <p>Generate concise summaries of any document</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎴</div>
+                <h3>Flashcards</h3>
+                <p>Auto-create flashcards for effective studying</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✅</div>
+                <h3>Practice Tests</h3>
+                <p>Generate practice questions to test yourself</p>
+            </div>
+        </div>
+        
+        <a href="#" class="btn" onclick="alert('Coming Soon! This will integrate with AWS Bedrock for real AI-powered features.'); return false;">Launch Assistant</a>
+        
+        <div class="status">
+            <strong>Status:</strong> Demo Mode - Full AWS integration available (requires setup)<br>
+            <strong>Cost:</strong> FREE in demo mode | $3-5/month with AWS Bedrock (light usage)
+        </div>
+    </div>
+</body>
+</html>
