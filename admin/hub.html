@@ -3,110 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Hub - Dave Dirty Projects</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Admin Hub - Dave Dirty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary: #8b5cf6;
+            --bg-dark: #0a0a0b;
+            --bg-elevated: #19191c;
+            --bg-card: #1f1f23;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border: #2a2a2e;
+            --success: #10b981;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
         .header {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px;
+            margin-bottom: 32px;
         }
+
         .header h1 {
             font-size: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-weight: 700;
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
-        .header p { color: #666; font-size: 18px; }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
+
         .stat-card {
-            background: white;
-            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             text-align: center;
+            transition: all 0.3s;
         }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
         .stat-value {
             font-size: 36px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
         }
-        .stat-label { color: #666; font-size: 14px; }
-        .section {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
+
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
         .section h2 {
-            font-size: 28px;
+            font-size: 24px;
+            font-weight: 700;
             margin-bottom: 24px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
+
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
-        .project-link {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border-radius: 16px;
+
+        .project-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             padding: 24px;
             text-decoration: none;
-            color: white;
+            color: var(--text-primary);
             display: block;
-            transition: transform 0.3s;
+            transition: all 0.3s;
         }
-        .project-link:hover { transform: translateY(-5px); }
-        .project-icon { font-size: 40px; margin-bottom: 12px; }
-        .project-name { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-        .project-desc { font-size: 14px; opacity: 0.9; margin-bottom: 16px; }
-        .project-url { font-size: 12px; opacity: 0.7; font-family: monospace; }
+
+        .project-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .project-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .project-url {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
         }
+
         .action-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 16px 24px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
             display: block;
-            transition: transform 0.3s;
+            transition: all 0.2s;
         }
-        .action-btn:hover { transform: translateY(-2px); }
+
+        .action-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .aws-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .aws-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .aws-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .aws-card ul {
+            list-style: none;
+            font-size: 14px;
+        }
+
+        .aws-card li {
+            padding: 6px 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .aws-card li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-live {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge-aws {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+        }
+
         @media (max-width: 768px) {
-            .header h1 { font-size: 32px; }
-            .projects-grid { grid-template-columns: 1fr; }
+            .header h1 {
+                font-size: 36px;
+            }
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -116,7 +263,7 @@
             <h1>🎛️ Admin Hub</h1>
             <p>Central dashboard for all Dave Dirty projects</p>
         </div>
-        
+
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-value">7</div>
@@ -131,68 +278,119 @@
                 <div class="stat-label">Cloud Platform</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">$5</div>
-                <div class="stat-label">Monthly Budget</div>
+                <div class="stat-value">$3-5</div>
+                <div class="stat-label">Monthly Cost</div>
             </div>
         </div>
-        
+
         <div class="section">
-            <h2>🚀 All Projects</h2>
+            <h2>🚀 Live Projects</h2>
             <div class="projects-grid">
-                <a href="/" class="project-link">
+                <a href="/" class="project-card">
                     <div class="project-icon">🏠</div>
-                    <div class="project-name">Homepage</div>
-                    <div class="project-desc">Main portfolio site</div>
+                    <div class="project-name">Homepage <span class="status-badge badge-live">Live</span></div>
+                    <div class="project-desc">Main portfolio & resume site</div>
                     <div class="project-url">davedirty.com/</div>
                 </a>
-                <a href="/davenotes/" class="project-link">
+
+                <a href="/davenotes/" class="project-card">
                     <div class="project-icon">📝</div>
-                    <div class="project-name">Dave Notes</div>
-                    <div class="project-desc">Cloud note-taking app</div>
+                    <div class="project-name">Dave Notes <span class="status-badge badge-aws">AWS</span></div>
+                    <div class="project-desc">Cloud-synced note-taking application</div>
                     <div class="project-url">davedirty.com/davenotes/</div>
                 </a>
-                <a href="/discussion/" class="project-link">
+
+                <a href="/discussion/" class="project-card">
                     <div class="project-icon">💬</div>
-                    <div class="project-name">Discussion Board</div>
-                    <div class="project-desc">Community platform</div>
+                    <div class="project-name">Discussion Board <span class="status-badge badge-aws">AWS</span></div>
+                    <div class="project-desc">Community discussion platform</div>
                     <div class="project-url">davedirty.com/discussion/</div>
                 </a>
-                <a href="/localweb/" class="project-link">
+
+                <a href="/localweb/" class="project-card">
                     <div class="project-icon">🔍</div>
-                    <div class="project-name">LocalWeb Scout</div>
-                    <div class="project-desc">Lead management</div>
+                    <div class="project-name">LocalWeb Scout <span class="status-badge badge-live">Live</span></div>
+                    <div class="project-desc">Business lead management system</div>
                     <div class="project-url">davedirty.com/localweb/</div>
                 </a>
-                <a href="/assistant/" class="project-link">
+
+                <a href="/assistant/" class="project-card">
                     <div class="project-icon">📚</div>
-                    <div class="project-name">AI Study Assistant</div>
-                    <div class="project-desc">AI learning companion</div>
+                    <div class="project-name">AI Study Assistant <span class="status-badge badge-aws">AWS</span></div>
+                    <div class="project-desc">AI-powered learning companion</div>
                     <div class="project-url">davedirty.com/assistant/</div>
                 </a>
-                <a href="/videopipe/" class="project-link">
+
+                <a href="/videopipe/" class="project-card">
                     <div class="project-icon">🎬</div>
-                    <div class="project-name">Video Pipeline</div>
-                    <div class="project-desc">Video processing system</div>
+                    <div class="project-name">Video Pipeline <span class="status-badge badge-aws">AWS</span></div>
+                    <div class="project-desc">Cloud video processing system</div>
                     <div class="project-url">davedirty.com/videopipe/</div>
                 </a>
-                <a href="/guestboard/" class="project-link">
+
+                <a href="/guestboard/" class="project-card">
                     <div class="project-icon">✍️</div>
-                    <div class="project-name">Cloud Guestbook</div>
-                    <div class="project-desc">Visitor messages</div>
+                    <div class="project-name">Cloud Guestbook <span class="status-badge badge-aws">AWS</span></div>
+                    <div class="project-desc">Visitor message board</div>
                     <div class="project-url">davedirty.com/guestboard/</div>
                 </a>
             </div>
         </div>
-        
+
         <div class="section">
             <h2>⚡ Quick Actions</h2>
             <div class="quick-actions">
                 <a href="https://console.aws.amazon.com/s3/buckets?region=us-east-2" target="_blank" class="action-btn">S3 Buckets</a>
                 <a href="https://console.aws.amazon.com/dynamodbv2/home?region=us-east-2" target="_blank" class="action-btn">DynamoDB</a>
-                <a href="https://console.aws.amazon.com/lambda/home?region=us-east-2" target="_blank" class="action-btn">Lambda</a>
+                <a href="https://console.aws.amazon.com/lambda/home?region=us-east-2" target="_blank" class="action-btn">Lambda Functions</a>
                 <a href="https://console.aws.amazon.com/apigateway/home?region=us-east-2" target="_blank" class="action-btn">API Gateway</a>
                 <a href="https://console.aws.amazon.com/billing/" target="_blank" class="action-btn">Billing</a>
                 <a href="https://github.com/DavidSmith-0" target="_blank" class="action-btn">GitHub</a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>☁️ AWS Resources (us-east-2)</h2>
+            <div class="aws-grid">
+                <div class="aws-card">
+                    <h3>S3 Buckets</h3>
+                    <ul>
+                        <li>assistant-docs-dave2024</li>
+                        <li>videopipe-raw-dave2024</li>
+                        <li>videopipe-processed-dave2024</li>
+                        <li>davenotes-files</li>
+                    </ul>
+                </div>
+
+                <div class="aws-card">
+                    <h3>DynamoDB Tables</h3>
+                    <ul>
+                        <li>AssistantDocs</li>
+                        <li>VideoJobs</li>
+                        <li>DaveNotes</li>
+                        <li>DaveNotesUsers</li>
+                        <li>FanMessages</li>
+                    </ul>
+                </div>
+
+                <div class="aws-card">
+                    <h3>Lambda Functions</h3>
+                    <ul>
+                        <li>assistant-qa</li>
+                        <li>video-processor</li>
+                        <li>notes-api</li>
+                        <li>discussion-api</li>
+                    </ul>
+                </div>
+
+                <div class="aws-card">
+                    <h3>System Info</h3>
+                    <ul>
+                        <li>Region: us-east-2 (Ohio)</li>
+                        <li>Budget: $3-5/month</li>
+                        <li>Status: Operational</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
