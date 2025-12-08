@@ -4,299 +4,972 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LocalWeb Scout - Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #16171d;
+            --bg-card: #1e1f26;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border-color: #2a2b35;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0a0a0b;
-            color: #ffffff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
         }
-        
-        /* Login Screen */
-        #loginScreen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
-        }
-        
-        .login-card {
-            background: #16171d;
-            padding: 48px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 420px;
-            border: 1px solid #2a2b35;
-        }
-        
-        .login-card h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-            color: #3b82f6;
-        }
-        
-        .login-card p {
-            color: #9ca3af;
-            margin-bottom: 32px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            color: #d1d5db;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: #0a0a0b;
-            border: 1px solid #2a2b35;
-            color: #ffffff;
-            font-size: 15px;
-            border-radius: 6px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        
-        .btn-primary {
-            width: 100%;
-            padding: 14px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-        
-        .error-message {
-            background: #7f1d1d;
-            border: 1px solid #991b1b;
-            color: #fca5a5;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        /* Admin Dashboard */
-        #adminDashboard {
-            display: none;
-        }
-        
-        .dashboard-header {
-            background: #16171d;
-            border-bottom: 1px solid #2a2b35;
-            padding: 20px 40px;
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        
-        .dashboard-header h1 {
+
+        .logo {
             font-size: 24px;
-            color: #3b82f6;
+            font-weight: 800;
+            color: var(--accent);
         }
-        
-        .user-info {
+
+        .header-actions {
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        
-        .user-email {
-            color: #9ca3af;
-            font-size: 14px;
-        }
-        
-        .btn-logout {
-            background: #dc2626;
-            color: white;
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px;
+
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
-        
-        .card {
-            background: #16171d;
-            border: 1px solid #2a2b35;
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            min-height: calc(100vh - 73px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            padding: 24px 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 4px;
             border-radius: 8px;
-            padding: 32px;
-            margin-bottom: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
         }
-        
-        .card h2 {
+
+        .nav-item:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .nav-icon {
             font-size: 20px;
-            margin-bottom: 20px;
-            color: #f3f4f6;
         }
-        
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 32px;
+            background: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
             margin-bottom: 32px;
         }
-        
+
         .stat-card {
-            background: #0a0a0b;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
             padding: 24px;
-            border-radius: 8px;
-            border: 1px solid #2a2b35;
+            border-radius: 12px;
         }
-        
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
         .stat-value {
             font-size: 36px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        [data-theme="dark"] .badge-success {
+            background: #064e3b;
+            color: #6ee7b7;
+        }
+
+        [data-theme="dark"] .badge-warning {
+            background: #78350f;
+            color: #fcd34d;
+        }
+
+        [data-theme="dark"] .badge-danger {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 15px;
+            border-radius: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        select.form-input {
+            cursor: pointer;
+        }
+
+        /* Demo Sites Grid */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .demo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-preview {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: 800;
+        }
+
+        .demo-info {
+            padding: 20px;
+        }
+
+        .demo-title {
+            font-size: 18px;
             font-weight: 700;
             margin-bottom: 8px;
-            color: #3b82f6;
         }
-        
-        .stat-label {
-            color: #9ca3af;
+
+        .demo-description {
+            color: var(--text-secondary);
             font-size: 14px;
+            margin-bottom: 16px;
         }
-        
-        .loading {
+
+        .demo-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Website Builder */
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .template-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
             text-align: center;
-            padding: 40px;
-            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        
-        .spinner {
-            border: 3px solid #2a2b35;
-            border-top: 3px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
+
+        .template-option:hover {
+            border-color: var(--accent);
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .template-option.selected {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+
+        .preview-window {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            min-height: 400px;
+            margin-top: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen">
-        <div class="login-card">
-            <h1>🔐 Admin Login</h1>
-            <p>LocalWeb Scout Dashboard</p>
-            
-            <div id="loginError" class="error-message" style="display: none;"></div>
-            
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="emailInput" required autocomplete="username">
-                </div>
-                
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="passwordInput" required autocomplete="current-password">
-                </div>
-                
-                <button type="submit" class="btn-primary" id="loginButton">
-                    Sign In
-                </button>
-            </form>
-            
-            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #2a2b35; text-align: center; color: #9ca3af; font-size: 14px;">
-                <p><strong>Demo Credentials:</strong></p>
-                <p>Email: admin@localwebscout.com</p>
-                <p>Password: LocalWeb2024!</p>
-            </div>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">🌐 LocalWeb Scout Admin</div>
+        <div class="header-actions">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText">Dark Mode</span>
+            </button>
+            <span class="user-email">admin@localwebscout.com</span>
         </div>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div id="adminDashboard">
-        <div class="dashboard-header">
-            <h1>📊 LocalWeb Scout - Admin Dashboard</h1>
-            <div class="user-info">
-                <span class="user-email" id="userEmail"></span>
-                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="nav-item active" onclick="showPage('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showPage('prospects')">
+                <span class="nav-icon">👥</span>
+                <span>Prospects</span>
+            </div>
+            <div class="nav-item" onclick="showPage('outreach')">
+                <span class="nav-icon">📧</span>
+                <span>Email Outreach</span>
+            </div>
+            <div class="nav-item" onclick="showPage('builder')">
+                <span class="nav-icon">🏗️</span>
+                <span>Website Builder</span>
+            </div>
+            <div class="nav-item" onclick="showPage('demos')">
+                <span class="nav-icon">🎨</span>
+                <span>Demo Sites</span>
+            </div>
+            <div class="nav-item" onclick="showPage('projects')">
+                <span class="nav-icon">📁</span>
+                <span>Projects</span>
+            </div>
+            <div class="nav-item" onclick="showPage('automation')">
+                <span class="nav-icon">⚙️</span>
+                <span>Automation</span>
             </div>
         </div>
-        
-        <div class="dashboard-container">
-            <!-- Stats Overview -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="statProspects">0</div>
-                    <div class="stat-label">Total Prospects</div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard">
+                <h1 style="font-size: 32px; margin-bottom: 24px;">Dashboard Overview</h1>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Prospects</div>
+                        <div class="stat-value">847</div>
+                        <div class="stat-change">+127 this month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Emails Sent</div>
+                        <div class="stat-value">2,341</div>
+                        <div class="stat-change">+487 this week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Response Rate</div>
+                        <div class="stat-value">18.4%</div>
+                        <div class="stat-change">+2.3% increase</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Projects</div>
+                        <div class="stat-value">23</div>
+                        <div class="stat-change">+5 this month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Revenue (MTD)</div>
+                        <div class="stat-value">$8,947</div>
+                        <div class="stat-change">+$2,100 this week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Conversion Rate</div>
+                        <div class="stat-value">4.2%</div>
+                        <div class="stat-change">+0.8% increase</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statEmails">0</div>
-                    <div class="stat-label">Emails Sent</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statResponses">0</div>
-                    <div class="stat-label">Responses</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statProjects">0</div>
-                    <div class="stat-label">Active Projects</div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Business</th>
+                                    <th>Status</th>
+                                    <th>Package</th>
+                                    <th>Value</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Sunset Dental Care</strong></td>
+                                    <td><span class="badge badge-success">Closed</span></td>
+                                    <td>Professional</td>
+                                    <td>$499</td>
+                                    <td>Dec 7, 2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mike's Auto Repair</strong></td>
+                                    <td><span class="badge badge-warning">In Progress</span></td>
+                                    <td>Essential</td>
+                                    <td>$299</td>
+                                    <td>Dec 6, 2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Bella's Salon & Spa</strong></td>
+                                    <td><span class="badge badge-success">Closed</span></td>
+                                    <td>Premium</td>
+                                    <td>$799</td>
+                                    <td>Dec 5, 2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Downtown Pizza Co</strong></td>
+                                    <td><span class="badge badge-warning">Proposal Sent</span></td>
+                                    <td>Professional</td>
+                                    <td>$499</td>
+                                    <td>Dec 4, 2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Smith Law Firm</strong></td>
+                                    <td><span class="badge badge-success">Closed</span></td>
+                                    <td>Premium</td>
+                                    <td>$799</td>
+                                    <td>Dec 3, 2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            
-            <div class="card">
-                <h2>🔗 Quick Links</h2>
-                <p style="color: #9ca3af; margin-bottom: 20px;">Access your admin tools</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-                    <a href="/localweb/admin/outreach.html" style="background: #3b82f6; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
-                        📧 Email Outreach
-                    </a>
-                    <a href="/localweb/admin/builder.html" style="background: #10b981; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
-                        🏗️ Website Builder
-                    </a>
-                    <a href="/localweb/admin/projects.html" style="background: #8b5cf6; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
-                        📁 My Projects
-                    </a>
-                    <a href="/localweb/admin/analytics.html" style="background: #f59e0b; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
-                        📊 Analytics
-                    </a>
+
+            <!-- Prospects Page -->
+            <div class="page" id="prospects">
+                <h1 style="font-size: 32px; margin-bottom: 24px;">Prospect Management</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Add New Prospect</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Business Name</label>
+                            <input type="text" class="form-input" placeholder="Enter business name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Contact Email</label>
+                            <input type="email" class="form-input" placeholder="contact@business.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-input" placeholder="(555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Industry</label>
+                            <select class="form-input">
+                                <option>Restaurant</option>
+                                <option>Retail</option>
+                                <option>Healthcare</option>
+                                <option>Legal</option>
+                                <option>Automotive</option>
+                                <option>Beauty & Wellness</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="alert('Prospect added successfully!')">Add Prospect</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Prospects (847)</h3>
+                        <input type="text" class="form-input" placeholder="Search prospects..." style="width: 300px;">
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Business</th>
+                                    <th>Contact</th>
+                                    <th>Industry</th>
+                                    <th>Status</th>
+                                    <th>Last Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Riverside Cafe</strong></td>
+                                    <td>sarah@riversidecafe.com</td>
+                                    <td>Restaurant</td>
+                                    <td><span class="badge badge-warning">Contacted</span></td>
+                                    <td>2 days ago</td>
+                                    <td><button class="btn btn-secondary" style="padding: 6px 12px;">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Green Valley Landscaping</strong></td>
+                                    <td>info@greenvalley.com</td>
+                                    <td>Services</td>
+                                    <td><span class="badge badge-success">Responded</span></td>
+                                    <td>1 day ago</td>
+                                    <td><button class="btn btn-secondary" style="padding: 6px 12px;">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Oakwood Veterinary Clinic</strong></td>
+                                    <td>contact@oakwoodvet.com</td>
+                                    <td>Healthcare</td>
+                                    <td><span class="badge badge-danger">New</span></td>
+                                    <td>Never</td>
+                                    <td><button class="btn btn-secondary" style="padding: 6px 12px;">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            
-            <div class="card">
-                <h2>⚙️ System Status</h2>
-                <div id="systemStatus">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        Loading system status...
+
+            <!-- Outreach Page -->
+            <div class="page" id="outreach">
+                <h1 style="font-size: 32px; margin-bottom: 24px;">Email Outreach</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Campaign Performance</h3>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Sent Today</div>
+                            <div class="stat-value">127</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Open Rate</div>
+                            <div class="stat-value">42%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Reply Rate</div>
+                            <div class="stat-value">18%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Meetings Booked</div>
+                            <div class="stat-value">7</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Send Campaign</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Template</label>
+                        <select class="form-input">
+                            <option>Introduction - No Website</option>
+                            <option>Introduction - Outdated Website</option>
+                            <option>Follow-up - 3 Days</option>
+                            <option>Follow-up - 7 Days</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Industry</label>
+                        <select class="form-input">
+                            <option>All Industries</option>
+                            <option>Restaurants</option>
+                            <option>Healthcare</option>
+                            <option>Legal Services</option>
+                            <option>Automotive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Daily Send Limit</label>
+                        <input type="number" class="form-input" value="50" min="1" max="200">
+                    </div>
+                    <button class="btn btn-success" onclick="alert('Campaign started! Sending 50 emails per day.')">Start Campaign</button>
+                </div>
+            </div>
+
+            <!-- Website Builder Page -->
+            <div class="page" id="builder">
+                <h1 style="font-size: 32px; margin-bottom: 24px;">Website Builder</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Create New Website</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Client Name</label>
+                        <input type="text" class="form-input" id="clientName" placeholder="Enter business name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Industry</label>
+                        <select class="form-input" id="industry">
+                            <option>Restaurant</option>
+                            <option>Healthcare</option>
+                            <option>Legal</option>
+                            <option>Automotive</option>
+                            <option>Beauty & Wellness</option>
+                            <option>Retail</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Select Template</label>
+                        <div class="template-selector">
+                            <div class="template-option selected" onclick="selectTemplate(this, 'modern')">
+                                <div style="font-size: 48px; margin-bottom: 8px;">🎨</div>
+                                <div style="font-weight: 600;">Modern</div>
+                            </div>
+                            <div class="template-option" onclick="selectTemplate(this, 'classic')">
+                                <div style="font-size: 48px; margin-bottom: 8px;">📄</div>
+                                <div style="font-weight: 600;">Classic</div>
+                            </div>
+                            <div class="template-option" onclick="selectTemplate(this, 'minimal')">
+                                <div style="font-size: 48px; margin-bottom: 8px;">✨</div>
+                                <div style="font-weight: 600;">Minimal</div>
+                            </div>
+                            <div class="template-option" onclick="selectTemplate(this, 'bold')">
+                                <div style="font-size: 48px; margin-bottom: 8px;">💪</div>
+                                <div style="font-weight: 600;">Bold</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success" onclick="generateWebsite()">Generate Website</button>
+
+                    <div class="preview-window" id="websitePreview">
+                        <p style="text-align: center; color: var(--text-secondary);">Preview will appear here after generation</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Sites Page -->
+            <div class="page" id="demos">
+                <h1 style="font-size: 32px; margin-bottom: 24px;">Professional Demo Sites</h1>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Show these professional examples to potential clients</p>
+
+                <div class="demo-grid">
+                    <div class="demo-card" onclick="window.open('/localweb/demos/restaurant.html', '_blank')">
+                        <div class="demo-preview" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+                            🍽️
+                        </div>
+                        <div class="demo-info">
+                            <div class="demo-title">Bella's Italian Restaurant</div>
+                            <div class="demo-description">Modern restaurant website with online menu, reservations, and gallery</div>
+                            <div class="demo-meta">
+                                <span>🎨 Modern</span>
+                                <span>📱 Responsive</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="demo-card" onclick="window.open('/localweb/demos/dental.html', '_blank')">
+                        <div class="demo-preview" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                            🦷
+                        </div>
+                        <div class="demo-info">
+                            <div class="demo-title">Smile Bright Dental</div>
+                            <div class="demo-description">Professional dental practice site with services, team bios, and booking</div>
+                            <div class="demo-meta">
+                                <span>🎨 Classic</span>
+                                <span>📱 Responsive</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="demo-card" onclick="window.open('/localweb/demos/law.html', '_blank')">
+                        <div class="demo-preview" style="background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);">
+                            ⚖️
+                        </div>
+                        <div class="demo-info">
+                            <div class="demo-title">Anderson Law Firm</div>
+                            <div class="demo-description">Professional law firm website with practice areas and contact forms</div>
+                            <div class="demo-meta">
+                                <span>🎨 Bold</span>
+                                <span>📱 Responsive</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="demo-card" onclick="window.open('/localweb/demos/auto.html', '_blank')">
+                        <div class="demo-preview" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
+                            🚗
+                        </div>
+                        <div class="demo-info">
+                            <div class="demo-title">Mike's Auto Repair</div>
+                            <div class="demo-description">Auto repair shop website with services, pricing, and appointment booking</div>
+                            <div class="demo-meta">
+                                <span>🎨 Minimal</span>
+                                <span>📱 Responsive</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="demo-card" onclick="window.open('/localweb/demos/salon.html', '_blank')">
+                        <div class="demo-preview" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+                            💅
+                        </div>
+                        <div class="demo-info">
+                            <div class="demo-title">Luxe Beauty Salon</div>
+                            <div class="demo-description">Elegant salon website with services, gallery, and online booking</div>
+                            <div class="demo-meta">
+                                <span>🎨 Modern</span>
+                                <span>📱 Responsive</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="demo-card" onclick="window.open('/localweb/demos/fitness.html', '_blank')">
+                        <div class="demo-preview" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            💪
+                        </div>
+                        <div class="demo-info">
+                            <div class="demo-title">FitZone Gym</div>
+                            <div class="demo-description">Dynamic fitness center website with class schedules and membership info</div>
+                            <div class="demo-meta">
+                                <span>🎨 Bold</span>
+                                <span>📱 Responsive</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Page -->
+            <div class="page" id="projects">
+                <h1 style="font-size: 32px; margin-bottom: 24px;">Active Projects</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Projects Overview (23 Active)</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Package</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                    <th>Revenue</th>
+                                    <th>Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Mountain View Cafe</strong></td>
+                                    <td>Professional</td>
+                                    <td><span class="badge badge-warning">In Progress</span></td>
+                                    <td>75%</td>
+                                    <td>$499</td>
+                                    <td>Dec 15, 2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sunset Yoga Studio</strong></td>
+                                    <td>Premium</td>
+                                    <td><span class="badge badge-success">Completed</span></td>
+                                    <td>100%</td>
+                                    <td>$799</td>
+                                    <td>Dec 10, 2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tech Repair Solutions</strong></td>
+                                    <td>Essential</td>
+                                    <td><span class="badge badge-warning">In Progress</span></td>
+                                    <td>40%</td>
+                                    <td>$299</td>
+                                    <td>Dec 18, 2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Automation Page -->
+            <div class="page" id="automation">
+                <h1 style="font-size: 32px; margin-bottom: 24px;">Automation Control</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Campaign Status</h3>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 24px;">
+                        <button class="btn btn-success" onclick="alert('Automation started!')">▶️ Start</button>
+                        <button class="btn btn-secondary" onclick="alert('Automation paused!')">⏸️ Pause</button>
+                        <button class="btn btn-secondary" onclick="alert('Automation stopped!')">⏹️ Stop</button>
+                        <div style="margin-left: auto;">
+                            <span class="badge badge-success">ACTIVE</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Daily Send Limit</label>
+                        <input type="number" class="form-input" value="50">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Campaign Schedule</label>
+                        <select class="form-input">
+                            <option>Weekdays Only (9am - 5pm)</option>
+                            <option>Daily (9am - 5pm)</option>
+                            <option>24/7</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Activity Log</h3>
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 14px; line-height: 2;">
+                        <div>✅ Sent email to Riverside Cafe - 2 minutes ago</div>
+                        <div>✅ Sent email to Green Valley Landscaping - 5 minutes ago</div>
+                        <div>📧 Response received from Bella's Salon - 15 minutes ago</div>
+                        <div>✅ Sent email to Downtown Pizza Co - 23 minutes ago</div>
+                        <div>✅ Sent email to Oakwood Veterinary - 35 minutes ago</div>
                     </div>
                 </div>
             </div>
@@ -304,149 +977,106 @@
     </div>
 
     <script>
-        // AWS Cognito Configuration
-        const COGNITO_CONFIG = {
-            UserPoolId: 'us-east-1_EXAMPLE', // Replace with your actual User Pool ID
-            ClientId: 'EXAMPLE123', // Replace with your actual App Client ID
-            Region: 'us-east-1'
-        };
-
-        // Initialize Cognito
-        const poolData = {
-            UserPoolId: COGNITO_CONFIG.UserPoolId,
-            ClientId: COGNITO_CONFIG.ClientId
-        };
-        
-        const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-        let currentUser = null;
-
-        // Check if user is already logged in
-        window.addEventListener('DOMContentLoaded', function() {
-            checkAuthStatus();
-        });
-
-        function checkAuthStatus() {
-            currentUser = userPool.getCurrentUser();
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
             
-            if (currentUser) {
-                currentUser.getSession(function(err, session) {
-                    if (err) {
-                        showLoginScreen();
-                        return;
-                    }
-                    
-                    if (session.isValid()) {
-                        showDashboard(currentUser.getUsername());
-                    } else {
-                        showLoginScreen();
-                    }
-                });
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
             } else {
-                showLoginScreen();
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
             }
+            
+            localStorage.setItem('theme', newTheme);
         }
 
-        function handleLogin(event) {
-            event.preventDefault();
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
             
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-            const loginButton = document.getElementById('loginButton');
-            const errorDiv = document.getElementById('loginError');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
             
-            // Clear previous errors
-            errorDiv.style.display = 'none';
-            loginButton.textContent = 'Signing In...';
-            loginButton.disabled = true;
+            if (savedTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            }
+        });
+
+        // Page Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
             
-            // For demo purposes - bypass Cognito
-            if (email === 'admin@localwebscout.com' && password === 'LocalWeb2024!') {
-                localStorage.setItem('localweb_admin_email', email);
-                localStorage.setItem('localweb_admin_session', Date.now());
-                showDashboard(email);
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Add active to clicked nav item
+            event.currentTarget.classList.add('active');
+        }
+
+        // Template Selection
+        let selectedTemplate = 'modern';
+        
+        function selectTemplate(element, template) {
+            document.querySelectorAll('.template-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedTemplate = template;
+        }
+
+        // Generate Website
+        function generateWebsite() {
+            const clientName = document.getElementById('clientName').value;
+            const industry = document.getElementById('industry').value;
+            
+            if (!clientName) {
+                alert('Please enter a client name');
                 return;
             }
             
-            // Real Cognito authentication
-            const authenticationData = {
-                Username: email,
-                Password: password
-            };
-            
-            const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-            
-            const userData = {
-                Username: email,
-                Pool: userPool
-            };
-            
-            const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            
-            cognitoUser.authenticateUser(authenticationDetails, {
-                onSuccess: function(result) {
-                    showDashboard(email);
-                },
-                onFailure: function(err) {
-                    errorDiv.textContent = err.message || 'Authentication failed';
-                    errorDiv.style.display = 'block';
-                    loginButton.textContent = 'Sign In';
-                    loginButton.disabled = false;
-                }
-            });
-        }
-
-        function showLoginScreen() {
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('adminDashboard').style.display = 'none';
-        }
-
-        function showDashboard(email) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            document.getElementById('userEmail').textContent = email;
-            
-            // Load dashboard data
-            loadDashboardData();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('localweb_admin_email');
-            localStorage.removeItem('localweb_admin_session');
-            
-            if (currentUser) {
-                currentUser.signOut();
-            }
-            
-            showLoginScreen();
-        }
-
-        async function loadDashboardData() {
-            // Simulate loading data from database
-            setTimeout(() => {
-                // Update stats with real data from DynamoDB/S3
-                document.getElementById('statProspects').textContent = '47';
-                document.getElementById('statEmails').textContent = '135';
-                document.getElementById('statResponses').textContent = '18';
-                document.getElementById('statProjects').textContent = '6';
-                
-                // Update system status
-                document.getElementById('systemStatus').innerHTML = `
-                    <div style="display: grid; gap: 12px;">
-                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #0a0a0b; border-radius: 6px;">
-                            <span style="color: #9ca3af;">Email Service</span>
-                            <span style="color: #10b981;">✓ Active</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #0a0a0b; border-radius: 6px;">
-                            <span style="color: #9ca3af;">Database</span>
-                            <span style="color: #10b981;">✓ Connected</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #0a0a0b; border-radius: 6px;">
-                            <span style="color: #9ca3af;">API Gateway</span>
-                            <span style="color: #10b981;">✓ Operational</span>
+            const preview = document.getElementById('websitePreview');
+            preview.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">✨</div>
+                    <h2 style="font-size: 28px; margin-bottom: 12px;">${clientName}</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">${industry} - ${selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)} Template</p>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button class="btn btn-primary" onclick="alert('Website published! URL: ${clientName.toLowerCase().replace(/ /g, '')}.localwebscout.com')">Publish Website</button>
+                        <button class="btn btn-secondary" onclick="alert('Preview opened in new window')">Preview Full Site</button>
+                    </div>
+                    <div style="margin-top: 32px; padding: 24px; background: var(--bg-secondary); border-radius: 8px; text-align: left;">
+                        <h3 style="margin-bottom: 16px;">Generated Features:</h3>
+                        <div style="color: var(--text-secondary); line-height: 2;">
+                            ✅ Hero Section with Business Info<br>
+                            ✅ Services/Products Section<br>
+                            ✅ About Us Page<br>
+                            ✅ Contact Form<br>
+                            ✅ Google Maps Integration<br>
+                            ✅ Mobile Responsive Design<br>
+                            ✅ SEO Optimized<br>
+                            ✅ Fast Loading Speed
                         </div>
                     </div>
-                `;
-            }, 1000);
+                </div>
+            `;
         }
     </script>
 </body>

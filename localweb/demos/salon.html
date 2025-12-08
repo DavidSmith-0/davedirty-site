@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Beauty Salon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Italiana&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; color: #1f2937; }
+        .header { background: white; padding: 24px; text-align: center; border-bottom: 1px solid #fce7f3; }
+        .logo { font-family: 'Italiana', serif; font-size: 36px; color: #ec4899; }
+        .hero { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: white; padding: 100px 20px; text-align: center; }
+        .hero h1 { font-family: 'Italiana', serif; font-size: 64px; margin-bottom: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 80px 20px; }
+        .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+        .service { background: #fdf2f8; padding: 32px; border-radius: 12px; text-align: center; }
+        .service h3 { color: #ec4899; font-size: 24px; margin: 16px 0 12px; }
+        .icon { font-size: 48px; }
+        .cta { background: #ec4899; color: white; padding: 16px 32px; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; }
+        .footer { background: #1f2937; color: white; padding: 48px 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">💅 Luxe Beauty Salon</div>
+    </div>
+    
+    <div class="hero">
+        <h1>Beauty Reimagined</h1>
+        <p style="font-size: 22px; margin-bottom: 32px;">Where Elegance Meets Excellence</p>
+        <button class="cta">Book Now</button>
+    </div>
+    
+    <div class="container">
+        <h2 style="text-align: center; font-family: 'Italiana', serif; font-size: 48px; margin-bottom: 56px; color: #ec4899;">Our Services</h2>
+        <div class="services">
+            <div class="service">
+                <div class="icon">💇</div>
+                <h3>Hair Styling</h3>
+                <p>Cuts, color, and treatments</p>
+            </div>
+            <div class="service">
+                <div class="icon">💅</div>
+                <h3>Nail Care</h3>
+                <p>Manicures and pedicures</p>
+            </div>
+            <div class="service">
+                <div class="icon">✨</div>
+                <h3>Facial Treatments</h3>
+                <p>Rejuvenating skin care</p>
+            </div>
+            <div class="service">
+                <div class="icon">💄</div>
+                <h3>Makeup Services</h3>
+                <p>Special occasion makeup</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>📍 567 Beauty Lane, Your City, ST 12345</p>
+        <p>📞 (555) 567-8901 | ✉️ hello@luxebeauty.com</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalWeb Scout - Demo Sites</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0a0b;
+            color: #ffffff;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: #9ca3af;
+            font-size: 18px;
+            margin-bottom: 48px;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .demo-card {
+            background: #16171d;
+            border: 1px solid #2a2b35;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .demo-card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+        }
+        .demo-preview {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+        }
+        .demo-info {
+            padding: 24px;
+        }
+        .demo-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .demo-description {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Professional Demo Sites</h1>
+        <p class="subtitle">High-quality examples to show potential clients</p>
+        
+        <div class="demo-grid">
+            <a href="restaurant.html" class="demo-card" target="_blank">
+                <div class="demo-preview" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">🍽️</div>
+                <div class="demo-info">
+                    <div class="demo-title">Bella's Italian Restaurant</div>
+                    <div class="demo-description">Modern restaurant with menu & reservations</div>
+                </div>
+            </a>
+            
+            <a href="dental.html" class="demo-card" target="_blank">
+                <div class="demo-preview" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">🦷</div>
+                <div class="demo-info">
+                    <div class="demo-title">Smile Bright Dental</div>
+                    <div class="demo-description">Professional dental practice website</div>
+                </div>
+            </a>
+            
+            <a href="law.html" class="demo-card" target="_blank">
+                <div class="demo-preview" style="background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);">⚖️</div>
+                <div class="demo-info">
+                    <div class="demo-title">Anderson Law Firm</div>
+                    <div class="demo-description">Professional law firm website</div>
+                </div>
+            </a>
+            
+            <a href="auto.html" class="demo-card" target="_blank">
+                <div class="demo-preview" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">🚗</div>
+                <div class="demo-info">
+                    <div class="demo-title">Mike's Auto Repair</div>
+                    <div class="demo-description">Auto repair shop with booking</div>
+                </div>
+            </a>
+            
+            <a href="salon.html" class="demo-card" target="_blank">
+                <div class="demo-preview" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">💅</div>
+                <div class="demo-info">
+                    <div class="demo-title">Luxe Beauty Salon</div>
+                    <div class="demo-description">Elegant salon with online booking</div>
+                </div>
+            </a>
+            
+            <a href="fitness.html" class="demo-card" target="_blank">
+                <div class="demo-preview" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">💪</div>
+                <div class="demo-info">
+                    <div class="demo-title">FitZone Gym</div>
+                    <div class="demo-description">Dynamic fitness center website</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

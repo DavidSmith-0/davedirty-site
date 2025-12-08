@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mike's Auto Repair</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .header { background: #dc2626; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 28px; font-weight: 800; }
+        .hero { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), #991b1b; color: white; padding: 120px 20px; text-align: center; }
+        .hero h1 { font-size: 56px; font-weight: 800; margin-bottom: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+        .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .service { background: #fef2f2; padding: 32px; border-radius: 8px; border-left: 4px solid #dc2626; }
+        .service h3 { color: #dc2626; font-size: 22px; margin-bottom: 12px; }
+        .cta { background: #dc2626; color: white; padding: 16px 32px; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; }
+        .footer { background: #1f2937; color: white; padding: 40px 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🚗 Mike's Auto Repair</div>
+        <div style="font-size: 20px; font-weight: 600;">Call: (555) 456-7890</div>
+    </div>
+    
+    <div class="hero">
+        <h1>Expert Auto Repair</h1>
+        <p style="font-size: 24px; margin-bottom: 32px;">Fast, Reliable, Affordable</p>
+        <button class="cta">Schedule Service</button>
+    </div>
+    
+    <div class="container">
+        <h2 style="text-align: center; font-size: 40px; margin-bottom: 48px;">Our Services</h2>
+        <div class="services">
+            <div class="service">
+                <h3>Oil Changes</h3>
+                <p>Quick and efficient oil change service</p>
+                <p style="margin-top: 12px; font-weight: 600; color: #dc2626;">From $39</p>
+            </div>
+            <div class="service">
+                <h3>Brake Service</h3>
+                <p>Complete brake inspection and repair</p>
+                <p style="margin-top: 12px; font-weight: 600; color: #dc2626;">From $129</p>
+            </div>
+            <div class="service">
+                <h3>Engine Diagnostics</h3>
+                <p>Advanced computer diagnostics</p>
+                <p style="margin-top: 12px; font-weight: 600; color: #dc2626;">From $79</p>
+            </div>
+            <div class="service">
+                <h3>Tire Service</h3>
+                <p>Rotation, balance, and replacement</p>
+                <p style="margin-top: 12px; font-weight: 600; color: #dc2626;">From $59</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>📍 321 Auto Boulevard, Your City, ST 12345</p>
+        <p>📞 (555) 456-7890 | ✉️ service@mikesauto.com</p>
+    </div>
+</body>
+</html>

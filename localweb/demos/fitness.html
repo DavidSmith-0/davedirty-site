@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitZone Gym</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .header { background: #10b981; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 32px; font-weight: 800; }
+        .hero { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), #059669; color: white; padding: 140px 20px; text-align: center; }
+        .hero h1 { font-size: 64px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 80px 20px; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; }
+        .feature { background: #d1fae5; padding: 32px; border-radius: 12px; text-align: center; }
+        .feature h3 { color: #10b981; font-size: 24px; font-weight: 700; margin: 16px 0 12px; }
+        .icon { font-size: 56px; }
+        .cta { background: #10b981; color: white; padding: 18px 40px; border: none; border-radius: 8px; font-size: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .footer { background: #1f2937; color: white; padding: 48px 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">💪 FITZONE GYM</div>
+        <div style="font-size: 18px; font-weight: 600;">JOIN NOW</div>
+    </div>
+    
+    <div class="hero">
+        <h1>Transform Your Life</h1>
+        <p style="font-size: 24px; margin-bottom: 32px; font-weight: 600;">State-of-the-Art Fitness Center</p>
+        <button class="cta">Start Free Trial</button>
+    </div>
+    
+    <div class="container">
+        <h2 style="text-align: center; font-size: 48px; font-weight: 800; margin-bottom: 56px; text-transform: uppercase;">What We Offer</h2>
+        <div class="features">
+            <div class="feature">
+                <div class="icon">🏋️</div>
+                <h3>Weight Training</h3>
+                <p>Premium equipment and free weights</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🧘</div>
+                <h3>Group Classes</h3>
+                <p>Yoga, spin, HIIT, and more</p>
+            </div>
+            <div class="feature">
+                <div class="icon">👤</div>
+                <h3>Personal Training</h3>
+                <p>One-on-one coaching</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🏊</div>
+                <h3>Pool & Sauna</h3>
+                <p>Full recovery facilities</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>📍 890 Fitness Drive, Your City, ST 12345</p>
+        <p>📞 (555) 678-9012 | ✉️ info@fitzonegym.com</p>
+    </div>
+</body>
+</html>
