@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - User Management | Dave Notes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0a0b;
+            color: #ffffff;
+        }
+        
+        .header {
+            background: #16171d;
+            border-bottom: 1px solid #2a2b35;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: #3b82f6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: #16171d;
+            border: 1px solid #2a2b35;
+            padding: 24px;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .card {
+            background: #16171d;
+            border: 1px solid #2a2b35;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #0a0a0b;
+            border: 1px solid #2a2b35;
+            color: #ffffff;
+            border-radius: 6px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: opacity 0.2s;
+        }
+        
+        .btn:hover { opacity: 0.8; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-primary { background: #3b82f6; color: #fff; }
+        .btn-success { background: #10b981; color: #fff; }
+        .btn-warning { background: #f59e0b; color: #000; }
+        .btn-danger { background: #dc2626; color: #fff; }
+        .btn-secondary { background: #6b7280; color: #fff; }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+            margin-right: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #0a0a0b;
+        }
+        
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #9ca3af;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 16px;
+            border-top: 1px solid #2a2b35;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-enabled {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .status-disabled {
+            background: rgba(220, 38, 38, 0.1);
+            color: #dc2626;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #16171d;
+            padding: 32px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid #2a2b35;
+        }
+        
+        .modal-content h2 {
+            margin-bottom: 24px;
+            color: #f3f4f6;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #d1d5db;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0a0a0b;
+            border: 1px solid #2a2b35;
+            color: #ffffff;
+            border-radius: 6px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: #2a2b35;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+        
+        .strength-weak { background: #dc2626; width: 33%; }
+        .strength-medium { background: #f59e0b; width: 66%; }
+        .strength-strong { background: #10b981; width: 100%; }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+        
+        .spinner {
+            border: 3px solid #2a2b35;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #6ee7b7;
+        }
+        
+        .alert-error {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid #dc2626;
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔐 User Management Dashboard</h1>
+        <div>
+            <button class="btn btn-secondary" onclick="window.location.href='/davenotes'">
+                Back to Dave Notes
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeUsers">0</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="disabledUsers">0</div>
+                <div class="stat-label">Disabled Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="mfaEnabled">0</div>
+                <div class="stat-label">MFA Enabled</div>
+            </div>
+        </div>
+
+        <!-- User Management -->
+        <div class="card">
+            <h2>User Accounts</h2>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by email..." 
+                       oninput="filterUsers()">
+                <button class="btn btn-primary" onclick="loadUsers()">
+                    🔄 Refresh
+                </button>
+            </div>
+            
+            <div id="userTableContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading users...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>Reset User Password</h2>
+            
+            <div id="resetAlert"></div>
+            
+            <div class="form-group">
+                <label>User Email</label>
+                <input type="text" id="resetUserEmail" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="newUserPassword" 
+                       placeholder="Min 12 characters" oninput="checkPasswordStrength()">
+                <div class="password-strength">
+                    <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                </div>
+                <small>Must include uppercase, lowercase, number, and special character</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmUserPassword">
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-warning" onclick="confirmPasswordReset()">
+                    Reset Password
+                </button>
+                <button class="btn btn-secondary" onclick="closeResetModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disable User Modal -->
+    <div id="disableUserModal" class="modal">
+        <div class="modal-content">
+            <h2>Disable User Account</h2>
+            
+            <p style="color: #9ca3af; margin-bottom: 24px;">
+                Are you sure you want to disable this account?
+            </p>
+            
+            <div class="form-group">
+                <label>User Email</label>
+                <input type="text" id="disableUserEmail" readonly>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-danger" onclick="confirmDisableUser()">
+                    Disable Account
+                </button>
+                <button class="btn btn-secondary" onclick="closeDisableModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AWS Configuration - UPDATE THESE WITH YOUR VALUES
+        const USER_POOL_ID = 'us-east-1_EXAMPLE'; // Your Dave Notes User Pool ID
+        const REGION = 'us-east-1';
+        
+        // Initialize AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: 'us-east-1:YOUR_IDENTITY_POOL_ID' // Your Identity Pool ID
+        });
+
+        const cognitoISP = new AWS.CognitoIdentityServiceProvider();
+        let allUsers = [];
+        let currentUserEmail = '';
+
+        // Load all users
+        async function loadUsers() {
+            try {
+                const params = {
+                    UserPoolId: USER_POOL_ID,
+                    Limit: 60
+                };
+                
+                const data = await cognitoISP.listUsers(params).promise();
+                allUsers = data.Users;
+                displayUsers(allUsers);
+                updateStats(allUsers);
+            } catch (err) {
+                console.error('Error loading users:', err);
+                document.getElementById('userTableContainer').innerHTML = `
+                    <div class="alert alert-error">
+                        Error loading users: ${err.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayUsers(users) {
+            const container = document.getElementById('userTableContainer');
+            
+            if (users.length === 0) {
+                container.innerHTML = `
+                    <div class="loading">
+                        No users found
+                    </div>
+                `;
+                return;
+            }
+            
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Last Modified</th>
+                            <th>MFA</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => {
+                            const email = user.Attributes.find(attr => attr.Name === 'email')?.Value || user.Username;
+                            const status = user.Enabled ? 'Enabled' : 'Disabled';
+                            const statusClass = user.Enabled ? 'status-enabled' : 'status-disabled';
+                            const created = new Date(user.UserCreateDate).toLocaleDateString();
+                            const modified = new Date(user.UserLastModifiedDate).toLocaleDateString();
+                            const mfaEnabled = user.MFAOptions && user.MFAOptions.length > 0 ? 'Yes' : 'No';
+                            
+                            return `
+                                <tr>
+                                    <td>${email}</td>
+                                    <td><span class="status-badge ${statusClass}">${status}</span></td>
+                                    <td>${created}</td>
+                                    <td>${modified}</td>
+                                    <td>${mfaEnabled}</td>
+                                    <td>
+                                        <button class="btn btn-warning btn-sm" onclick="showResetModal('${email}')">
+                                            Reset Password
+                                        </button>
+                                        ${user.Enabled ? 
+                                            `<button class="btn btn-danger btn-sm" onclick="showDisableModal('${email}')">Disable</button>` :
+                                            `<button class="btn btn-success btn-sm" onclick="enableUser('${email}')">Enable</button>`
+                                        }
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+        }
+
+        function updateStats(users) {
+            const total = users.length;
+            const active = users.filter(u => u.Enabled).length;
+            const disabled = users.filter(u => !u.Enabled).length;
+            const mfa = users.filter(u => u.MFAOptions && u.MFAOptions.length > 0).length;
+            
+            document.getElementById('totalUsers').textContent = total;
+            document.getElementById('activeUsers').textContent = active;
+            document.getElementById('disabledUsers').textContent = disabled;
+            document.getElementById('mfaEnabled').textContent = mfa;
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allUsers.filter(user => {
+                const email = user.Attributes.find(attr => attr.Name === 'email')?.Value || user.Username;
+                return email.toLowerCase().includes(searchTerm);
+            });
+            displayUsers(filtered);
+        }
+
+        // Password Reset Functions
+        function showResetModal(email) {
+            currentUserEmail = email;
+            document.getElementById('resetUserEmail').value = email;
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('confirmUserPassword').value = '';
+            document.getElementById('resetAlert').innerHTML = '';
+            document.getElementById('passwordStrengthBar').className = 'password-strength-bar';
+            document.getElementById('resetPasswordModal').classList.add('active');
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetPasswordModal').classList.remove('active');
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newUserPassword').value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            
+            if (password.length === 0) {
+                strengthBar.className = 'password-strength-bar';
+                return;
+            }
+            
+            const isStrong = validatePasswordStrength(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            const hasLength = password.length >= 12;
+            
+            let strength = 0;
+            if (hasLength) strength++;
+            if (hasUpper) strength++;
+            if (hasLower) strength++;
+            if (hasNumber) strength++;
+            if (hasSpecial) strength++;
+            
+            if (strength <= 2) {
+                strengthBar.className = 'password-strength-bar strength-weak';
+            } else if (strength <= 4) {
+                strengthBar.className = 'password-strength-bar strength-medium';
+            } else {
+                strengthBar.className = 'password-strength-bar strength-strong';
+            }
+        }
+
+        function validatePasswordStrength(password) {
+            return password.length >= 12 &&
+                   /[A-Z]/.test(password) &&
+                   /[a-z]/.test(password) &&
+                   /[0-9]/.test(password) &&
+                   /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        }
+
+        async function confirmPasswordReset() {
+            const password = document.getElementById('newUserPassword').value;
+            const confirm = document.getElementById('confirmUserPassword').value;
+            const alertDiv = document.getElementById('resetAlert');
+            
+            alertDiv.innerHTML = '';
+            
+            if (password !== confirm) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Passwords do not match</div>';
+                return;
+            }
+            
+            if (!validatePasswordStrength(password)) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Password does not meet requirements</div>';
+                return;
+            }
+            
+            try {
+                const params = {
+                    UserPoolId: USER_POOL_ID,
+                    Username: currentUserEmail,
+                    Password: password,
+                    Permanent: true
+                };
+                
+                await cognitoISP.adminSetUserPassword(params).promise();
+                
+                alertDiv.innerHTML = '<div class="alert alert-success">Password reset successful!</div>';
+                
+                setTimeout(() => {
+                    closeResetModal();
+                }, 2000);
+            } catch (err) {
+                alertDiv.innerHTML = `<div class="alert alert-error">Error: ${err.message}</div>`;
+            }
+        }
+
+        // Disable/Enable Functions
+        function showDisableModal(email) {
+            currentUserEmail = email;
+            document.getElementById('disableUserEmail').value = email;
+            document.getElementById('disableUserModal').classList.add('active');
+        }
+
+        function closeDisableModal() {
+            document.getElementById('disableUserModal').classList.remove('active');
+        }
+
+        async function confirmDisableUser() {
+            try {
+                const params = {
+                    UserPoolId: USER_POOL_ID,
+                    Username: currentUserEmail
+                };
+                
+                await cognitoISP.adminDisableUser(params).promise();
+                
+                alert(`Account disabled for ${currentUserEmail}`);
+                closeDisableModal();
+                loadUsers();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function enableUser(email) {
+            try {
+                const params = {
+                    UserPoolId: USER_POOL_ID,
+                    Username: email
+                };
+                
+                await cognitoISP.adminEnableUser(params).promise();
+                
+                alert(`Account enabled for ${email}`);
+                loadUsers();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Load users on page load
+        loadUsers();
+    </script>
+</body>
+</html>
