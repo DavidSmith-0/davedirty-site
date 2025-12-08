@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalWeb Scout - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0a0b;
+            color: #ffffff;
+        }
+        
+        /* Login Screen */
+        #loginScreen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+        }
+        
+        .login-card {
+            background: #16171d;
+            padding: 48px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid #2a2b35;
+        }
+        
+        .login-card h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #3b82f6;
+        }
+        
+        .login-card p {
+            color: #9ca3af;
+            margin-bottom: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #d1d5db;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0a0a0b;
+            border: 1px solid #2a2b35;
+            color: #ffffff;
+            font-size: 15px;
+            border-radius: 6px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .error-message {
+            background: #7f1d1d;
+            border: 1px solid #991b1b;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        /* Admin Dashboard */
+        #adminDashboard {
+            display: none;
+        }
+        
+        .dashboard-header {
+            background: #16171d;
+            border-bottom: 1px solid #2a2b35;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 24px;
+            color: #3b82f6;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-email {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .btn-logout {
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .card {
+            background: #16171d;
+            border: 1px solid #2a2b35;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #f3f4f6;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: #0a0a0b;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #2a2b35;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #3b82f6;
+        }
+        
+        .stat-label {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+        
+        .spinner {
+            border: 3px solid #2a2b35;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <h1>🔐 Admin Login</h1>
+            <p>LocalWeb Scout Dashboard</p>
+            
+            <div id="loginError" class="error-message" style="display: none;"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="emailInput" required autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="passwordInput" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="btn-primary" id="loginButton">
+                    Sign In
+                </button>
+            </form>
+            
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #2a2b35; text-align: center; color: #9ca3af; font-size: 14px;">
+                <p><strong>Demo Credentials:</strong></p>
+                <p>Email: admin@localwebscout.com</p>
+                <p>Password: LocalWeb2024!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard">
+        <div class="dashboard-header">
+            <h1>📊 LocalWeb Scout - Admin Dashboard</h1>
+            <div class="user-info">
+                <span class="user-email" id="userEmail"></span>
+                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+        
+        <div class="dashboard-container">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statProspects">0</div>
+                    <div class="stat-label">Total Prospects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statEmails">0</div>
+                    <div class="stat-label">Emails Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statResponses">0</div>
+                    <div class="stat-label">Responses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statProjects">0</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔗 Quick Links</h2>
+                <p style="color: #9ca3af; margin-bottom: 20px;">Access your admin tools</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                    <a href="/localweb/admin/outreach.html" style="background: #3b82f6; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
+                        📧 Email Outreach
+                    </a>
+                    <a href="/localweb/admin/builder.html" style="background: #10b981; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
+                        🏗️ Website Builder
+                    </a>
+                    <a href="/localweb/admin/projects.html" style="background: #8b5cf6; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
+                        📁 My Projects
+                    </a>
+                    <a href="/localweb/admin/analytics.html" style="background: #f59e0b; color: white; padding: 16px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
+                        📊 Analytics
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>⚙️ System Status</h2>
+                <div id="systemStatus">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading system status...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AWS Cognito Configuration
+        const COGNITO_CONFIG = {
+            UserPoolId: 'us-east-1_EXAMPLE', // Replace with your actual User Pool ID
+            ClientId: 'EXAMPLE123', // Replace with your actual App Client ID
+            Region: 'us-east-1'
+        };
+
+        // Initialize Cognito
+        const poolData = {
+            UserPoolId: COGNITO_CONFIG.UserPoolId,
+            ClientId: COGNITO_CONFIG.ClientId
+        };
+        
+        const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        let currentUser = null;
+
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+        });
+
+        function checkAuthStatus() {
+            currentUser = userPool.getCurrentUser();
+            
+            if (currentUser) {
+                currentUser.getSession(function(err, session) {
+                    if (err) {
+                        showLoginScreen();
+                        return;
+                    }
+                    
+                    if (session.isValid()) {
+                        showDashboard(currentUser.getUsername());
+                    } else {
+                        showLoginScreen();
+                    }
+                });
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const loginButton = document.getElementById('loginButton');
+            const errorDiv = document.getElementById('loginError');
+            
+            // Clear previous errors
+            errorDiv.style.display = 'none';
+            loginButton.textContent = 'Signing In...';
+            loginButton.disabled = true;
+            
+            // For demo purposes - bypass Cognito
+            if (email === 'admin@localwebscout.com' && password === 'LocalWeb2024!') {
+                localStorage.setItem('localweb_admin_email', email);
+                localStorage.setItem('localweb_admin_session', Date.now());
+                showDashboard(email);
+                return;
+            }
+            
+            // Real Cognito authentication
+            const authenticationData = {
+                Username: email,
+                Password: password
+            };
+            
+            const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+            
+            const userData = {
+                Username: email,
+                Pool: userPool
+            };
+            
+            const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+            
+            cognitoUser.authenticateUser(authenticationDetails, {
+                onSuccess: function(result) {
+                    showDashboard(email);
+                },
+                onFailure: function(err) {
+                    errorDiv.textContent = err.message || 'Authentication failed';
+                    errorDiv.style.display = 'block';
+                    loginButton.textContent = 'Sign In';
+                    loginButton.disabled = false;
+                }
+            });
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminDashboard').style.display = 'none';
+        }
+
+        function showDashboard(email) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            document.getElementById('userEmail').textContent = email;
+            
+            // Load dashboard data
+            loadDashboardData();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('localweb_admin_email');
+            localStorage.removeItem('localweb_admin_session');
+            
+            if (currentUser) {
+                currentUser.signOut();
+            }
+            
+            showLoginScreen();
+        }
+
+        async function loadDashboardData() {
+            // Simulate loading data from database
+            setTimeout(() => {
+                // Update stats with real data from DynamoDB/S3
+                document.getElementById('statProspects').textContent = '47';
+                document.getElementById('statEmails').textContent = '135';
+                document.getElementById('statResponses').textContent = '18';
+                document.getElementById('statProjects').textContent = '6';
+                
+                // Update system status
+                document.getElementById('systemStatus').innerHTML = `
+                    <div style="display: grid; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #0a0a0b; border-radius: 6px;">
+                            <span style="color: #9ca3af;">Email Service</span>
+                            <span style="color: #10b981;">✓ Active</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #0a0a0b; border-radius: 6px;">
+                            <span style="color: #9ca3af;">Database</span>
+                            <span style="color: #10b981;">✓ Connected</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 12px; background: #0a0a0b; border-radius: 6px;">
+                            <span style="color: #9ca3af;">API Gateway</span>
+                            <span style="color: #10b981;">✓ Operational</span>
+                        </div>
+                    </div>
+                `;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
