@@ -599,7 +599,7 @@
                 <p style="color: var(--gray); margin-top: 8px;">Tell us about your business</p>
             </div>
             <div class="modal-body">
-                <form id="contactForm" onsubmit="handleSubmit(event)">
+                <form id="contactForm" action="https://formspree.io/f/xpwvjlea" method="POST">
                     <div class="form-row">
                         <div class="form-group">
                             <label>Your Name *</label>
@@ -676,23 +676,6 @@
             document.getElementById('contactModal').classList.remove('active');
         }
         
-        function handleSubmit(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            
-            // Store locally
-            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
-            submissions.push({
-                ...data,
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem('submissions', JSON.stringify(submissions));
-            
-            alert('Thank you! We\'ll review your information and email you within 24 hours with next steps.');
-            
-            closeModal();
-            e.target.reset();
         }
         
         document.getElementById('contactModal').addEventListener('click', function(e) {
