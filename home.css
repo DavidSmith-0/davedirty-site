@@ -15,6 +15,8 @@
     --text-muted: #6b7280;
     --border: #2a2a2e;
     --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
     --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
 }
 
@@ -89,6 +91,7 @@ body {
 .nav-links {
     display: flex;
     gap: 32px;
+    align-items: center;
 }
 
 .nav-link {
@@ -100,6 +103,18 @@ body {
 
 .nav-link:hover {
     color: var(--primary);
+}
+
+.nav-link.nav-admin {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+}
+
+.nav-link.nav-admin:hover {
+    opacity: 0.9;
 }
 
 .mobile-menu-toggle {
@@ -143,6 +158,12 @@ body {
 
 .mobile-link:hover {
     background: var(--bg-card);
+}
+
+.mobile-link.mobile-admin {
+    background: var(--gradient);
+    text-align: center;
+    font-weight: 600;
 }
 
 /* =================================================================
@@ -316,6 +337,15 @@ body {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
 }
 
+.project-card.private-project {
+    border-color: rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
+}
+
+.project-card.private-project:hover {
+    border-color: var(--secondary);
+}
+
 .project-header {
     display: flex;
     justify-content: space-between;
@@ -334,6 +364,22 @@ body {
     color: white;
 }
 
+.project-icon.secure {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.project-icon.weather {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.project-icon.ai {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+}
+
+.project-icon.video {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+}
+
 .project-badge {
     background: var(--primary);
     color: white;
@@ -343,6 +389,14 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.project-badge.secure {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.project-badge.private {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
 }
 
 .coming-soon .project-badge {
@@ -488,6 +542,112 @@ body {
 }
 
 /* =================================================================
+   EXPERIENCE SECTION - FIXED TIMELINE
+   ================================================================= */
+
+.experience {
+    padding: 80px 24px;
+    background: var(--bg-dark);
+}
+
+.timeline {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.timeline-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.timeline-content {
+    width: 100%;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.timeline-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.timeline-info h3 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.timeline-org {
+    color: var(--primary);
+    font-weight: 600;
+    margin: 0;
+}
+
+.timeline-date {
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: var(--bg-elevated);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+}
+
+.timeline-desc {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.timeline-list {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-left: 20px;
+    list-style: disc;
+}
+
+.timeline-list li {
+    margin-bottom: 8px;
+}
+
+/* Certifications */
+.timeline-item.certs .timeline-content h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.certs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.cert-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-secondary);
+}
+
+.cert-item svg {
+    color: var(--success);
+    flex-shrink: 0;
+}
+
+/* =================================================================
    CONTACT SECTION
    ================================================================= */
 
@@ -581,6 +741,7 @@ body {
 .footer-links {
     display: flex;
     gap: 32px;
+    flex-wrap: wrap;
 }
 
 .footer-links a {
@@ -622,6 +783,15 @@ body {
 
     .project-card.featured {
         grid-column: span 1;
+    }
+
+    .timeline-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .timeline-date {
+        align-self: flex-start;
     }
 }
 
@@ -674,6 +844,10 @@ body {
     .footer-links {
         flex-direction: column;
         gap: 16px;
+    }
+
+    .certs-grid {
+        grid-template-columns: 1fr;
     }
 }
 

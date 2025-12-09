@@ -1,34 +1,27 @@
 /**
- * Dave Dirty Homepage - Interactive Elements
+ * Dave Dirty Homepage JavaScript
  */
 
 // Mobile Menu Toggle
 const mobileToggle = document.getElementById('mobile-toggle');
 const mobileMenu = document.getElementById('mobile-menu');
 
-mobileToggle.addEventListener('click', () => {
-    mobileMenu.classList.toggle('active');
-    mobileToggle.classList.toggle('active');
-});
-
-// Close mobile menu when clicking a link
-const mobileLinks = document.querySelectorAll('.mobile-link');
-mobileLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileToggle.classList.remove('active');
+if (mobileToggle && mobileMenu) {
+    mobileToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('active');
+        mobileToggle.classList.toggle('active');
     });
-});
 
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!mobileToggle.contains(e.target) && !mobileMenu.contains(e.target)) {
-        mobileMenu.classList.remove('active');
-        mobileToggle.classList.remove('active');
-    }
-});
+    // Close mobile menu when clicking a link
+    mobileMenu.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            mobileToggle.classList.remove('active');
+        });
+    });
+}
 
-// Smooth scroll for navigation links
+// Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -42,9 +35,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Add scroll animation to nav
-let lastScroll = 0;
+// Navbar scroll effect
 const nav = document.querySelector('.nav');
+let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
@@ -67,21 +60,43 @@ const observerOptions = {
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
+            entry.target.classList.add('visible');
         }
     });
 }, observerOptions);
 
-// Observe all project cards and stat cards
-document.querySelectorAll('.project-card, .stat-card, .contact-card').forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(card);
+// Observe project cards and other elements
+document.querySelectorAll('.project-card, .stat-card, .contact-card, .timeline-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
 });
 
-// Console Easter Egg
-console.log('%c👋 Hey there!', 'font-size: 24px; font-weight: bold; color: #3b82f6;');
-console.log('%cInterested in the code? Check out my GitHub: https://github.com/DavidSmith-0', 'font-size: 14px; color: #9ca3af;');
-console.log('%cBuilt with ❤️ and vanilla JavaScript', 'font-size: 12px; color: #6b7280; font-style: italic;');
+// Add visible class styles
+const style = document.createElement('style');
+style.textContent = `
+    .project-card.visible,
+    .stat-card.visible,
+    .contact-card.visible,
+    .timeline-item.visible {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+`;
+document.head.appendChild(style);
+
+// Code window typing effect
+const codeLines = document.querySelectorAll('.code-line');
+codeLines.forEach((line, index) => {
+    line.style.opacity = '0';
+    line.style.transform = 'translateX(-10px)';
+    
+    setTimeout(() => {
+        line.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        line.style.opacity = '1';
+        line.style.transform = 'translateX(0)';
+    }, 500 + (index * 100));
+});
+
+console.log('Dave Dirty Homepage loaded successfully');

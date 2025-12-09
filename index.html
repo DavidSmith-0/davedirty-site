@@ -23,6 +23,7 @@
                 <a href="#about" class="nav-link">About</a>
                 <a href="#experience" class="nav-link">Experience</a>
                 <a href="#contact" class="nav-link">Contact</a>
+                <a href="/admin" class="nav-link nav-admin">Admin</a>
             </div>
             <button class="mobile-menu-toggle" id="mobile-toggle">
                 <span></span>
@@ -38,6 +39,7 @@
         <a href="#about" class="mobile-link">About</a>
         <a href="#experience" class="mobile-link">Experience</a>
         <a href="#contact" class="mobile-link">Contact</a>
+        <a href="/admin" class="mobile-link mobile-admin">Admin Hub</a>
     </div>
 
     <!-- Hero Section -->
@@ -128,6 +130,68 @@
                     </a>
                 </div>
 
+                <!-- Secure Chat -->
+                <div class="project-card featured">
+                    <div class="project-header">
+                        <div class="project-icon secure">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <path d="M9 12l2 2 4-4"/>
+                            </svg>
+                        </div>
+                        <span class="project-badge secure">E2E Encrypted</span>
+                    </div>
+                    <h3 class="project-title">SecureChat</h3>
+                    <p class="project-description">End-to-end encrypted messaging platform with real-time communication, zero-knowledge backend, and message expiration. Full AWS serverless architecture with client-side encryption.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">AppSync</span>
+                        <span class="tech-tag">DynamoDB</span>
+                        <span class="tech-tag">Cognito</span>
+                        <span class="tech-tag">S3</span>
+                        <span class="tech-tag">WebCrypto</span>
+                        <span class="tech-tag">GraphQL</span>
+                    </div>
+                    <div class="project-features">
+                        <div class="feature">✓ E2E Encryption</div>
+                        <div class="feature">✓ Zero-Knowledge</div>
+                        <div class="feature">✓ Real-time Chat</div>
+                        <div class="feature">✓ Auto-Delete</div>
+                    </div>
+                    <a href="/securechat" class="project-link">
+                        Launch App
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                            <polyline points="7,7 17,7 17,17"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Weather Dashboard -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-icon weather">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Weather Dashboard</h3>
+                    <p class="project-description">Real-time weather dashboard with API Gateway → Lambda → OpenWeather integration, cached responses, and saved locations per user.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">API Gateway</span>
+                        <span class="tech-tag">Lambda</span>
+                        <span class="tech-tag">DynamoDB</span>
+                        <span class="tech-tag">OpenWeather</span>
+                    </div>
+                    <a href="/weather" class="project-link">
+                        View Dashboard
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                            <polyline points="7,7 17,7 17,17"/>
+                        </svg>
+                    </a>
+                </div>
+
                 <!-- Discussion Board -->
                 <div class="project-card">
                     <div class="project-header">
@@ -154,31 +218,78 @@
                 </div>
 
                 <!-- LocalWeb Scout -->
-                <div class="project-card featured">
+                <div class="project-card">
                     <div class="project-header">
                         <div class="project-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
                             </svg>
                         </div>
-                        <span class="project-badge">Featured</span>
                     </div>
                     <h3 class="project-title">LocalWeb Scout</h3>
                     <p class="project-description">Business development platform for finding and managing small business website leads. Track prospects through your sales pipeline from discovery to client.</p>
                     <div class="project-tech">
                         <span class="tech-tag">Lead Management</span>
                         <span class="tech-tag">CRM</span>
-                        <span class="tech-tag">Portfolio Showcase</span>
+                        <span class="tech-tag">Portfolio</span>
                         <span class="tech-tag">JavaScript</span>
-                    </div>
-                    <div class="project-features">
-                        <div class="feature">✓ Lead Tracking</div>
-                        <div class="feature">✓ Pipeline Management</div>
-                        <div class="feature">✓ Portfolio Display</div>
-                        <div class="feature">✓ Local Storage</div>
                     </div>
                     <a href="/localweb" class="project-link">
                         Launch Platform
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                            <polyline points="7,7 17,7 17,17"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- AI Study Assistant - Owner Only -->
+                <div class="project-card private-project">
+                    <div class="project-header">
+                        <div class="project-icon ai">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+                            </svg>
+                        </div>
+                        <span class="project-badge private">Owner Only</span>
+                    </div>
+                    <h3 class="project-title">AI Study Assistant</h3>
+                    <p class="project-description">AI-powered learning companion using AWS Bedrock for intelligent document Q&A, summarization, and practice tests.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">AWS Bedrock</span>
+                        <span class="tech-tag">Lambda</span>
+                        <span class="tech-tag">S3</span>
+                        <span class="tech-tag">AI/ML</span>
+                    </div>
+                    <a href="/assistant" class="project-link">
+                        Launch App
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                            <polyline points="7,7 17,7 17,17"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Video Pipeline - Owner Only -->
+                <div class="project-card private-project">
+                    <div class="project-header">
+                        <div class="project-icon video">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                        </div>
+                        <span class="project-badge private">Owner Only</span>
+                    </div>
+                    <h3 class="project-title">Video Pipeline</h3>
+                    <p class="project-description">Cloud-powered video processing using AWS MediaConvert for compression, thumbnail generation, and scene detection.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">MediaConvert</span>
+                        <span class="tech-tag">S3</span>
+                        <span class="tech-tag">Lambda</span>
+                        <span class="tech-tag">CloudFront</span>
+                    </div>
+                    <a href="/videopipe" class="project-link">
+                        Launch App
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="7" y1="17" x2="17" y2="7"/>
                             <polyline points="7,7 17,7 17,17"/>
@@ -266,80 +377,88 @@
     </section>
 
     <!-- Experience Section -->
-    <section class="experience" id="experience" style="padding: 80px 24px; background: var(--bg-dark);">
+    <section class="experience" id="experience">
         <div class="container">
             <h2 class="section-title">Experience & Education</h2>
             <p class="section-subtitle">Military leadership transitioning to cloud engineering</p>
             
-            <div style="max-width: 900px; margin: 0 auto;">
+            <div class="timeline">
                 <!-- Education -->
-                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 16px;">
-                        <div>
-                            <h3 style="font-size: 24px; margin-bottom: 8px;">M.S. in Cloud Computing Systems</h3>
-                            <p style="color: var(--primary); font-weight: 600;">University of Maryland Global Campus (UMGC)</p>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-info">
+                                <h3>M.S. in Cloud Computing Systems</h3>
+                                <p class="timeline-org">University of Maryland Global Campus (UMGC)</p>
+                            </div>
+                            <span class="timeline-date">2025 - 2027</span>
                         </div>
-                        <span style="color: var(--text-secondary); white-space: nowrap;">2025 - 2027</span>
+                        <p class="timeline-desc">Current GPA: 4.0 | Advanced coursework in cloud architecture, AWS/Azure services, cloud security, DevOps, and Infrastructure as Code. Capstone project on multi-cloud deployment architecture.</p>
                     </div>
-                    <p style="color: var(--text-secondary); line-height: 1.6;">Current GPA: 4.0 | Advanced coursework in cloud architecture, AWS/Azure services, cloud security, DevOps, and Infrastructure as Code. Capstone project on multi-cloud deployment architecture.</p>
                 </div>
 
-                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
-                        <div>
-                            <h3 style="font-size: 24px; margin-bottom: 8px;">B.S. in Information & Computer Science</h3>
-                            <p style="color: var(--primary); font-weight: 600;">Park University</p>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-info">
+                                <h3>B.S. in Information & Computer Science</h3>
+                                <p class="timeline-org">Park University</p>
+                            </div>
+                            <span class="timeline-date">2021 - 2025</span>
                         </div>
-                        <span style="color: var(--text-secondary); white-space: nowrap;">2021 - 2025</span>
+                        <p class="timeline-desc">GPA: 3.9 | Software Development concentration. Dean's List. Full-stack development, database design, systems analysis, and web technologies.</p>
                     </div>
-                    <p style="color: var(--text-secondary); line-height: 1.6;">GPA: 3.9 | Software Development concentration. Dean's List. Full-stack development, database design, systems analysis, and web technologies.</p>
                 </div>
 
                 <!-- Military Experience -->
-                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
-                        <div>
-                            <h3 style="font-size: 24px; margin-bottom: 8px;">Pavements & Construction Equipment Operator</h3>
-                            <p style="color: var(--primary); font-weight: 600;">United States Air Force</p>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-info">
+                                <h3>Pavements & Construction Equipment Operator</h3>
+                                <p class="timeline-org">United States Air Force</p>
+                            </div>
+                            <span class="timeline-date">2015 - 2025</span>
                         </div>
-                        <span style="color: var(--text-secondary); white-space: nowrap;">2015 - 2025</span>
+                        <ul class="timeline-list">
+                            <li>Led teams of 5-10 personnel managing $100K+ infrastructure projects</li>
+                            <li>Managed $2M+ equipment inventory with 95%+ operational readiness</li>
+                            <li>Deployed 4 times to Middle East in support of contingency operations</li>
+                            <li>Awarded Air Force Commendation Medal for project completed 3 months early, saving $500K</li>
+                            <li>Named NCO of the Quarter (2024) for exceptional leadership</li>
+                        </ul>
                     </div>
-                    <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 20px;">
-                        <li>Led teams of 5-10 personnel managing $100K+ infrastructure projects</li>
-                        <li>Managed $2M+ equipment inventory with 95%+ operational readiness</li>
-                        <li>Deployed 4 times to Middle East in support of contingency operations</li>
-                        <li>Awarded Air Force Commendation Medal for project completed 3 months early, saving $500K</li>
-                        <li>Named NCO of the Quarter (2024) for exceptional leadership</li>
-                    </ul>
                 </div>
 
                 <!-- Certifications -->
-                <div class="experience-item" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px;">
-                    <h3 style="font-size: 24px; margin-bottom: 16px;">Certifications & Training</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20,6 9,17 4,12"/>
-                            </svg>
-                            <span>Active DoD Secret Clearance</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20,6 9,17 4,12"/>
-                            </svg>
-                            <span>AWS Solutions Architect (pursuing)</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20,6 9,17 4,12"/>
-                            </svg>
-                            <span>Airman Leadership School (ALS)</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-secondary);">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20,6 9,17 4,12"/>
-                            </svg>
-                            <span>OSHA 30-Hour Construction</span>
+                <div class="timeline-item certs">
+                    <div class="timeline-content">
+                        <h3>Certifications & Training</h3>
+                        <div class="certs-grid">
+                            <div class="cert-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20,6 9,17 4,12"/>
+                                </svg>
+                                <span>Active DoD Secret Clearance</span>
+                            </div>
+                            <div class="cert-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20,6 9,17 4,12"/>
+                                </svg>
+                                <span>AWS Solutions Architect (pursuing)</span>
+                            </div>
+                            <div class="cert-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20,6 9,17 4,12"/>
+                                </svg>
+                                <span>Airman Leadership School (ALS)</span>
+                            </div>
+                            <div class="cert-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20,6 9,17 4,12"/>
+                                </svg>
+                                <span>OSHA 30-Hour Construction</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -401,6 +520,8 @@
                 </div>
                 <div class="footer-links">
                     <a href="/davenotes">Dave Notes</a>
+                    <a href="/securechat">SecureChat</a>
+                    <a href="/weather">Weather</a>
                     <a href="/discussion">Discussion</a>
                     <a href="https://github.com/DavidSmith-0" target="_blank">GitHub</a>
                 </div>
